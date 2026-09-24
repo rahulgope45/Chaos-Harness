@@ -14,7 +14,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "sourceMap": true
-  },
+  }
   // "include": [
   //   "src/**/*.ts",
   //   "**/*.test.ts"
@@ -23,6 +23,4 @@
   //   "node_modules",
   //   "dist"
   // ]
-
-  
 }
