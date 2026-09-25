@@ -2,6 +2,7 @@ import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    passWithNoTests: true
+    passWithNoTests: true,
+    projects: ["services/*", "harness/*", "packages/*"]
   }
 });
