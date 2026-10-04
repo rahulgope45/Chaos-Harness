@@ -77,3 +77,13 @@
 - Fixed the duplicate-key integration test to roll back, removed only the four exact
   leaked fixture rows, and preserved both contaminated and clean reports.
 - Next: implement the experiment runner and safety layer before fault injection.
+
+## 2026-10-04 — Experiment runner and A/A control
+
+- Added Zod-validated YAML experiments, single-run locking, phase timelines, Prometheus
+  steady-state snapshots, seeded load execution, invariant verification, and reports.
+- Guaranteed the revert phase with `finally` and a failure-path unit test.
+- Refused all non-control faults until the safety layer and injectors exist.
+- Ran no-fault control `no-fault-control-2026-10-04T03-24-48-758Z-3b023a1f`: 56/56
+  operations succeeded and I1–I6 passed under the strict no-fault I6 policy.
+- Next: build and test the safety layer before enabling FS-1.

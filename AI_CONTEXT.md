@@ -22,7 +22,8 @@ and run ID.
 | Observability              | Complete    | live metrics, both Prometheus targets up, rules load |
 | Load generator             | Complete    | 5 runs, 228/228 successful, journals preserved       |
 | Invariant checker I1–I6    | Complete    | live I1–I6 pass plus 6 synthetic corruption proofs   |
-| Runner and safety layer    | Not started | Next feature                                         |
+| Experiment runner          | Complete    | A/A control report with I1–I6 passing                |
+| Safety layer               | Not started | Next feature                                         |
 | Fault injectors/controller | Not started | —                                                    |
 | Evidence runs and fixes    | Not started | —                                                    |
 
@@ -112,7 +113,16 @@ snapshot corruption proves each invariant fires without presenting those fixture
 genuine bugs. The first live check also exposed and led to removal of four leaked
 database-test fixture rows; this was test contamination, not a service defect.
 
+## Experiment runner
+
+`harness/runner` validates experiment YAML, serializes execution with a lock, and runs
+preflight, baseline, inject, observe, guaranteed revert, recovery wait, verify, and
+report phases. Non-control faults are refused until safety and injectors exist. Control
+run `no-fault-control-2026-10-04T03-24-48-758Z-3b023a1f` completed with 56/56 successful
+operations and I1–I6 passing; its complete artifact directory is preserved.
+
 ## Next implementation
 
-Implement the YAML experiment runner with its control-run path, phase cleanup, response
-timeline, and report skeleton. Build the safety layer before adding fault injection.
+Implement the Docker safety boundary, remote-daemon refusal, dry-run mode, hard timeout,
+concurrent error-rate abort watcher, and signal-driven active-fault cleanup. Prove every
+refusal path before adding FS-1.
