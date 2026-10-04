@@ -3,8 +3,8 @@
 The response tracker validates and appends five event types to
 `response-events.jsonl`: `fault_injected`, `anomaly_detected`, `plan_selected`,
 `action_executed`, and `recovered`. The runner writes fault and recovery events; the
-future controller writes the middle three through the same schema without directly
-calling runner code.
+controller writes the middle three through the same schema without directly calling
+runner code.
 
 Each run produces `response.json` with schema version 1, source timestamps, the effective
 recovery bound, and these durations:

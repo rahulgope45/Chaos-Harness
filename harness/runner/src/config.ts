@@ -21,6 +21,12 @@ export const experimentSchema = z
         sink_response_latency_ms: z.number().int().min(0).max(30_000).default(0)
       })
       .optional(),
+    controller: z
+      .object({
+        enabled: z.boolean().default(false),
+        port: z.number().int().min(1).max(65535).default(3100)
+      })
+      .default({ enabled: false, port: 3100 }),
     seed: z.number().int().nonnegative(),
     repeat: z.number().int().min(1).max(100),
     duration_s: z.number().int().min(1).max(3600),

@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "run_id": "kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-04T04:38:36.852Z",
+    "anomaly_detected_at": "2026-10-04T04:38:37.585Z",
+    "plan_selected_at": "2026-10-04T04:38:37.590Z",
+    "action_executed_at": "2026-10-04T04:38:38.068Z",
+    "recovered_at": "2026-10-04T04:38:45.433Z"
+  },
+  "durations_ms": {
+    "mttd": 733,
+    "mttr": 8581,
+    "detection_to_plan": 5,
+    "plan_to_action": 478,
+    "action_to_recovery": 7365
+  },
+  "events": [
+    {
+      "run_id": "kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd",
+      "at": "2026-10-04T04:38:36.852Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_1",
+      "action": "kill",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd",
+      "at": "2026-10-04T04:38:37.585Z",
+      "source": "controller",
+      "event": "anomaly_detected",
+      "signal": "container_running",
+      "observed": 0,
+      "threshold": 1
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd",
+      "at": "2026-10-04T04:38:37.590Z",
+      "source": "controller",
+      "event": "plan_selected",
+      "policy_id": "restart-payment-worker-v1",
+      "action": "restart",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd",
+      "at": "2026-10-04T04:38:38.068Z",
+      "source": "controller",
+      "event": "action_executed",
+      "action": "restart",
+      "target": "payment-worker",
+      "success": true
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd",
+      "at": "2026-10-04T04:38:45.433Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

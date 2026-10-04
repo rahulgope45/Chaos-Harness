@@ -150,3 +150,20 @@
   394/394 operations with I1–I6 passing and recorded an unhealed MTTR of 6,939 ms.
 - MTTD is correctly absent because the controller has not been implemented.
 - Next: implement the Day 13 rule-based MAPE-K controller and connect its middle events.
+
+## 2026-10-04 — Rule-based MAPE-K controller
+
+- Added versioned PostgreSQL controller policies with database checks and a seeded
+  worker-restart policy; enabled policies are reloaded every cycle.
+- Added pure immutable analysis/planning with two-observation hysteresis, cooldown, and
+  max-restarts-per-window protection.
+- Added local Docker and label checks, restart execution with post-action verification,
+  controller health/metrics endpoints, and structured logs.
+- Added controller-enabled experiment orchestration as a separate process communicating
+  through the response-event stream.
+- Live run `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd` measured
+  MTTD 733 ms and MTTR 8,581 ms; 281/281 operations succeeded and I1–I6 passed.
+- The unit suite has 40 passing tests. Standby-worker scaling was omitted as documented
+  stretch scope.
+- Next: implement Day 14 FS-4 latency, jitter, timeout, and reset-peer injection through
+  Toxiproxy.

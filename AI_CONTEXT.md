@@ -12,23 +12,24 @@ and run ID.
 
 ## Feature status
 
-| Feature                    | Status      | Evidence                                             |
-| -------------------------- | ----------- | ---------------------------------------------------- |
-| Workspace/tooling          | Complete    | lint, format, typecheck, and 2 config tests pass     |
-| Local infrastructure       | Complete    | PostgreSQL, Redis, Prometheus, and Toxiproxy healthy |
-| Database invariants        | Complete    | 3 live PostgreSQL rejection tests pass               |
-| Payment API                | Complete    | 5 live integration tests, race and Redis fallback    |
-| Queue, worker, sink        | Complete    | 2 live tests plus healthy container end-to-end run   |
-| Observability              | Complete    | live metrics, both Prometheus targets up, rules load |
-| Load generator             | Complete    | run-isolated keys; 33 unit tests pass                |
-| Invariant checker I1–I6    | Complete    | delayed I6 replay evidence plus synthetic proofs     |
-| Experiment runner          | Complete    | A/A control report with I1–I6 passing                |
-| Safety layer               | Complete    | refusal/abort tests, live dry-run, safe control      |
-| FS-1 injector              | Complete    | findings F-001 and F-002; delayed duplicate report   |
-| Synthetic scenario S-001   | Complete    | planted non-idempotent consumer; never a finding     |
-| Response tracker           | Complete    | live MTTR 6,939 ms; honest null MTTD                 |
-| Other injectors/controller | Not started | —                                                    |
-| Evidence runs and fixes    | Not started | —                                                    |
+| Feature                  | Status      | Evidence                                             |
+| ------------------------ | ----------- | ---------------------------------------------------- |
+| Workspace/tooling        | Complete    | lint, format, typecheck, and 2 config tests pass     |
+| Local infrastructure     | Complete    | PostgreSQL, Redis, Prometheus, and Toxiproxy healthy |
+| Database invariants      | Complete    | 3 live PostgreSQL rejection tests pass               |
+| Payment API              | Complete    | 5 live integration tests, race and Redis fallback    |
+| Queue, worker, sink      | Complete    | 2 live tests plus healthy container end-to-end run   |
+| Observability            | Complete    | live metrics, both Prometheus targets up, rules load |
+| Load generator           | Complete    | run-isolated keys; 40 unit tests pass                |
+| Invariant checker I1–I6  | Complete    | delayed I6 replay evidence plus synthetic proofs     |
+| Experiment runner        | Complete    | A/A control report with I1–I6 passing                |
+| Safety layer             | Complete    | refusal/abort tests, live dry-run, safe control      |
+| FS-1 injector            | Complete    | findings F-001 and F-002; delayed duplicate report   |
+| Synthetic scenario S-001 | Complete    | planted non-idempotent consumer; never a finding     |
+| Response tracker         | Complete    | live MTTR 6,939 ms; honest null MTTD                 |
+| MAPE-K controller        | Complete    | live MTTD 733 ms; 281/281 and I1–I6 pass             |
+| FS-2, FS-3, FS-4         | Not started | —                                                    |
+| Evidence runs and fixes  | Not started | —                                                    |
 
 ## Verified local environment
 
@@ -62,6 +63,8 @@ silently force the downgrade.
   non-idempotent webhook consumer duplicates an email side effect on redelivery.
 - MTTD and MTTR come only from explicit response events. Missing controller events are
   `null`; runner phase timestamps are never substituted for detection.
+- Controller policies are versioned PostgreSQL rows and are reloaded every cycle.
+  Hysteresis, cooldown, and restart-window limits are mandatory policy fields.
 - No LICENSE is required yet.
 
 ## Database layer
@@ -175,8 +178,17 @@ intermediate durations. Run
 6,939 ms with 394/394 operations and I1–I6 passing. MTTD is `null` because no controller
 was running; this is intentional and prevents an invented detection claim.
 
+## Rule-based controller
+
+`harness/controller` monitors Docker state, evaluates immutable snapshots, plans from
+hot-reloaded PostgreSQL policies, and executes verified restarts only against local,
+labeled project containers. It exposes health and Prometheus metrics and emits the three
+controller response events through the shared file protocol. Run
+`kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd` recorded MTTD 733 ms,
+MTTR 8,581 ms, 281/281 successful operations, and I1–I6 passing. These are single-run
+functional measurements, not Day 17 aggregate statistics.
+
 ## Next implementation
 
-Implement the Day 13 rule-based MAPE-K controller with Postgres-backed policies,
-hysteresis, cooldowns, restart limits, and response events. Network latency is FS-4;
-telemetry corruption is FS-2.
+Implement Day 14 FS-4 through Toxiproxy: API-to-Postgres, API-to-Redis, and
+worker-to-sink latency/jitter/timeout/reset-peer modes with repeatable experiments.

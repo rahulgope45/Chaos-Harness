@@ -1,0 +1,5 @@
+{"run_id":"kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd","at":"2026-10-04T04:38:36.852Z","source":"runner","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker"}
+{"run_id":"kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd","at":"2026-10-04T04:38:37.585Z","source":"controller","event":"anomaly_detected","signal":"container_running","observed":0,"threshold":1}
+{"run_id":"kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd","at":"2026-10-04T04:38:37.590Z","source":"controller","event":"plan_selected","policy_id":"restart-payment-worker-v1","action":"restart","target":"payment-worker"}
+{"run_id":"kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd","at":"2026-10-04T04:38:38.068Z","source":"controller","event":"action_executed","action":"restart","target":"payment-worker","success":true}
+{"run_id":"kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd","at":"2026-10-04T04:38:45.433Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

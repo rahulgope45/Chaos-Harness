@@ -1,6 +1,9 @@
 import { randomUUID } from "node:crypto";
+import { spawn, type ChildProcess } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { mkdir, open, rm, writeFile } from "node:fs/promises";
+import { createRequire } from "node:module";
+import { once } from "node:events";
 import { join } from "node:path";
 import {
   LiveInvariantSource,
@@ -60,6 +63,8 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   let invariantResults: Awaited<ReturnType<typeof runInvariantChecks>> = [];
   let target: TargetIdentity | null = null;
   let faultTask: Promise<void> = Promise.resolve();
+  let controllerProcess: ChildProcess | null = null;
+  let controllerLog: ReturnType<typeof createWriteStream> | null = null;
   const responseSampleIntervalMs = 1000;
 
   const effectiveRecoveryErrorRate = () =>
@@ -75,6 +80,67 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     if (safety.signal.aborted) throw safety.signal.reason;
     timeline.write(
       `${JSON.stringify({ run_id: runId, phase: name, at: new Date().toISOString() })}\n`
+    );
+  };
+
+  const startController = async () => {
+    if (!experiment.controller.enabled) return;
+    const require = createRequire(import.meta.url);
+    const tsxCli = require.resolve("tsx/cli");
+    controllerLog = createWriteStream(join(artifactDirectory, "controller.log"), { flags: "wx" });
+    await once(controllerLog, "open");
+    controllerProcess = spawn(
+      process.execPath,
+      [tsxCli, join(options.repositoryRoot, "harness", "controller", "src", "server.ts")],
+      {
+        cwd: options.repositoryRoot,
+        env: {
+          ...process.env,
+          DATABASE_URL: options.databaseUrl,
+          CONTROLLER_PORT: String(experiment.controller.port),
+          CONTROLLER_RUN_ID: runId,
+          CONTROLLER_EVENTS_PATH: join(artifactDirectory, "response-events.jsonl")
+        },
+        stdio: ["ignore", controllerLog, controllerLog]
+      }
+    );
+    const deadline = Date.now() + 10_000;
+    while (Date.now() <= deadline) {
+      if (controllerProcess.exitCode !== null) {
+        throw new Error(`Controller exited during startup with ${controllerProcess.exitCode}`);
+      }
+      try {
+        const response = await fetch(`http://127.0.0.1:${experiment.controller.port}/healthz`, {
+          signal: AbortSignal.timeout(500)
+        });
+        if (response.ok) return;
+      } catch {
+        // The child is still starting.
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+    throw new Error("Controller did not become healthy before startup timeout");
+  };
+
+  const stopController = async () => {
+    const child = controllerProcess;
+    if (child && child.exitCode === null) {
+      child.kill("SIGTERM");
+      await new Promise<void>((resolve) => {
+        const timer = setTimeout(() => {
+          if (child.exitCode === null) child.kill("SIGKILL");
+          resolve();
+        }, 5000);
+        child.once("exit", () => {
+          clearTimeout(timer);
+          resolve();
+        });
+      });
+    }
+    await new Promise<void>(
+      (resolve, reject) =>
+        controllerLog?.end((error?: Error | null) => (error ? reject(error) : resolve())) ??
+        resolve()
     );
   };
 
@@ -105,6 +171,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
         });
         if (!health.ok) throw new Error(`Payment API preflight returned ${health.status}`);
         await readSteadyState(options.prometheusUrl);
+        await startController();
       },
       baseline: async () => {
         baseline = await readSteadyState(options.prometheusUrl);
@@ -290,22 +357,26 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     throw new Error(`Experiment ${runId} failed: ${failure.message}`, { cause: error });
   } finally {
     try {
-      await writeFile(
-        join(artifactDirectory, "response.json"),
-        `${JSON.stringify(await responseResult(), null, 2)}\n`,
-        { flag: "wx" }
-      );
+      await stopController();
     } finally {
       try {
-        await safety.cleanup();
+        await writeFile(
+          join(artifactDirectory, "response.json"),
+          `${JSON.stringify(await responseResult(), null, 2)}\n`,
+          { flag: "wx" }
+        );
       } finally {
         try {
-          await new Promise<void>((resolve, reject) =>
-            timeline.end((error?: Error | null) => (error ? reject(error) : resolve()))
-          );
+          await safety.cleanup();
         } finally {
-          await lock.close();
-          await rm(lockPath, { force: true });
+          try {
+            await new Promise<void>((resolve, reject) =>
+              timeline.end((error?: Error | null) => (error ? reject(error) : resolve()))
+            );
+          } finally {
+            await lock.close();
+            await rm(lockPath, { force: true });
+          }
         }
       }
     }

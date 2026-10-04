@@ -56,3 +56,20 @@ model LedgerEntry {
   @@index([paymentId])
   @@map("ledger_entries")
 }
+
+model ControllerPolicy {
+  id              String   @id
+  version         Int      @default(1)
+  enabled         Boolean  @default(true)
+  targetService   String   @map("target_service")
+  condition       String
+  action          String
+  breachCount     Int      @map("breach_count")
+  cooldownMs      Int      @map("cooldown_ms")
+  maxRestarts     Int      @map("max_restarts")
+  restartWindowMs Int      @map("restart_window_ms")
+  pollIntervalMs  Int      @map("poll_interval_ms")
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("controller_policies")
+}
