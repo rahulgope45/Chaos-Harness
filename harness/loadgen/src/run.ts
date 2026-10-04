@@ -4,13 +4,14 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { createSchedule, type ScheduledPayment } from "./schedule.js";
 
-interface LoadOptions {
+export interface LoadOptions {
   baseUrl: string;
   seed: number;
   durationSeconds: number;
   ratePerSecond: number;
   timeoutMs: number;
   outputRoot: string;
+  signal?: AbortSignal;
 }
 
 interface AttemptResult {
@@ -42,11 +43,12 @@ export async function runLoad(options: LoadOptions) {
     let paymentId: string | null = null;
     let error: string | null = null;
     try {
+      const timeoutSignal = AbortSignal.timeout(options.timeoutMs);
       const response = await fetch(`${options.baseUrl}/payments`, {
         method: "POST",
         headers: { "content-type": "application/json", "idempotency-key": item.idempotencyKey },
         body,
-        signal: AbortSignal.timeout(options.timeoutMs)
+        signal: options.signal ? AbortSignal.any([timeoutSignal, options.signal]) : timeoutSignal
       });
       status = response.status;
       const responseBody = (await response.json()) as { id?: string };
@@ -80,16 +82,37 @@ export async function runLoad(options: LoadOptions) {
 
   async function dispatch(item: ScheduledPayment): Promise<AttemptResult> {
     const first = await attempt(item, 1);
-    if (first.status === null || first.status >= 500) return attempt(item, 2);
+    if (
+      !options.signal?.aborted &&
+      (first.status === null || (first.status !== null && first.status >= 500))
+    ) {
+      return attempt(item, 2);
+    }
     return first;
   }
 
+  const pendingTimers = new Map<NodeJS.Timeout, () => void>();
   const operations = schedule.map(
     (item) =>
       new Promise<AttemptResult>((resolve) => {
-        setTimeout(() => void dispatch(item).then(resolve), item.offsetMs);
+        const abortScheduled = () =>
+          resolve({ status: null, paymentId: null, durationMs: 0, successful: false });
+        const timer = setTimeout(() => {
+          pendingTimers.delete(timer);
+          void dispatch(item).then(resolve);
+        }, item.offsetMs);
+        pendingTimers.set(timer, abortScheduled);
       })
   );
+  const abortPending = () => {
+    for (const [timer, abortScheduled] of pendingTimers) {
+      clearTimeout(timer);
+      abortScheduled();
+    }
+    pendingTimers.clear();
+  };
+  options.signal?.addEventListener("abort", abortPending, { once: true });
+  if (options.signal?.aborted) abortPending();
   const results = await Promise.all(operations);
   await new Promise<void>((resolve, reject) => {
     journal.end((error?: Error | null) => (error ? reject(error) : resolve()));
@@ -108,7 +131,8 @@ export async function runLoad(options: LoadOptions) {
     replay_operations: schedule.filter(({ replay }) => replay).length,
     client_p95_ms: durations[p95Index] ?? 0,
     achieved_throughput_per_second: results.length / elapsedSeconds,
-    elapsed_seconds: elapsedSeconds
+    elapsed_seconds: elapsedSeconds,
+    aborted: options.signal?.aborted ?? false
   };
   await writeFile(join(runDirectory, "summary.json"), `${JSON.stringify(summary, null, 2)}\n`, {
     flag: "wx"

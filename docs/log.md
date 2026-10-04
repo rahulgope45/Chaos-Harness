@@ -87,3 +87,14 @@
 - Ran no-fault control `no-fault-control-2026-10-04T03-24-48-758Z-3b023a1f`: 56/56
   operations succeeded and I1–I6 passed under the strict no-fault I6 policy.
 - Next: build and test the safety layer before enabling FS-1.
+
+## 2026-10-04 — Safety boundary
+
+- Added local-Docker validation, Compose-project and `chaos-target=true` allowlisting,
+  dry-run mode, a hard deadline, signal aborts, an error-rate watcher, and LIFO reverts.
+- Added refusal/abort tests plus load cancellation; Dockerode was upgraded to 5.0.1 to
+  avoid its older transitive UUID advisory.
+- Live dry-run approved only the labeled `payment-api` target with zero mutations.
+- Safety-wrapped control `no-fault-control-2026-10-04T03-33-27-280Z-adf0733d` passed
+  56/56 operations and I1–I6; all seven services remained healthy afterward.
+- Next: add FS-1 actions behind this boundary and run the first unhealed experiments.

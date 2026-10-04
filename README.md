@@ -7,9 +7,10 @@ rule-based MAPE-K controller are kept structurally separate.
 ## Status
 
 Active development. The managed payment stack, reproducible load generator, I1–I6
-checker, and no-fault experiment runner are implemented. The first A/A control passed;
-fault injection remains disabled until the safety layer is complete. Defect claims will
-only be added after reproducible fault runs produce evidence artifacts and run IDs.
+checker, no-fault experiment runner, and Docker safety boundary are implemented. A/A
+controls pass; fault injection remains disabled until each injector is implemented
+behind that boundary. Defect claims will only be added after reproducible fault runs
+produce evidence artifacts and run IDs.
 
 ## Local infrastructure
 

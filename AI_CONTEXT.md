@@ -23,8 +23,9 @@ and run ID.
 | Load generator             | Complete    | 5 runs, 228/228 successful, journals preserved       |
 | Invariant checker I1–I6    | Complete    | live I1–I6 pass plus 6 synthetic corruption proofs   |
 | Experiment runner          | Complete    | A/A control report with I1–I6 passing                |
-| Safety layer               | Not started | Next feature                                         |
-| Fault injectors/controller | Not started | —                                                    |
+| Safety layer               | Complete    | refusal/abort tests, live dry-run, safe control      |
+| FS-1 injector              | Not started | Next feature                                         |
+| Other injectors/controller | Not started | —                                                    |
 | Evidence runs and fixes    | Not started | —                                                    |
 
 ## Verified local environment
@@ -121,8 +122,18 @@ report phases. Non-control faults are refused until safety and injectors exist. 
 run `no-fault-control-2026-10-04T03-24-48-758Z-3b023a1f` completed with 56/56 successful
 operations and I1–I6 passing; its complete artifact directory is preserved.
 
+## Safety layer
+
+The runner rejects remote Docker hosts and any container outside the local
+`chaos-harness` Compose project or without `chaos-target=true`. Dry-run performs live
+resolution with zero mutation. A hard deadline, SIGINT/SIGTERM handling, concurrent
+error-rate watcher, cancellable load, and LIFO revert registry cover abort paths. A live
+dry-run approved `payment-api`, and safety-wrapped control run
+`no-fault-control-2026-10-04T03-33-27-280Z-adf0733d` passed 56/56 operations and I1–I6;
+all seven services remained healthy.
+
 ## Next implementation
 
-Implement the Docker safety boundary, remote-daemon refusal, dry-run mode, hard timeout,
-concurrent error-rate abort watcher, and signal-driven active-fault cleanup. Prove every
-refusal path before adding FS-1.
+Implement FS-1 Docker actions behind the safety session, then run worker-kill and
+API-after-commit experiments without a controller. Preserve any genuine findings with
+run IDs; do not count synthetic fixtures as bugs.

@@ -2,13 +2,23 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readExperiment } from "./config.js";
 import { runExperiment } from "./runner.js";
+import { assertLocalDockerHost, resolveAllowedTarget } from "./safety.js";
 
 const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const configPath = process.argv[2];
+const dryRun = process.argv.includes("--dry-run");
+const configPath = process.argv.slice(2).find((argument) => argument !== "--dry-run");
 if (!configPath)
   throw new Error("Usage: npm run start --workspace @chaos/runner -- <experiment.yml>");
 
 const experiment = await readExperiment(resolve(repositoryRoot, configPath));
+assertLocalDockerHost();
+if (dryRun) {
+  const target = await resolveAllowedTarget(experiment.target);
+  process.stdout.write(
+    `${JSON.stringify({ dry_run: true, experiment, target, mutations_performed: 0 }, null, 2)}\n`
+  );
+  process.exit(0);
+}
 const runIds: string[] = [];
 for (let iteration = 0; iteration < experiment.repeat; iteration += 1) {
   runIds.push(

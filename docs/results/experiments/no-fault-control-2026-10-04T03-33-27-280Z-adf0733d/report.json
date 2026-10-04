@@ -1,0 +1,109 @@
+{
+  "run_id": "no-fault-control-2026-10-04T03-33-27-280Z-adf0733d",
+  "experiment": "no-fault-control",
+  "hypothesis": "The harness introduces no failures when no fault is injected.",
+  "fault": "none",
+  "target": "payment-api",
+  "seed": 100,
+  "started_at": "2026-10-04T03:33:27.283Z",
+  "completed_at": "2026-10-04T03:33:33.640Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.004750000000000001,
+    "throughput_per_second": 0.3898490097835151,
+    "measured_at": "2026-10-04T03:33:27.398Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.00475,
+    "throughput_per_second": 0.3898503313727817,
+    "measured_at": "2026-10-04T03:33:33.428Z"
+  },
+  "load": {
+    "run_id": "baseline-2026-10-04T03-33-27-399Z-s100-a8c5cdac",
+    "seed": 100,
+    "configured_duration_seconds": 5,
+    "configured_rate_per_second": 10,
+    "scheduled_operations": 56,
+    "successful_operations": 56,
+    "failed_operations": 0,
+    "replay_operations": 3,
+    "client_p95_ms": 29,
+    "achieved_throughput_per_second": 11.186576108669597,
+    "elapsed_seconds": 5.006,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-33-27-399Z-s100-a8c5cdac",
+        "journal_entries": 56,
+        "successful_entries": 56,
+        "unique_acknowledged_payments": 53
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-33-27-399Z-s100-a8c5cdac",
+        "journal_entries": 56,
+        "successful_entries": 56,
+        "unique_acknowledged_payments": 53
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-33-27-399Z-s100-a8c5cdac",
+        "journal_entries": 56,
+        "successful_entries": 56,
+        "unique_acknowledged_payments": 53
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-33-27-399Z-s100-a8c5cdac",
+        "journal_entries": 56,
+        "successful_entries": 56,
+        "unique_acknowledged_payments": 53
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-33-27-399Z-s100-a8c5cdac",
+        "journal_entries": 56,
+        "successful_entries": 56,
+        "unique_acknowledged_payments": 53,
+        "drain_timeout_ms": 5000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-33-27-399Z-s100-a8c5cdac",
+        "journal_entries": 56,
+        "successful_entries": 56,
+        "unique_acknowledged_payments": 53,
+        "fault_injected": false,
+        "configured_policy": "report",
+        "effective_policy": "fail"
+      }
+    }
+  ],
+  "status": "passed"
+}

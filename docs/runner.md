@@ -9,9 +9,9 @@ lock, creates a unique artifact directory, and executes:
 successful run preserves the validated config, phase timeline, Prometheus baseline,
 load journal and summary, invariant output, and final JSON report.
 
-Only `fault: none` is currently executable. Configurations for FS-1 through FS-4 are
-parsed but deliberately refused until the safety layer and corresponding injector are
-installed.
+Only `fault: none` is currently executable. The safety layer is installed, but
+configurations for FS-1 through FS-4 remain deliberately refused until the corresponding
+injector is installed.
 
 Run the control experiment:
 

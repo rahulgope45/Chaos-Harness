@@ -12,6 +12,7 @@ import { runLoad } from "@chaos/loadgen";
 import type { Experiment } from "./config.js";
 import { executeLifecycle, type Phase } from "./lifecycle.js";
 import { readSteadyState, type SteadyStateSnapshot } from "./prometheus.js";
+import { SafetySession, resolveAllowedTarget, watchErrorRate } from "./safety.js";
 
 interface RunnerOptions {
   experiment: Experiment;
@@ -33,6 +34,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     if (error.code === "EEXIST") throw new Error("Another experiment is already running");
     throw error;
   });
+  const safety = new SafetySession(experiment.max_duration_s * 1000);
   const timeline = createWriteStream(join(artifactDirectory, "timeline.jsonl"), { flags: "wx" });
   await writeFile(
     join(artifactDirectory, "experiment.json"),
@@ -46,9 +48,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   let invariantResults: Awaited<ReturnType<typeof runInvariantChecks>> = [];
 
   const phase = async (name: Phase) => {
-    if ((Date.now() - startedAt) / 1000 > experiment.max_duration_s) {
-      throw new Error(`Experiment exceeded hard limit of ${experiment.max_duration_s}s`);
-    }
+    if (safety.signal.aborted) throw safety.signal.reason;
     timeline.write(
       `${JSON.stringify({ run_id: runId, phase: name, at: new Date().toISOString() })}\n`
     );
@@ -59,8 +59,9 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
       onPhase: phase,
       preflight: async () => {
         if (experiment.fault !== "none") {
-          throw new Error("Fault injection is disabled until the safety layer is installed");
+          throw new Error("Fault injection is disabled until the requested injector is installed");
         }
+        await resolveAllowedTarget(experiment.target);
         const health = await fetch(`${options.paymentApiUrl}/healthz`, {
           signal: AbortSignal.timeout(5000)
         });
@@ -80,20 +81,35 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
       inject: async () => undefined,
       observe: async () => {
         const loadRoot = join(artifactDirectory, "load");
-        loadSummary = await runLoad({
+        const watcherStop = new AbortController();
+        const load = runLoad({
           baseUrl: options.paymentApiUrl,
           seed: experiment.seed + options.iteration,
           durationSeconds: experiment.duration_s,
           ratePerSecond: experiment.rate_per_second,
           timeoutMs: 2000,
-          outputRoot: loadRoot
+          outputRoot: loadRoot,
+          signal: safety.signal
         });
+        const watcher = watchErrorRate(
+          () => readSteadyState(options.prometheusUrl),
+          experiment.abort_if.error_rate_above,
+          safety,
+          watcherStop.signal
+        );
+        try {
+          loadSummary = await Promise.race([load, watcher]);
+        } finally {
+          watcherStop.abort();
+        }
+        if (loadSummary.aborted) throw safety.signal.reason;
       },
-      revert: async () => undefined,
+      revert: async () => safety.revertAll(),
       recoveryWait: async () => {
         let consecutive = 0;
         const deadline = Date.now() + experiment.recovery.timeout_s * 1000;
         while (Date.now() <= deadline) {
+          if (safety.signal.aborted) throw safety.signal.reason;
           recovery = await readSteadyState(options.prometheusUrl);
           consecutive =
             recovery.error_rate <= experiment.steady_state.max_error_rate ? consecutive + 1 : 0;
@@ -152,10 +168,17 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     });
     return runId;
   } finally {
-    await new Promise<void>((resolve, reject) =>
-      timeline.end((error?: Error | null) => (error ? reject(error) : resolve()))
-    );
-    await lock.close();
-    await rm(lockPath, { force: true });
+    try {
+      await safety.cleanup();
+    } finally {
+      try {
+        await new Promise<void>((resolve, reject) =>
+          timeline.end((error?: Error | null) => (error ? reject(error) : resolve()))
+        );
+      } finally {
+        await lock.close();
+        await rm(lockPath, { force: true });
+      }
+    }
   }
 }
