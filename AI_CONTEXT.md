@@ -29,8 +29,9 @@ and run ID.
 | Response tracker         | Complete    | live MTTR 6,939 ms; honest null MTTD                 |
 | MAPE-K controller        | Complete    | live MTTD 733 ms; 281/281 and I1–I6 pass             |
 | FS-4 network faults      | Complete    | two live runs; automatic toxic cleanup               |
+| Handover documentation   | Complete    | intro, startup, day history, and study guide         |
 | FS-2, FS-3               | Not started | —                                                    |
-| Evidence runs and fixes  | Not started | —                                                    |
+| Aggregate/fix phase      | Partial     | run evidence exists; F-001 and N>=10 work pending    |
 
 ## Verified local environment
 
@@ -216,3 +217,10 @@ revert.
 
 Implement Day 15 FS-3 observability faults through a metrics proxy, with explicit stale,
 delayed, and unavailable telemetry behavior and controller evidence.
+
+## Handover documents
+
+`docs/handover/` contains four current-state documents: the project introduction,
+complete startup/runbook instructions for implemented components, an evidence-backed
+Day 1-21 status history, and a concept-oriented study/debugging guide. Keep these files
+current when component commands, milestone status, or architecture boundaries change.

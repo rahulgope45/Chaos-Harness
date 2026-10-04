@@ -184,3 +184,16 @@
   financial effect.
 - Verified automatic toxic removal after both runs. The unit suite has 43 passing tests.
 - Next: implement Day 15 FS-3 observability faults through a metrics proxy.
+
+## 2026-10-04 — Current-state handover documentation
+
+- Added a project introduction explaining the recovery-plus-correctness goal and current
+  managed/managing architecture.
+- Added a PowerShell startup runbook covering every implemented Compose and host process,
+  verification, experiments, logs, and safe shutdown.
+- Reconciled all 21 plan days against commits and run evidence, explicitly separating
+  completed, partially pre-satisfied, and pending milestones.
+- Added a concept study guide and symptom-first debugging map for the technologies and
+  distributed-systems decisions used by the current project.
+- Corrected the safety document's stale statement that fault injection was disabled.
+- Next: implement Day 15 FS-3 observability faults through a metrics proxy.

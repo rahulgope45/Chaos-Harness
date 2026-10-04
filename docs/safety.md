@@ -1,6 +1,6 @@
 # Safety layer
 
-Fault injection remains disabled, but its mandatory safety boundary is now installed:
+Implemented fault injectors run only through the mandatory safety boundary:
 
 - `DOCKER_HOST` must be an approved local named pipe, Unix socket, or loopback TCP URL.
 - The target must belong to Compose project `chaos-harness`, match the requested service,

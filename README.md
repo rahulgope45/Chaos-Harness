@@ -35,6 +35,13 @@ degradation without corrupting acknowledged payments, and a sink-timeout run tha
 produced expected transport duplicates without duplicate financial effects. See
 `docs/fs4.md`.
 
+## Handover
+
+- [Project introduction](docs/handover/00-project-introduction.md)
+- [Current startup runbook](docs/handover/01-current-startup-runbook.md)
+- [Day-by-day implementation](docs/handover/02-day-by-day-implementation.md)
+- [Study guide and debugging map](docs/handover/03-study-guide.md)
+
 One intentionally fabricated case is kept separately as synthetic scenario S-001. It
 models a non-idempotent webhook consumer duplicating an email side effect and is never
 presented as a discovered defect. See
