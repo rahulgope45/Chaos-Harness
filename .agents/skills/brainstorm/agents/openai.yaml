@@ -1,0 +1,4 @@
+interface:
+  display_name: "Brainstorm"
+  short_description: "Compare options and converge on a plan"
+  default_prompt: "Use $brainstorm to compare approaches and recommend the next step."

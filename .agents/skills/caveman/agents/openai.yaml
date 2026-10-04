@@ -1,0 +1,4 @@
+interface:
+  display_name: "Caveman"
+  short_description: "Build the simplest robust version"
+  default_prompt: "Use $caveman to reduce this to the simplest robust implementation."
