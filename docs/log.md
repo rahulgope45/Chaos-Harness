@@ -126,7 +126,8 @@
   153/153 operations; I1–I5 passed and I6 reported four expected transport duplicates.
 - Classified the duplicates as report-only under ADR-0004 because no duplicate financial
   effect occurred.
-- Next: add one clearly labeled synthetic defect demonstration, then implement FS-2.
+- Next: add one clearly labeled synthetic defect demonstration, then implement the
+  Day 12 response tracker.
 
 ## 2026-10-04 — Explicit synthetic scenario S-001
 
@@ -135,4 +136,17 @@
 - Replayed one event twice and generated deterministic evidence showing two side effects.
 - Labeled the implementation, test, documentation, and artifact as synthetic; it is not
   counted as a genuine finding.
-- Next: implement FS-2 through the existing Toxiproxy boundary.
+- Next: implement the Day 12 response tracker before the controller and FS-4.
+
+## 2026-10-04 — Response tracker
+
+- Added a versioned event schema for fault injection, detection, planning, action, and
+  recovery, carried over an append-only JSONL stream with no controller/runner calls.
+- Added validated per-run response JSON with MTTD, MTTR, intermediate durations, and the
+  effective recovery bound. Missing controller events remain `null`.
+- Added synthetic timing, invalid-order, and cross-process stream tests; the suite has 33
+  passing tests.
+- Live FS-1 run `kill-worker-mid-batch-2026-10-04T04-19-35-332Z-791c2def` completed
+  394/394 operations with I1–I6 passing and recorded an unhealed MTTR of 6,939 ms.
+- MTTD is correctly absent because the controller has not been implemented.
+- Next: implement the Day 13 rule-based MAPE-K controller and connect its middle events.

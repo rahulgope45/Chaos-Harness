@@ -20,12 +20,13 @@ and run ID.
 | Payment API                | Complete    | 5 live integration tests, race and Redis fallback    |
 | Queue, worker, sink        | Complete    | 2 live tests plus healthy container end-to-end run   |
 | Observability              | Complete    | live metrics, both Prometheus targets up, rules load |
-| Load generator             | Complete    | run-isolated keys; 29 unit tests pass                |
+| Load generator             | Complete    | run-isolated keys; 33 unit tests pass                |
 | Invariant checker I1–I6    | Complete    | delayed I6 replay evidence plus synthetic proofs     |
 | Experiment runner          | Complete    | A/A control report with I1–I6 passing                |
 | Safety layer               | Complete    | refusal/abort tests, live dry-run, safe control      |
 | FS-1 injector              | Complete    | findings F-001 and F-002; delayed duplicate report   |
 | Synthetic scenario S-001   | Complete    | planted non-idempotent consumer; never a finding     |
+| Response tracker           | Complete    | live MTTR 6,939 ms; honest null MTTD                 |
 | Other injectors/controller | Not started | —                                                    |
 | Evidence runs and fixes    | Not started | —                                                    |
 
@@ -59,6 +60,8 @@ silently force the downgrade.
   discovered defect.
 - S-001 is the single requested fabricated scenario: an explicitly planted
   non-idempotent webhook consumer duplicates an email side effect on redelivery.
+- MTTD and MTTR come only from explicit response events. Missing controller events are
+  `null`; runner phase timestamps are never substituted for detection.
 - No LICENSE is required yet.
 
 ## Database layer
@@ -162,7 +165,18 @@ The investigation found genuine harness defect F-002: repeated seeds reused pers
 idempotency keys, allowing historical deliveries to contaminate later evidence. Keys are
 now unique per run, and I6 observes delayed duplicates independently of I5's drain.
 
+## Response tracker
+
+The runner appends validated `fault_injected`, `anomaly_detected`, `plan_selected`,
+`action_executed`, and `recovered` events to a per-run JSONL stream. `response.json`
+records schema version 1, effective recovery bounds, timestamps, MTTD, MTTR, and
+intermediate durations. Run
+`kill-worker-mid-batch-2026-10-04T04-19-35-332Z-791c2def` measured an unhealed MTTR of
+6,939 ms with 394/394 operations and I1–I6 passing. MTTD is `null` because no controller
+was running; this is intentional and prevents an invented detection claim.
+
 ## Next implementation
 
-Implement FS-2 network latency/timeout injection through Toxiproxy, preserving the same
-safety, artifact, and classification rules.
+Implement the Day 13 rule-based MAPE-K controller with Postgres-backed policies,
+hysteresis, cooldowns, restart limits, and response events. Network latency is FS-4;
+telemetry corruption is FS-2.

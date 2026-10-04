@@ -13,6 +13,7 @@ import type { Experiment } from "./config.js";
 import { injectFs1, waitForInjection } from "./fs1.js";
 import { executeLifecycle, type Phase } from "./lifecycle.js";
 import { readSteadyState, type SteadyStateSnapshot } from "./prometheus.js";
+import { buildResponseResult, ResponseEventLog } from "./response-tracker.js";
 import {
   SafetySession,
   resolveAllowedTarget,
@@ -43,6 +44,10 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   });
   const safety = new SafetySession(experiment.max_duration_s * 1000);
   const timeline = createWriteStream(join(artifactDirectory, "timeline.jsonl"), { flags: "wx" });
+  const responseEvents = await ResponseEventLog.create(
+    runId,
+    join(artifactDirectory, "response-events.jsonl")
+  );
   await writeFile(
     join(artifactDirectory, "experiment.json"),
     `${JSON.stringify(experiment, null, 2)}\n`,
@@ -55,6 +60,16 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   let invariantResults: Awaited<ReturnType<typeof runInvariantChecks>> = [];
   let target: TargetIdentity | null = null;
   let faultTask: Promise<void> = Promise.resolve();
+  const responseSampleIntervalMs = 1000;
+
+  const effectiveRecoveryErrorRate = () =>
+    Math.max(experiment.steady_state.max_error_rate, baseline?.error_rate ?? 0);
+  const responseResult = async () =>
+    buildResponseResult(runId, await responseEvents.read(), {
+      maxErrorRate: effectiveRecoveryErrorRate(),
+      consecutiveHealthy: experiment.recovery.consecutive_healthy,
+      sampleIntervalMs: responseSampleIntervalMs
+    });
 
   const phase = async (name: Phase) => {
     if (safety.signal.aborted) throw safety.signal.reason;
@@ -113,6 +128,15 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
         faultTask = (async () => {
           await waitForInjection(fs1.inject_after_s * 1000, safety.signal);
           await injectFs1(target, fs1.action, safety);
+          const injectedAt = new Date().toISOString();
+          await responseEvents.record({
+            event: "fault_injected",
+            at: injectedAt,
+            source: "runner",
+            fault: "FS_1",
+            action: fs1.action,
+            target: experiment.target
+          });
           timeline.write(
             `${JSON.stringify({
               run_id: runId,
@@ -120,7 +144,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
               fault: "FS_1",
               action: fs1.action,
               target: experiment.target,
-              at: new Date().toISOString()
+              at: injectedAt
             })}\n`
           );
         })();
@@ -157,13 +181,25 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
       recoveryWait: async () => {
         let consecutive = 0;
         const deadline = Date.now() + experiment.recovery.timeout_s * 1000;
+        const maxErrorRate = effectiveRecoveryErrorRate();
         while (Date.now() <= deadline) {
           if (safety.signal.aborted) throw safety.signal.reason;
           recovery = await readSteadyState(options.prometheusUrl);
-          consecutive =
-            recovery.error_rate <= experiment.steady_state.max_error_rate ? consecutive + 1 : 0;
-          if (consecutive >= experiment.recovery.consecutive_healthy) return;
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          consecutive = recovery.error_rate <= maxErrorRate ? consecutive + 1 : 0;
+          if (consecutive >= experiment.recovery.consecutive_healthy) {
+            if (experiment.fault !== "none") {
+              await responseEvents.record({
+                event: "recovered",
+                at: new Date().toISOString(),
+                source: "runner",
+                observed_error_rate: recovery.error_rate,
+                max_error_rate: maxErrorRate,
+                consecutive_healthy: consecutive
+              });
+            }
+            return;
+          }
+          await new Promise((resolve) => setTimeout(resolve, responseSampleIntervalMs));
         }
         throw new Error("Steady state did not recover before the configured timeout");
       },
@@ -203,6 +239,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           completed_at: new Date().toISOString(),
           baseline,
           recovery,
+          response: await responseResult(),
           load: loadSummary,
           invariants: invariantResults,
           status: "passed"
@@ -219,6 +256,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     return runId;
   } catch (error) {
     const failure = error instanceof Error ? error : new Error(String(error));
+    const response = await responseResult();
     timeline.write(
       `${JSON.stringify({ run_id: runId, event: "run_failed", error: failure.message, at: new Date().toISOString() })}\n`
     );
@@ -236,6 +274,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           completed_at: new Date().toISOString(),
           baseline,
           recovery,
+          response,
           load: loadSummary,
           invariants: invariantResults,
           status: "failed",
@@ -251,15 +290,23 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     throw new Error(`Experiment ${runId} failed: ${failure.message}`, { cause: error });
   } finally {
     try {
-      await safety.cleanup();
+      await writeFile(
+        join(artifactDirectory, "response.json"),
+        `${JSON.stringify(await responseResult(), null, 2)}\n`,
+        { flag: "wx" }
+      );
     } finally {
       try {
-        await new Promise<void>((resolve, reject) =>
-          timeline.end((error?: Error | null) => (error ? reject(error) : resolve()))
-        );
+        await safety.cleanup();
       } finally {
-        await lock.close();
-        await rm(lockPath, { force: true });
+        try {
+          await new Promise<void>((resolve, reject) =>
+            timeline.end((error?: Error | null) => (error ? reject(error) : resolve()))
+          );
+        } finally {
+          await lock.close();
+          await rm(lockPath, { force: true });
+        }
       }
     }
   }

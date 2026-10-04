@@ -7,10 +7,10 @@ rule-based MAPE-K controller are kept structurally separate.
 ## Status
 
 Active development. The managed payment stack, reproducible load generator, I1–I6
-checker, no-fault experiment runner, and Docker safety boundary are implemented. A/A
-controls pass; fault injection remains disabled until each injector is implemented
-behind that boundary. Defect claims will only be added after reproducible fault runs
-produce evidence artifacts and run IDs.
+checker, no-fault experiment runner, Docker safety boundary, FS-1, and response tracker
+are implemented. A/A controls pass; only implemented injectors are enabled behind the
+safety boundary. Defect claims are added only after reproducible fault runs produce
+evidence artifacts and run IDs.
 
 FS-1 is now implemented. Run
 `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` confirmed the first genuine
