@@ -14,6 +14,7 @@ import {
 import { runLoad } from "@chaos/loadgen";
 import type { Experiment } from "./config.js";
 import { injectFs1, waitForInjection } from "./fs1.js";
+import { ToxiproxyClient, toxicDefinition } from "./fs4.js";
 import { executeLifecycle, type Phase } from "./lifecycle.js";
 import { readSteadyState, type SteadyStateSnapshot } from "./prometheus.js";
 import { buildResponseResult, ResponseEventLog } from "./response-tracker.js";
@@ -32,6 +33,7 @@ interface RunnerOptions {
   databaseUrl: string;
   redisUrl: string;
   sinkUrl: string;
+  toxiproxyUrl: string;
   iteration: number;
 }
 
@@ -46,6 +48,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     throw error;
   });
   const safety = new SafetySession(experiment.max_duration_s * 1000);
+  const toxiproxy = new ToxiproxyClient(options.toxiproxyUrl);
   const timeline = createWriteStream(join(artifactDirectory, "timeline.jsonl"), { flags: "wx" });
   const responseEvents = await ResponseEventLog.create(
     runId,
@@ -162,10 +165,16 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     await executeLifecycle({
       onPhase: phase,
       preflight: async () => {
-        if (experiment.fault !== "none" && experiment.fault !== "FS_1") {
+        if (!["none", "FS_1", "FS_4"].includes(experiment.fault)) {
           throw new Error("Fault injection is disabled until the requested injector is installed");
         }
-        target = await resolveAllowedTarget(experiment.target);
+        if (experiment.fault === "none" || experiment.fault === "FS_1") {
+          target = await resolveAllowedTarget(experiment.target);
+        }
+        if (experiment.fault === "FS_4") {
+          if (!experiment.fs4) throw new Error("FS-4 preflight options are unavailable");
+          await toxiproxy.assertProxy(experiment.fs4.proxy);
+        }
         const health = await fetch(`${options.paymentApiUrl}/healthz`, {
           signal: AbortSignal.timeout(5000)
         });
@@ -188,6 +197,36 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
         if (responseLatencyMs > 0) {
           safety.registerRevert(() => setSinkMode(0));
           await setSinkMode(responseLatencyMs);
+        }
+        if (experiment.fault === "FS_4") {
+          if (!experiment.fs4) throw new Error("FS-4 preflight state is unavailable");
+          const fs4 = experiment.fs4;
+          const toxicName = `chaos-${runId}`;
+          safety.registerRevert(() => toxiproxy.removeToxic(fs4.proxy, toxicName));
+          faultTask = (async () => {
+            await waitForInjection(fs4.inject_after_s * 1000, safety.signal);
+            await toxiproxy.addToxic(fs4.proxy, toxicDefinition(fs4, toxicName));
+            const injectedAt = new Date().toISOString();
+            await responseEvents.record({
+              event: "fault_injected",
+              at: injectedAt,
+              source: "runner",
+              fault: "FS_4",
+              action: fs4.toxic,
+              target: fs4.proxy
+            });
+            timeline.write(
+              `${JSON.stringify({
+                run_id: runId,
+                event: "fault_injected",
+                fault: "FS_4",
+                action: fs4.toxic,
+                target: fs4.proxy,
+                at: injectedAt
+              })}\n`
+            );
+          })();
+          return;
         }
         if (experiment.fault !== "FS_1") return;
         if (!experiment.fs1 || !target) throw new Error("FS-1 preflight state is unavailable");

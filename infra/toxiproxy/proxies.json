@@ -1,0 +1,20 @@
+[
+  {
+    "name": "api-postgres",
+    "listen": "0.0.0.0:8666",
+    "upstream": "postgres:5432",
+    "enabled": true
+  },
+  {
+    "name": "api-redis",
+    "listen": "0.0.0.0:8667",
+    "upstream": "redis:6379",
+    "enabled": true
+  },
+  {
+    "name": "worker-sink",
+    "listen": "0.0.0.0:8668",
+    "upstream": "webhook-sink:3002",
+    "enabled": true
+  }
+]

@@ -167,3 +167,20 @@
   stretch scope.
 - Next: implement Day 14 FS-4 latency, jitter, timeout, and reset-peer injection through
   Toxiproxy.
+
+## 2026-10-04 — FS-4 network fault injection
+
+- Routed API-to-PostgreSQL, API-to-Redis, and worker-to-sink traffic through three
+  statically configured Toxiproxy proxies.
+- Added allowlisted latency/jitter, timeout, and reset-peer toxics with dry-run
+  preflight and idempotent LIFO removal registered before mutation.
+- PostgreSQL-latency run
+  `postgres-latency-retry-2026-10-04T04-46-57-637Z-c333a74c` had 31/105 successful
+  client operations, 74 failures, and 2,013 ms client p95. I1–I6 passed for acknowledged
+  payments; this is severe availability degradation, not resilience success.
+- Worker-to-sink timeout run
+  `sink-timeout-retry-2026-10-04T04-47-36-937Z-734ec032` completed 120/120 operations.
+  I1–I5 passed and I6 reported 24 expected duplicate event IDs with no duplicate
+  financial effect.
+- Verified automatic toxic removal after both runs. The unit suite has 43 passing tests.
+- Next: implement Day 15 FS-3 observability faults through a metrics proxy.

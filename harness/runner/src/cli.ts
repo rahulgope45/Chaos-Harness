@@ -1,6 +1,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readExperiment } from "./config.js";
+import { ToxiproxyClient } from "./fs4.js";
 import { runExperiment } from "./runner.js";
 import { assertLocalDockerHost, resolveAllowedTarget } from "./safety.js";
 
@@ -13,7 +14,16 @@ if (!configPath)
 const experiment = await readExperiment(resolve(repositoryRoot, configPath));
 assertLocalDockerHost();
 if (dryRun) {
-  const target = await resolveAllowedTarget(experiment.target);
+  let target: unknown;
+  if (experiment.fault === "FS_4") {
+    if (!experiment.fs4) throw new Error("FS-4 options are unavailable");
+    await new ToxiproxyClient(process.env.TOXIPROXY_URL ?? "http://127.0.0.1:8474").assertProxy(
+      experiment.fs4.proxy
+    );
+    target = { proxy: experiment.fs4.proxy };
+  } else {
+    target = await resolveAllowedTarget(experiment.target);
+  }
   process.stdout.write(
     `${JSON.stringify({ dry_run: true, experiment, target, mutations_performed: 0 }, null, 2)}\n`
   );
@@ -31,6 +41,7 @@ for (let iteration = 0; iteration < experiment.repeat; iteration += 1) {
         process.env.DATABASE_URL ?? "postgresql://chaos:chaos@127.0.0.1:5432/chaos_harness",
       redisUrl: process.env.REDIS_URL ?? "redis://127.0.0.1:6380",
       sinkUrl: process.env.WEBHOOK_SINK_URL ?? "http://127.0.0.1:3002",
+      toxiproxyUrl: process.env.TOXIPROXY_URL ?? "http://127.0.0.1:8474",
       iteration
     })
   );

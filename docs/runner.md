@@ -10,9 +10,10 @@ successful run preserves the validated config, phase timeline, Prometheus baseli
 load journal and summary, invariant output, response event stream, response timing, and
 final JSON report.
 
-`fault: none` and FS-1 are executable. FS-1 supports kill, stop, pause, and restart
-behind the safety layer. FS-2 through FS-4 remain deliberately refused until their
-corresponding injectors are installed.
+`fault: none`, FS-1, and FS-4 are executable. FS-1 supports kill, stop, pause, and
+restart behind the Docker safety layer. FS-4 accepts only the three statically configured
+Toxiproxy paths and supports latency with jitter, timeout, and reset-peer toxics. FS-2
+and FS-3 remain refused until their corresponding injectors are installed.
 
 Experiments may set `duplicate_observation_s` independently of
 `invariant_drain_timeout_s`. The former watches for delayed duplicate transport events;
@@ -43,3 +44,15 @@ FS-1 run `kill-worker-mid-batch-2026-10-04T04-19-35-332Z-791c2def` recorded faul
 recovery events and calculated an unhealed MTTR of 6,939 ms. It intentionally reports
 MTTD as `null` because no controller emitted `anomaly_detected`. All 394 load operations
 succeeded and I1–I6 passed.
+
+## Verified network faults
+
+FS-4 run `postgres-latency-retry-2026-10-04T04-46-57-637Z-c333a74c` added 750 ms of
+downstream PostgreSQL latency with 100 ms jitter. Only 31/105 scheduled operations
+succeeded and client p95 reached 2,013 ms. All invariants passed for the acknowledged
+payments, but this was a severe availability degradation, not a resilience success.
+
+Run `sink-timeout-retry-2026-10-04T04-47-36-937Z-734ec032` completed 120/120 operations.
+I1–I5 passed and I6 reported 24 duplicate event IDs, each delivered twice. Those are
+expected transport duplicates under an injected timeout; no duplicate financial effect
+was observed. Both runs automatically removed their toxic before recovery verification.

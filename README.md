@@ -8,9 +8,10 @@ rule-based MAPE-K controller are kept structurally separate.
 
 Active development. The managed payment stack, reproducible load generator, I1–I6
 checker, no-fault experiment runner, Docker safety boundary, FS-1, and response tracker
-and rule-based controller are implemented. A/A controls pass; only implemented injectors
-are enabled behind the safety boundary. Defect claims are added only after reproducible
-fault runs produce evidence artifacts and run IDs.
+and rule-based controller are implemented. FS-4 provides allowlisted Toxiproxy network
+faults on the API-to-PostgreSQL, API-to-Redis, and worker-to-sink paths. A/A controls
+pass; only implemented injectors are enabled behind the safety boundary. Defect claims
+are added only after reproducible fault runs produce evidence artifacts and run IDs.
 
 Controller run `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd`
 detected a killed worker in 733 ms, selected and verified a restart, completed 281/281
@@ -28,6 +29,11 @@ duplicates while I1 and I2 remained clean. During that investigation the harness
 revealed and fixed genuine finding F-002: repeated seeds reused persisted idempotency
 keys and could contaminate evidence across runs. See
 `docs/findings/F-002-cross-run-evidence-contamination.md`.
+
+FS-4 evidence includes a PostgreSQL latency run that exposed major client-visible
+degradation without corrupting acknowledged payments, and a sink-timeout run that
+produced expected transport duplicates without duplicate financial effects. See
+`docs/fs4.md`.
 
 One intentionally fabricated case is kept separately as synthetic scenario S-001. It
 models a non-idempotent webhook consumer duplicating an email side effect and is never

@@ -20,7 +20,7 @@ and run ID.
 | Payment API              | Complete    | 5 live integration tests, race and Redis fallback    |
 | Queue, worker, sink      | Complete    | 2 live tests plus healthy container end-to-end run   |
 | Observability            | Complete    | live metrics, both Prometheus targets up, rules load |
-| Load generator           | Complete    | run-isolated keys; 40 unit tests pass                |
+| Load generator           | Complete    | run-isolated keys; 43 unit tests pass                |
 | Invariant checker I1–I6  | Complete    | delayed I6 replay evidence plus synthetic proofs     |
 | Experiment runner        | Complete    | A/A control report with I1–I6 passing                |
 | Safety layer             | Complete    | refusal/abort tests, live dry-run, safe control      |
@@ -28,7 +28,8 @@ and run ID.
 | Synthetic scenario S-001 | Complete    | planted non-idempotent consumer; never a finding     |
 | Response tracker         | Complete    | live MTTR 6,939 ms; honest null MTTD                 |
 | MAPE-K controller        | Complete    | live MTTD 733 ms; 281/281 and I1–I6 pass             |
-| FS-2, FS-3, FS-4         | Not started | —                                                    |
+| FS-4 network faults      | Complete    | two live runs; automatic toxic cleanup               |
+| FS-2, FS-3               | Not started | —                                                    |
 | Evidence runs and fixes  | Not started | —                                                    |
 
 ## Verified local environment
@@ -65,6 +66,8 @@ silently force the downgrade.
   `null`; runner phase timestamps are never substituted for detection.
 - Controller policies are versioned PostgreSQL rows and are reloaded every cycle.
   Hysteresis, cooldown, and restart-window limits are mandatory policy fields.
+- FS-4 is restricted to three static Toxiproxy paths. It supports latency/jitter,
+  timeout, and reset-peer toxics; it does not claim true packet loss.
 - No LICENSE is required yet.
 
 ## Database layer
@@ -188,7 +191,28 @@ controller response events through the shared file protocol. Run
 MTTR 8,581 ms, 281/281 successful operations, and I1–I6 passing. These are single-run
 functional measurements, not Day 17 aggregate statistics.
 
+## FS-4 network faults
+
+Toxiproxy is a required dependency boundary for API-to-PostgreSQL, API-to-Redis, and
+worker-to-sink traffic. The runner validates the proxy allowlist, pre-registers an
+idempotent toxic removal before injection, and removes the toxic before recovery checks.
+Latency, jitter, timeout, and reset-peer modes are implemented; the TCP proxy does not
+provide true packet loss.
+
+PostgreSQL-latency run
+`postgres-latency-retry-2026-10-04T04-46-57-637Z-c333a74c` completed with 31/105
+successful client operations, 74 failures, and 2,013 ms client p95. I1–I6 passed for
+acknowledged payments. This is evidence of severe availability degradation, not a
+resilience-success claim or a new correctness defect.
+
+Worker-to-sink timeout run
+`sink-timeout-retry-2026-10-04T04-47-36-937Z-734ec032` completed 120/120 operations.
+I1–I5 passed and I6 reported 24 event IDs delivered twice under the real fault. Those
+duplicates are expected at-least-once transport behavior; no duplicate financial effect
+was observed. Both evidence directories are preserved and both proxies were clean after
+revert.
+
 ## Next implementation
 
-Implement Day 14 FS-4 through Toxiproxy: API-to-Postgres, API-to-Redis, and
-worker-to-sink latency/jitter/timeout/reset-peer modes with repeatable experiments.
+Implement Day 15 FS-3 observability faults through a metrics proxy, with explicit stale,
+delayed, and unavailable telemetry behavior and controller evidence.

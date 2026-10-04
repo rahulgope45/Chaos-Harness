@@ -16,6 +16,17 @@ export const experimentSchema = z
         inject_after_s: z.number().nonnegative()
       })
       .optional(),
+    fs4: z
+      .object({
+        proxy: z.enum(["api-postgres", "api-redis", "worker-sink"]),
+        toxic: z.enum(["latency", "timeout", "reset_peer"]),
+        stream: z.enum(["upstream", "downstream"]).default("downstream"),
+        inject_after_s: z.number().nonnegative(),
+        latency_ms: z.number().int().nonnegative().optional(),
+        jitter_ms: z.number().int().nonnegative().default(0),
+        timeout_ms: z.number().int().nonnegative().optional()
+      })
+      .optional(),
     conditions: z
       .object({
         sink_response_latency_ms: z.number().int().min(0).max(30_000).default(0)
@@ -59,10 +70,45 @@ export const experimentSchema = z
         message: "fs1 options are only valid for FS_1"
       });
     }
+    if (experiment.fault === "FS_4" && !experiment.fs4) {
+      context.addIssue({ code: "custom", path: ["fs4"], message: "FS_4 requires fs4 options" });
+    }
+    if (experiment.fault !== "FS_4" && experiment.fs4) {
+      context.addIssue({
+        code: "custom",
+        path: ["fs4"],
+        message: "fs4 options are only valid for FS_4"
+      });
+    }
+    if (experiment.fs4?.toxic === "latency" && experiment.fs4.latency_ms === undefined) {
+      context.addIssue({
+        code: "custom",
+        path: ["fs4", "latency_ms"],
+        message: "latency toxic requires latency_ms"
+      });
+    }
+    if (
+      experiment.fs4 &&
+      ["timeout", "reset_peer"].includes(experiment.fs4.toxic) &&
+      experiment.fs4.timeout_ms === undefined
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["fs4", "timeout_ms"],
+        message: `${experiment.fs4.toxic} toxic requires timeout_ms`
+      });
+    }
     if (experiment.fs1 && experiment.fs1.inject_after_s >= experiment.duration_s) {
       context.addIssue({
         code: "custom",
         path: ["fs1", "inject_after_s"],
+        message: "must occur before duration_s"
+      });
+    }
+    if (experiment.fs4 && experiment.fs4.inject_after_s >= experiment.duration_s) {
+      context.addIssue({
+        code: "custom",
+        path: ["fs4", "inject_after_s"],
         message: "must occur before duration_s"
       });
     }
