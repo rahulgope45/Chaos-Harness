@@ -63,3 +63,17 @@
 - Corrected the zero-error recording rule so a healthy interval records `0` rather
   than returning no data.
 - Next: implement and prove the I1–I6 invariant checker.
+
+## 2026-10-04 — I1–I6 invariant checker
+
+- Added typed I1–I6 queries over the client journal, PostgreSQL, webhook deliveries,
+  and BullMQ dead-letter state, with a non-zero exit code for hard failures.
+- Implemented ADR-0004's derived I6 policy: duplicate deliveries fail no-fault controls
+  and default to report-only after a real injected fault.
+- Proved every invariant fires from its own explicitly synthetic corrupted snapshot.
+- Ran the checker against baseline run
+  `baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b`; all six passed after tracing four
+  initial I4 violations to leaked `duplicate-*` test fixtures.
+- Fixed the duplicate-key integration test to roll back, removed only the four exact
+  leaked fixture rows, and preserved both contaminated and clean reports.
+- Next: implement the experiment runner and safety layer before fault injection.

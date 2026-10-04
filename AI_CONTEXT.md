@@ -21,8 +21,8 @@ and run ID.
 | Queue, worker, sink        | Complete    | 2 live tests plus healthy container end-to-end run   |
 | Observability              | Complete    | live metrics, both Prometheus targets up, rules load |
 | Load generator             | Complete    | 5 runs, 228/228 successful, journals preserved       |
-| Invariant checker I1–I6    | Not started | —                                                    |
-| Runner and safety layer    | Not started | —                                                    |
+| Invariant checker I1–I6    | Complete    | live I1–I6 pass plus 6 synthetic corruption proofs   |
+| Runner and safety layer    | Not started | Next feature                                         |
 | Fault injectors/controller | Not started | —                                                    |
 | Evidence runs and fixes    | Not started | —                                                    |
 
@@ -101,7 +101,18 @@ and mean achieved throughput was 9.451 requests/second. Exact run IDs and artifa
 listed in `docs/baseline.md`. These short runs verify the measurement pipeline and are
 not a long-duration capacity claim.
 
+## Invariant checker
+
+`harness/invariants` evaluates I1–I6 against a selected client journal, live PostgreSQL,
+the webhook sink records, and the BullMQ dead-letter queue. It emits typed evidence and
+returns non-zero for hard failures. I6 derives its effective fail/report behavior from
+whether a fault was actually injected, per ADR-0004. The clean live report for baseline
+run `baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b` has all six passing. Synthetic
+snapshot corruption proves each invariant fires without presenting those fixtures as
+genuine bugs. The first live check also exposed and led to removal of four leaked
+database-test fixture rows; this was test contamination, not a service defect.
+
 ## Next implementation
 
-Implement the I1–I6 invariant checker against PostgreSQL, BullMQ, the webhook sink, and
-the client journal. Prove the checker with explicitly labeled synthetic violations.
+Implement the YAML experiment runner with its control-run path, phase cleanup, response
+timeline, and report skeleton. Build the safety layer before adding fault injection.

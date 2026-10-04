@@ -1,0 +1,89 @@
+[
+  {
+    "invariant": "I1",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b",
+      "journal_entries": 52,
+      "successful_entries": 52,
+      "unique_acknowledged_payments": 49
+    }
+  },
+  {
+    "invariant": "I2",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b",
+      "journal_entries": 52,
+      "successful_entries": 52,
+      "unique_acknowledged_payments": 49
+    }
+  },
+  {
+    "invariant": "I3",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b",
+      "journal_entries": 52,
+      "successful_entries": 52,
+      "unique_acknowledged_payments": 49
+    }
+  },
+  {
+    "invariant": "I4",
+    "status": "fail",
+    "violations": [
+      {
+        "kind": "payment_without_ledger",
+        "payment_id": "910e3d19-80a0-4f9f-81bd-920f13a91469"
+      },
+      {
+        "kind": "payment_without_ledger",
+        "payment_id": "8a5d568e-b904-4403-8637-105e4adc0fe9"
+      },
+      {
+        "kind": "payment_without_ledger",
+        "payment_id": "4b26534e-482e-409a-a8da-04a1965e92bd"
+      },
+      {
+        "kind": "payment_without_ledger",
+        "payment_id": "23a29948-2485-4d7f-9a31-142d955c8243"
+      }
+    ],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b",
+      "journal_entries": 52,
+      "successful_entries": 52,
+      "unique_acknowledged_payments": 49
+    }
+  },
+  {
+    "invariant": "I5",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b",
+      "journal_entries": 52,
+      "successful_entries": 52,
+      "unique_acknowledged_payments": 49,
+      "drain_timeout_ms": 10000
+    }
+  },
+  {
+    "invariant": "I6",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b",
+      "journal_entries": 52,
+      "successful_entries": 52,
+      "unique_acknowledged_payments": 49,
+      "fault_injected": false,
+      "configured_policy": "report",
+      "effective_policy": "fail"
+    }
+  }
+]

@@ -102,9 +102,11 @@ describe("database-enforced financial invariants", () => {
     const client = await pool.connect();
     const key = `duplicate-${randomUUID()}`;
     try {
+      await client.query("BEGIN");
       await insertPayment(client, key);
       await expectPostgreSqlError(insertPayment(client, key), "23505");
     } finally {
+      await client.query("ROLLBACK").catch(() => undefined);
       client.release();
     }
   });
