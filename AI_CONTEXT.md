@@ -20,11 +20,11 @@ and run ID.
 | Payment API                | Complete    | 5 live integration tests, race and Redis fallback    |
 | Queue, worker, sink        | Complete    | 2 live tests plus healthy container end-to-end run   |
 | Observability              | Complete    | live metrics, both Prometheus targets up, rules load |
-| Load generator             | Complete    | 5 runs, 228/228 successful, journals preserved       |
-| Invariant checker I1–I6    | Complete    | live I1–I6 pass plus 6 synthetic corruption proofs   |
+| Load generator             | Complete    | run-isolated keys; 28 unit tests pass                |
+| Invariant checker I1–I6    | Complete    | delayed I6 replay evidence plus synthetic proofs     |
 | Experiment runner          | Complete    | A/A control report with I1–I6 passing                |
 | Safety layer               | Complete    | refusal/abort tests, live dry-run, safe control      |
-| FS-1 injector              | Complete    | worker pass plus API event-loss finding F-001        |
+| FS-1 injector              | Complete    | findings F-001 and F-002; delayed duplicate report   |
 | Other injectors/controller | Not started | —                                                    |
 | Evidence runs and fixes    | Not started | —                                                    |
 
@@ -51,7 +51,9 @@ silently force the downgrade.
 - I6 duplicate delivery is report-only after a real injected fault and fails a
   no-fault control run. I1 and I2 always fail on duplicate financial effects.
 - Genuine finding F-001 confirms commit-before-enqueue event loss under API SIGKILL.
-  Worker crash-after-side-effect duplicate processing remains a candidate.
+  Genuine finding F-002 confirms cross-run evidence contamination in the harness and
+  is fixed. Worker crash-after-side-effect produced expected transport duplicates but
+  no duplicate financial effects.
 - Deliberately corrupted data is labeled synthetic and never reported as a genuine
   discovered defect.
 - No LICENSE is required yet.
@@ -102,13 +104,17 @@ an append-only JSONL attempt journal plus a summary. Five five-second developmen
 and mean achieved throughput was 9.451 requests/second. Exact run IDs and artifacts are
 listed in `docs/baseline.md`. These short runs verify the measurement pipeline and are
 not a long-duration capacity claim.
+Each execution now namespaces idempotency keys by unique run ID. The seed still
+reproduces timing, amounts, and replay placement without colliding with persisted rows
+from an earlier run.
 
 ## Invariant checker
 
 `harness/invariants` evaluates I1–I6 against a selected client journal, live PostgreSQL,
 the webhook sink records, and the BullMQ dead-letter queue. It emits typed evidence and
 returns non-zero for hard failures. I6 derives its effective fail/report behavior from
-whether a fault was actually injected, per ADR-0004. The clean live report for baseline
+whether a fault was actually injected, per ADR-0004, and supports a dedicated delayed
+duplicate observation window. The clean live report for baseline
 run `baseline-2026-10-04T03-03-43-143Z-s45-1a2c636b` has all six passing. Synthetic
 snapshot corruption proves each invariant fires without presenting those fixtures as
 genuine bugs. The first live check also exposed and led to removal of four leaked
@@ -143,8 +149,17 @@ This confirms the ADR-0003 commit-before-enqueue window as genuine finding F-001
 services were automatically restored healthy. The planned fix is a transactional outbox
 with before/after replay evidence.
 
+## Worker crash evidence and genuine finding F-002
+
+Worker crash-after-persistence run
+`kill-worker-after-side-effect-2026-10-04T04-04-15-336Z-b564632d` completed 153/153
+operations and reported four delayed transport duplicates after stalled-job recovery.
+I1 and I2 passed, so this is expected at-least-once behavior rather than a product bug.
+The investigation found genuine harness defect F-002: repeated seeds reused persisted
+idempotency keys, allowing historical deliveries to contaminate later evidence. Keys are
+now unique per run, and I6 observes delayed duplicates independently of I5's drain.
+
 ## Next implementation
 
-Commit FS-1 and F-001, then pursue the second genuine candidate: duplicate processing
-when a worker dies after the webhook side effect but before BullMQ completion. Keep any
-deterministic failpoint labeled synthetic unless the behavior reproduces without it.
+Create one explicitly synthetic bug demonstration, keeping its planted mechanism and
+evidence separate from genuine findings F-001 and F-002. Then continue with FS-2.

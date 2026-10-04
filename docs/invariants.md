@@ -15,6 +15,8 @@ non-zero when any hard invariant fails.
 
 I6 follows ADR-0004: duplicates fail no-fault controls, but default to `report` after an
 actually injected fault. Setting `INVARIANT_I6_POLICY=fail` makes fault runs stricter.
+`INVARIANT_DUPLICATE_OBSERVATION_MS` optionally keeps I6 polling after terminal delivery
+so delayed stalled-job replays are not missed.
 
 Run against a preserved journal from the repository root:
 

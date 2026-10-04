@@ -26,7 +26,8 @@ const context: CheckContext = {
   journal: baseJournal,
   faultInjected: false,
   duplicatePolicy: "report",
-  drainTimeoutMs: 0
+  drainTimeoutMs: 0,
+  duplicateObservationMs: 0
 };
 
 function cleanSnapshot(): SyntheticSnapshot {

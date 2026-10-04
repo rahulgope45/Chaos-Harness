@@ -13,6 +13,12 @@ load journal and summary, invariant output, and final JSON report.
 behind the safety layer. FS-2 through FS-4 remain deliberately refused until their
 corresponding injectors are installed.
 
+Experiments may set `duplicate_observation_s` independently of
+`invariant_drain_timeout_s`. The former watches for delayed duplicate transport events;
+the latter waits for every committed payment to reach delivery or dead letter. Generated
+idempotency keys include the unique load run ID, so repeated seeds reproduce workload
+shape without reusing persisted payment identity across runs.
+
 Run the control experiment:
 
 ```powershell

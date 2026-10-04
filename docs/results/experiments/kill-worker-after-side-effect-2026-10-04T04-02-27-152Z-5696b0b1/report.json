@@ -1,0 +1,131 @@
+{
+  "run_id": "kill-worker-after-side-effect-2026-10-04T04-02-27-152Z-5696b0b1",
+  "experiment": "kill-worker-after-side-effect",
+  "hypothesis": "A worker killed while webhook acknowledgements are delayed causes no duplicate downstream processing.",
+  "fault": "FS_1",
+  "target": "payment-worker",
+  "seed": 401,
+  "started_at": "2026-10-04T04:02:27.155Z",
+  "completed_at": "2026-10-04T04:02:36.854Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.004749999999999999,
+    "throughput_per_second": 0.3898476882032089,
+    "measured_at": "2026-10-04T04:02:27.266Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.00475,
+    "throughput_per_second": 0.3898503313727816,
+    "measured_at": "2026-10-04T04:02:36.618Z"
+  },
+  "load": {
+    "run_id": "baseline-2026-10-04T04-02-27-274Z-s401-07989de2",
+    "seed": 401,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 20,
+    "scheduled_operations": 153,
+    "successful_operations": 153,
+    "failed_operations": 0,
+    "replay_operations": 2,
+    "client_p95_ms": 22,
+    "achieved_throughput_per_second": 19.182547642928785,
+    "elapsed_seconds": 7.976,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T04-02-27-274Z-s401-07989de2",
+        "journal_entries": 153,
+        "successful_entries": 153,
+        "unique_acknowledged_payments": 151
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T04-02-27-274Z-s401-07989de2",
+        "journal_entries": 153,
+        "successful_entries": 153,
+        "unique_acknowledged_payments": 151
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T04-02-27-274Z-s401-07989de2",
+        "journal_entries": 153,
+        "successful_entries": 153,
+        "unique_acknowledged_payments": 151
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T04-02-27-274Z-s401-07989de2",
+        "journal_entries": 153,
+        "successful_entries": 153,
+        "unique_acknowledged_payments": 151
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T04-02-27-274Z-s401-07989de2",
+        "journal_entries": 153,
+        "successful_entries": 153,
+        "unique_acknowledged_payments": 151,
+        "drain_timeout_ms": 60000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "report",
+      "violations": [
+        {
+          "event_id": "ce22c734-d03a-462a-b453-e3c042dc9e71",
+          "payment_id": "1ac85d2a-bec2-4a94-b5c7-86216979d088",
+          "count": 2
+        },
+        {
+          "event_id": "9e9793c3-31f9-4e5c-b34a-d9935dd8a06b",
+          "payment_id": "31bc9c7c-31bf-4283-ab06-46c049ef3e51",
+          "count": 2
+        },
+        {
+          "event_id": "a9f561f1-ddcc-404b-b259-de90f01159e7",
+          "payment_id": "42791bec-4ee4-4af9-9751-11aa73088b64",
+          "count": 2
+        },
+        {
+          "event_id": "8d00687c-dfcc-4891-8a1b-33c91afe1691",
+          "payment_id": "fa89934d-b79d-4f97-82d9-47f52c7c37a4",
+          "count": 2
+        }
+      ],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T04-02-27-274Z-s401-07989de2",
+        "journal_entries": 153,
+        "successful_entries": 153,
+        "unique_acknowledged_payments": 151,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 90000,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

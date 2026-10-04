@@ -22,7 +22,8 @@ try {
     journal: await readJournal(fromRepositoryRoot(journalPath)),
     faultInjected,
     duplicatePolicy,
-    drainTimeoutMs: Number(process.env.INVARIANT_DRAIN_TIMEOUT_MS ?? 5000)
+    drainTimeoutMs: Number(process.env.INVARIANT_DRAIN_TIMEOUT_MS ?? 5000),
+    duplicateObservationMs: Number(process.env.INVARIANT_DUPLICATE_OBSERVATION_MS ?? 0)
   });
   const report = `${JSON.stringify(results, null, 2)}\n`;
   const outputPath = process.env.INVARIANT_OUTPUT;

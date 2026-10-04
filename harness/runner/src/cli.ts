@@ -30,6 +30,7 @@ for (let iteration = 0; iteration < experiment.repeat; iteration += 1) {
       databaseUrl:
         process.env.DATABASE_URL ?? "postgresql://chaos:chaos@127.0.0.1:5432/chaos_harness",
       redisUrl: process.env.REDIS_URL ?? "redis://127.0.0.1:6380",
+      sinkUrl: process.env.WEBHOOK_SINK_URL ?? "http://127.0.0.1:3002",
       iteration
     })
   );

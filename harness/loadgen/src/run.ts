@@ -29,7 +29,8 @@ export async function runLoad(options: LoadOptions) {
   const schedule = createSchedule(
     options.seed,
     options.durationSeconds * 1000,
-    options.ratePerSecond
+    options.ratePerSecond,
+    runId
   );
   const runStartedAt = Date.now();
 

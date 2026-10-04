@@ -112,3 +112,18 @@
   transactional-outbox remediation. Both killed services were restored healthy.
 - Next: hunt the worker crash-after-side-effect duplicate candidate without counting
   deterministic synthetic fixtures as genuine evidence.
+
+## 2026-10-04 — Worker crash duplicate policy and second genuine finding
+
+- Added a sink response-delay mode to reproduce the real crash-after-side-effect window
+  without planting duplicate rows or bypassing the worker.
+- The first run showed four duplicate deliveries appearing after the original I6 check;
+  I6 now has a dedicated delayed-duplicate observation window.
+- A repeated-seed run exposed genuine harness finding F-002: load keys were stable across
+  runs, so historical payments and deliveries contaminated new evidence.
+- Namespaced generated idempotency keys by unique run ID and added regression coverage.
+- Fixed run `kill-worker-after-side-effect-2026-10-04T04-04-15-336Z-b564632d` completed
+  153/153 operations; I1–I5 passed and I6 reported four expected transport duplicates.
+- Classified the duplicates as report-only under ADR-0004 because no duplicate financial
+  effect occurred.
+- Next: add one clearly labeled synthetic defect demonstration, then implement FS-2.

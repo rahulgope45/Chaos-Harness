@@ -18,7 +18,12 @@ export function seededRandom(seed: number): () => number {
   };
 }
 
-export function createSchedule(seed: number, durationMs: number, ratePerSecond: number) {
+export function createSchedule(
+  seed: number,
+  durationMs: number,
+  ratePerSecond: number,
+  keyNamespace = `load-${seed}`
+) {
   const random = seededRandom(seed);
   const schedule: ScheduledPayment[] = [];
   let offsetMs = 0;
@@ -31,7 +36,7 @@ export function createSchedule(seed: number, durationMs: number, ratePerSecond: 
     schedule.push({
       index,
       offsetMs,
-      idempotencyKey: source?.idempotencyKey ?? `load-${seed}-${index}`,
+      idempotencyKey: source?.idempotencyKey ?? `${keyNamespace}-${index}`,
       amountMinor: source?.amountMinor ?? 100 + Math.floor(random() * 9900),
       currency: "USD",
       replay

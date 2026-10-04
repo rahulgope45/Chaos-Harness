@@ -157,21 +157,28 @@ export class LiveInvariantSource implements InvariantSource {
   async queryI6(context: CheckContext): Promise<Violation[]> {
     const paymentIds = await this.committedPaymentIds(context);
     if (paymentIds.length === 0) return [];
-    const deliveries = await this.database.webhookDelivery.findMany({
-      where: { paymentId: { in: paymentIds } },
-      select: { eventId: true, paymentId: true }
-    });
-    const counts = new Map<string, { payment_id: string; count: number }>();
-    for (const delivery of deliveries) {
-      const current = counts.get(delivery.eventId);
-      counts.set(delivery.eventId, {
-        payment_id: delivery.paymentId,
-        count: (current?.count ?? 0) + 1
+    const deadline = Date.now() + context.duplicateObservationMs;
+    while (true) {
+      const deliveries = await this.database.webhookDelivery.findMany({
+        where: { paymentId: { in: paymentIds } },
+        select: { eventId: true, paymentId: true }
       });
+      const counts = new Map<string, { payment_id: string; count: number }>();
+      for (const delivery of deliveries) {
+        const current = counts.get(delivery.eventId);
+        counts.set(delivery.eventId, {
+          payment_id: delivery.paymentId,
+          count: (current?.count ?? 0) + 1
+        });
+      }
+      const duplicates = [...counts]
+        .filter(([, value]) => value.count > 1)
+        .map(([event_id, value]) => ({ event_id, ...value }));
+      if (duplicates.length > 0 || Date.now() >= deadline) return duplicates;
+      await new Promise((resolve) =>
+        setTimeout(resolve, Math.min(250, context.duplicateObservationMs))
+      );
     }
-    return [...counts]
-      .filter(([, value]) => value.count > 1)
-      .map(([event_id, value]) => ({ event_id, ...value }));
   }
 
   async close(): Promise<void> {

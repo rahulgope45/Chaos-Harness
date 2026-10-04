@@ -11,12 +11,13 @@ const eventSchema = z.object({
 });
 const modeSchema = z.object({
   failures_remaining: z.number().int().nonnegative().default(0),
-  latency_ms: z.number().int().nonnegative().max(30_000).default(0)
+  latency_ms: z.number().int().nonnegative().max(30_000).default(0),
+  response_latency_ms: z.number().int().nonnegative().max(30_000).default(0)
 });
 
 export function createSinkApp(database: DatabaseClient, logger: Logger = pino()) {
   const app = express();
-  let mode = { failures_remaining: 0, latency_ms: 0 };
+  let mode = { failures_remaining: 0, latency_ms: 0, response_latency_ms: 0 };
   app.use(express.json({ limit: "16kb" }), pinoHttp({ logger }));
 
   app.get("/healthz", (_request, response) => response.json({ status: "ok" }));
@@ -41,6 +42,9 @@ export function createSinkApp(database: DatabaseClient, logger: Logger = pino())
       await database.webhookDelivery.create({
         data: { eventId: event.event_id, paymentId: event.payment_id }
       });
+      if (mode.response_latency_ms > 0) {
+        await new Promise((resolve) => setTimeout(resolve, mode.response_latency_ms));
+      }
       response.status(202).json({ accepted: true });
     } catch (error) {
       next(error);

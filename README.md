@@ -18,6 +18,12 @@ defect: four committed payments lost their webhook event because database commit
 queue enqueue are not atomic. See
 `docs/findings/F-001-commit-before-enqueue-event-loss.md`.
 
+The worker crash-after-webhook experiment reported four expected at-least-once transport
+duplicates while I1 and I2 remained clean. During that investigation the harness itself
+revealed and fixed genuine finding F-002: repeated seeds reused persisted idempotency
+keys and could contaminate evidence across runs. See
+`docs/findings/F-002-cross-run-evidence-contamination.md`.
+
 ## Local infrastructure
 
 1. Copy `.env.example` to `.env` if you need to override the safe local defaults.

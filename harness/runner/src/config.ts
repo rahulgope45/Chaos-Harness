@@ -16,11 +16,17 @@ export const experimentSchema = z
         inject_after_s: z.number().nonnegative()
       })
       .optional(),
+    conditions: z
+      .object({
+        sink_response_latency_ms: z.number().int().min(0).max(30_000).default(0)
+      })
+      .optional(),
     seed: z.number().int().nonnegative(),
     repeat: z.number().int().min(1).max(100),
     duration_s: z.number().int().min(1).max(3600),
     rate_per_second: z.number().positive().max(1000).default(10),
     invariant_drain_timeout_s: z.number().int().min(1).max(300).default(30),
+    duplicate_observation_s: z.number().int().min(0).max(300).default(0),
     max_duration_s: z.number().int().min(1).max(7200).default(600),
     recovery: z
       .object({

@@ -53,6 +53,7 @@ export async function runInvariantChecks(
           ? {
               fault_injected: context.faultInjected,
               configured_policy: context.duplicatePolicy,
+              observation_ms: context.duplicateObservationMs,
               effective_policy:
                 !context.faultInjected || context.duplicatePolicy === "fail" ? "fail" : "report"
             }

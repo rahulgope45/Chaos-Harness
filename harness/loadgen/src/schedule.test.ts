@@ -14,4 +14,16 @@ describe("open-loop schedule", () => {
       schedule.every((item, index) => index === 0 || item.offsetMs > schedule[index - 1]!.offsetMs)
     ).toBe(true);
   });
+
+  it("isolates idempotency keys between run namespaces while retaining in-run replays", () => {
+    const first = createSchedule(401, 10_000, 20, "run-a");
+    const second = createSchedule(401, 10_000, 20, "run-b");
+
+    expect(first.map(({ offsetMs }) => offsetMs)).toEqual(second.map(({ offsetMs }) => offsetMs));
+    expect(first.every(({ idempotencyKey }) => idempotencyKey.startsWith("run-a-"))).toBe(true);
+    expect(second.every(({ idempotencyKey }) => idempotencyKey.startsWith("run-b-"))).toBe(true);
+    expect(new Set(first.map(({ idempotencyKey }) => idempotencyKey)).size).toBeLessThan(
+      first.length
+    );
+  });
 });

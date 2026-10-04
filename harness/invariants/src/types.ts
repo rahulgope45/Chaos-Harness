@@ -25,6 +25,7 @@ export interface CheckContext {
   faultInjected: boolean;
   duplicatePolicy: "report" | "fail";
   drainTimeoutMs: number;
+  duplicateObservationMs: number;
 }
 
 export interface InvariantSource {

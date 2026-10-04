@@ -27,6 +27,7 @@ interface RunnerOptions {
   prometheusUrl: string;
   databaseUrl: string;
   redisUrl: string;
+  sinkUrl: string;
   iteration: number;
 }
 
@@ -62,6 +63,20 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     );
   };
 
+  const setSinkMode = async (responseLatencyMs: number) => {
+    const response = await fetch(`${options.sinkUrl}/mode`, {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        failures_remaining: 0,
+        latency_ms: 0,
+        response_latency_ms: responseLatencyMs
+      }),
+      signal: AbortSignal.timeout(5000)
+    });
+    if (!response.ok) throw new Error(`Webhook sink mode returned ${response.status}`);
+  };
+
   try {
     await executeLifecycle({
       onPhase: phase,
@@ -87,6 +102,11 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
         );
       },
       inject: async () => {
+        const responseLatencyMs = experiment.conditions?.sink_response_latency_ms ?? 0;
+        if (responseLatencyMs > 0) {
+          safety.registerRevert(() => setSinkMode(0));
+          await setSinkMode(responseLatencyMs);
+        }
         if (experiment.fault !== "FS_1") return;
         if (!experiment.fs1 || !target) throw new Error("FS-1 preflight state is unavailable");
         const fs1 = experiment.fs1;
@@ -157,7 +177,8 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
               journal: await readJournal(journalPath),
               faultInjected: experiment.fault !== "none",
               duplicatePolicy: "report",
-              drainTimeoutMs: experiment.invariant_drain_timeout_s * 1000
+              drainTimeoutMs: experiment.invariant_drain_timeout_s * 1000,
+              duplicateObservationMs: experiment.duplicate_observation_s * 1000
             })
           ).filter(({ invariant }) => experiment.invariants.includes(invariant));
         } finally {
