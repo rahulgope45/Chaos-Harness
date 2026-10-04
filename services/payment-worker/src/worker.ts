@@ -7,6 +7,7 @@ import {
   type WebhookJob
 } from "@chaos/queue";
 import type { Logger } from "pino";
+import { createWorkerMetrics } from "./metrics.js";
 
 interface WorkerOptions {
   redisUrl: string;
@@ -24,6 +25,9 @@ export function startWebhookWorker(options: WorkerOptions) {
     options.deadLetterQueueName ?? WEBHOOK_DEAD_LETTER_QUEUE,
     { connection }
   );
+  const sourceQueue = new Queue<WebhookJob>(queueName, { connection });
+  const metrics = createWorkerMetrics(sourceQueue);
+  const activeSince = new Map<string, bigint>();
   const worker = new Worker<WebhookJob>(
     queueName,
     async (job) => {
@@ -51,5 +55,18 @@ export function startWebhookWorker(options: WorkerOptions) {
   );
   worker.on("error", (error) => options.logger.error({ err: error }, "worker error"));
   worker.on("stalled", (jobId) => options.logger.warn({ jobId }, "webhook job stalled"));
-  return { worker, deadLetter };
+  worker.on("active", (job) =>
+    activeSince.set(job.id ?? job.data.event_id, process.hrtime.bigint())
+  );
+  worker.on("completed", (job) => {
+    metrics.completed.inc();
+    const key = job.id ?? job.data.event_id;
+    const started = activeSince.get(key);
+    if (started) metrics.duration.observe(Number(process.hrtime.bigint() - started) / 1e9);
+    activeSince.delete(key);
+  });
+  worker.on("failed", (job) => {
+    if (job && job.attemptsMade >= (job.opts.attempts ?? 1)) metrics.failed.inc();
+  });
+  return { worker, deadLetter, sourceQueue, metrics };
 }

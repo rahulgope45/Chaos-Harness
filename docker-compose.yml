@@ -118,7 +118,10 @@ services:
       REDIS_URL: redis://redis:6379
       WEBHOOK_SINK_URL: http://webhook-sink:3002
       WORKER_CONCURRENCY: 4
+      WORKER_METRICS_PORT: 3001
       LOG_LEVEL: info
+    ports:
+      - "127.0.0.1:${WORKER_METRICS_PORT:-3001}:3001"
     labels:
       chaos-target: "true"
     depends_on:
@@ -127,7 +130,13 @@ services:
       webhook-sink:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "kill -0 1"]
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3001/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
       interval: 5s
       timeout: 3s
       retries: 12

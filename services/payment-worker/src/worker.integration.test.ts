@@ -55,6 +55,7 @@ beforeAll(async () => {
 afterAll(async () => {
   await workerResources.worker.close();
   await workerResources.deadLetter.close();
+  await workerResources.sourceQueue.close();
   await queue.obliterate({ force: true });
   await deadLetterQueue.obliterate({ force: true });
   await Promise.all([queue.close(), deadLetterQueue.close(), redis.quit(), database.$disconnect()]);

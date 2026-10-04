@@ -12,18 +12,19 @@ and run ID.
 
 ## Feature status
 
-| Feature                      | Status      | Evidence                                             |
-| ---------------------------- | ----------- | ---------------------------------------------------- |
-| Workspace/tooling            | Complete    | lint, format, typecheck, and 2 config tests pass     |
-| Local infrastructure         | Complete    | PostgreSQL, Redis, Prometheus, and Toxiproxy healthy |
-| Database invariants          | Complete    | 3 live PostgreSQL rejection tests pass               |
-| Payment API                  | Complete    | 5 live integration tests, race and Redis fallback    |
-| Queue, worker, sink          | Complete    | 2 live tests plus healthy container end-to-end run   |
-| Observability/load generator | Not started | Next feature                                         |
-| Invariant checker I1–I6      | Not started | —                                                    |
-| Runner and safety layer      | Not started | —                                                    |
-| Fault injectors/controller   | Not started | —                                                    |
-| Evidence runs and fixes      | Not started | —                                                    |
+| Feature                    | Status      | Evidence                                             |
+| -------------------------- | ----------- | ---------------------------------------------------- |
+| Workspace/tooling          | Complete    | lint, format, typecheck, and 2 config tests pass     |
+| Local infrastructure       | Complete    | PostgreSQL, Redis, Prometheus, and Toxiproxy healthy |
+| Database invariants        | Complete    | 3 live PostgreSQL rejection tests pass               |
+| Payment API                | Complete    | 5 live integration tests, race and Redis fallback    |
+| Queue, worker, sink        | Complete    | 2 live tests plus healthy container end-to-end run   |
+| Observability              | Complete    | live metrics, both Prometheus targets up, rules load |
+| Load generator             | Not started | Next feature                                         |
+| Invariant checker I1–I6    | Not started | —                                                    |
+| Runner and safety layer    | Not started | —                                                    |
+| Fault injectors/controller | Not started | —                                                    |
+| Evidence runs and fixes    | Not started | —                                                    |
 
 ## Verified local environment
 
@@ -83,7 +84,14 @@ sink persists every accepted delivery and supports controlled failure and latenc
 All seven Compose services are healthy. A real request through `127.0.0.1:3000` was
 delivered to the containerized sink on `127.0.0.1:3002`.
 
+## Observability
+
+The API exports request count and duration histogram metrics. The worker exports
+completed/failed job counters, job duration, and live queue depth. Prometheus scrapes
+both services and loads recording rules for error rate, p95 latency, and throughput.
+Live verification returned `up=1` for both targets after controlled payment traffic.
+
 ## Next implementation
 
-Add RED metrics to the API and worker, Prometheus scrape targets and recording rules,
-then implement the seeded open-loop load generator and append-only client journal.
+Implement the seeded open-loop load generator and append-only JSONL client journal,
+then run at least five reproducible baseline runs and record their run IDs.

@@ -7,6 +7,7 @@ import pino, { type Logger } from "pino";
 import { pinoHttp } from "pino-http";
 import { ZodError } from "zod";
 import { createPaymentService, paymentRequestSchema } from "./payment.js";
+import { createApiMetrics } from "./metrics.js";
 
 interface AppDependencies {
   database: DatabaseClient;
@@ -25,6 +26,7 @@ export function createApp({
 }: AppDependencies) {
   const app = express();
   const payments = createPaymentService({ database, redis, lockTtlMs });
+  const metrics = createApiMetrics();
 
   app.disable("x-powered-by");
   app.use(express.json({ limit: "16kb" }));
@@ -39,6 +41,11 @@ export function createApp({
       }
     })
   );
+  app.use(metrics.middleware);
+
+  app.get("/metrics", async (_request, response) => {
+    response.type(metrics.registry.contentType).send(await metrics.registry.metrics());
+  });
 
   app.get("/healthz", (_request, response) => {
     response.status(200).json({ status: "ok" });

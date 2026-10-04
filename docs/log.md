@@ -41,3 +41,13 @@
 - Built and started separate API, worker, and sink containers; all seven Compose
   services are healthy and a real containerized payment reached the sink.
 - Next: add metrics, Prometheus rules, and the reproducible load generator.
+
+## 2026-10-04 — Observability
+
+- Added API request-count and request-duration RED metrics.
+- Added worker completed/failed counters, processing duration, and queue-depth gauge.
+- Added `/metrics` endpoints, Prometheus scrape targets, and recording rules for error
+  rate, p95 latency, and throughput.
+- Generated controlled traffic and verified both Prometheus targets report `up=1` and
+  the recording-rule group loads successfully.
+- Next: implement the seeded open-loop load generator and client journal.
