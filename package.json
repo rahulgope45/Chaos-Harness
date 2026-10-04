@@ -17,7 +17,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit -p tsconfig.base.json",
     "test": "vitest run",
-    "test:integration": "npm run test:integration --workspace @chaos/database"
+    "test:integration": "npm run test:integration --workspaces --if-present"
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
@@ -31,6 +31,7 @@
   },
   "allowScripts": {
     "@prisma/engines@7.10.0": true,
-    "prisma@7.10.0": true
+    "prisma@7.10.0": true,
+    "esbuild@0.28.2": true
   }
 }

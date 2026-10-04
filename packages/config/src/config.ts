@@ -4,7 +4,10 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   DATABASE_URL: z.string().url(),
   REDIS_URL: z.string().url(),
-  PROMETHEUS_URL: z.string().url().default("http://localhost:9090")
+  PROMETHEUS_URL: z.string().url().default("http://localhost:9090"),
+  PAYMENT_API_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  REDIS_LOCK_TTL_MS: z.coerce.number().int().positive().default(5000),
+  LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info")
 });
 
 export type AppConfig = z.infer<typeof envSchema>;

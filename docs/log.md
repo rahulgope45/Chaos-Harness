@@ -17,3 +17,15 @@
 - Proved PostgreSQL rejects an unbalanced commit, ledger update, and duplicate
   idempotency key with three live integration tests.
 - Next: implement the payment API and its idempotency race tests.
+
+## 2026-10-04 — Payment API
+
+- Added POST `/payments`, GET `/payments/:id`, liveness, and dependency readiness
+  endpoints.
+- Added PostgreSQL-authoritative idempotency with Redis caching/in-flight locking and
+  correct fallback when Redis is unavailable.
+- Added transactional balanced ledger writes, structured request logs, and graceful
+  shutdown.
+- Proved replay, mismatch, a 50-way same-key race, lookup, and Redis fallback with five
+  live integration tests.
+- Next: add the BullMQ worker, webhook sink, retries, and dead-letter path.

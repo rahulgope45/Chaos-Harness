@@ -17,8 +17,8 @@ and run ID.
 | Workspace/tooling            | Complete    | lint, format, typecheck, and 2 config tests pass     |
 | Local infrastructure         | Complete    | PostgreSQL, Redis, Prometheus, and Toxiproxy healthy |
 | Database invariants          | Complete    | 3 live PostgreSQL rejection tests pass               |
-| Payment API                  | Not started | Next feature                                         |
-| Queue, worker, sink          | Not started | —                                                    |
+| Payment API                  | Complete    | 5 live integration tests, race and Redis fallback    |
+| Queue, worker, sink          | Not started | Next feature                                         |
 | Observability/load generator | Not started | —                                                    |
 | Invariant checker I1–I6      | Not started | —                                                    |
 | Runner and safety layer      | Not started | —                                                    |
@@ -33,6 +33,14 @@ and run ID.
 - Redis: `127.0.0.1:6380`; port 6379 belongs to an unrelated local project.
 - Prometheus: `127.0.0.1:19090`; ports 9090 and 9091 are already occupied locally.
 - Toxiproxy API: `127.0.0.1:8474`.
+
+## Known dependency issue
+
+`npm audit` currently reports four high-severity transitive advisories through the
+Prisma 7.10.0 CLI toolchain (`@prisma/config`, `deepmerge-ts`, and `mysql2`). npm's only
+offered forced fix downgrades Prisma to 6.19.3, which conflicts with the required Prisma
+7 adapter architecture. Recheck when a patched Prisma 7 release is available; do not
+silently force the downgrade.
 
 ## Accepted decisions
 
@@ -56,9 +64,17 @@ $env:DATABASE_URL='postgresql://chaos:chaos@127.0.0.1:5432/chaos_harness'
 npm run test:integration
 ```
 
+## Payment API
+
+`services/payment-api` provides POST `/payments`, GET `/payments/:id`, `/healthz`, and
+`/readyz`. It validates input, treats PostgreSQL as authoritative, uses Redis only for
+cache/short in-flight locking, handles the unique-key race, writes payment plus balanced
+ledger entries in one transaction, logs structured requests, and handles graceful
+shutdown.
+
 ## Next implementation
 
-Build `services/payment-api`: POST `/payments`, GET `/payments/:id`, strict request
-validation, PostgreSQL-first idempotency semantics, Redis fast path with correct
-fallback, one transaction for payment plus balanced entries, health/readiness,
-structured logging, graceful shutdown, and concurrency integration tests.
+Build the BullMQ webhook queue, payment worker, and webhook sink. Preserve the
+intentional v1 commit-before-enqueue design so a later real FS-1 experiment can test
+the lost-event hypothesis. Add bounded retries, dead-letter handling, configurable sink
+failure/latency, and graceful worker shutdown.
