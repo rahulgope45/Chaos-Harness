@@ -20,7 +20,7 @@ and run ID.
 | Payment API                | Complete    | 5 live integration tests, race and Redis fallback    |
 | Queue, worker, sink        | Complete    | 2 live tests plus healthy container end-to-end run   |
 | Observability              | Complete    | live metrics, both Prometheus targets up, rules load |
-| Load generator             | Not started | Next feature                                         |
+| Load generator             | Complete    | 5 runs, 228/228 successful, journals preserved       |
 | Invariant checker I1–I6    | Not started | —                                                    |
 | Runner and safety layer    | Not started | —                                                    |
 | Fault injectors/controller | Not started | —                                                    |
@@ -91,7 +91,17 @@ completed/failed job counters, job duration, and live queue depth. Prometheus sc
 both services and loads recording rules for error rate, p95 latency, and throughput.
 Live verification returned `up=1` for both targets after controlled payment traffic.
 
+## Baseline load
+
+The load generator precomputes a seeded Poisson open-loop schedule, includes controlled
+idempotent replays, retries timeouts and 5xx responses once with the same key, and writes
+an append-only JSONL attempt journal plus a summary. Five five-second development runs
+(seeds 41–45) scheduled 228 operations; all 228 succeeded. Mean client p95 was 38.2 ms
+and mean achieved throughput was 9.451 requests/second. Exact run IDs and artifacts are
+listed in `docs/baseline.md`. These short runs verify the measurement pipeline and are
+not a long-duration capacity claim.
+
 ## Next implementation
 
-Implement the seeded open-loop load generator and append-only JSONL client journal,
-then run at least five reproducible baseline runs and record their run IDs.
+Implement the I1–I6 invariant checker against PostgreSQL, BullMQ, the webhook sink, and
+the client journal. Prove the checker with explicitly labeled synthetic violations.

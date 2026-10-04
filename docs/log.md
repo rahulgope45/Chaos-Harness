@@ -51,3 +51,15 @@
 - Generated controlled traffic and verified both Prometheus targets report `up=1` and
   the recording-rule group loads successfully.
 - Next: implement the seeded open-loop load generator and client journal.
+
+## 2026-10-04 — Reproducible baseline load
+
+- Added a seeded Poisson open-loop load generator with controlled idempotent replays,
+  same-key retry behavior, and append-only JSONL attempt journals.
+- Preserved five baseline runs and summaries: 228 of 228 operations succeeded, mean
+  client p95 was 38.2 ms, and mean achieved throughput was 9.451 requests/second.
+- Classified these five-second runs as development evidence rather than a capacity
+  claim; longer runs remain required for the final report.
+- Corrected the zero-error recording rule so a healthy interval records `0` rather
+  than returning no data.
+- Next: implement and prove the I1–I6 invariant checker.

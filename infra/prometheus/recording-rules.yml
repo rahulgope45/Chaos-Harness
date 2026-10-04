@@ -3,7 +3,7 @@ groups:
     rules:
       - record: payment_api:http_error_rate:ratio5m
         expr: >-
-          sum(rate(payment_api_http_requests_total{status_code=~"5.."}[5m]))
+          (sum(rate(payment_api_http_requests_total{status_code=~"5.."}[5m])) or vector(0))
           /
           clamp_min(sum(rate(payment_api_http_requests_total[5m])), 0.000001)
       - record: payment_api:http_request_p95_seconds:5m
