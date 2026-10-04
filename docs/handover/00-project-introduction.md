@@ -46,18 +46,21 @@ flowchart LR
   SinkProxy --> Sink[Webhook sink]
   Sink --> PG
 
-  Prom[Prometheus] --> API
-  Prom --> Worker
+  Prom[Prometheus] --> Sensor[Metrics proxy / sensor]
+  Sensor --> API
+  Sensor --> Worker
   Runner[Experiment runner] --> Client
   Runner --> Prom
   Runner --> Docker[Local Docker API]
   Runner --> ToxiAPI[Toxiproxy API]
+  Runner --> Sensor
   Runner --> Checks[I1-I6 invariant checker]
   Checks --> PG
   Checks --> Redis
   Checks --> Sink
 
   Controller[Rule-based MAPE-K controller] --> Docker
+  Controller --> Prom
   Controller --> PG
   Controller -. response events .-> Runner
 ```
@@ -69,7 +72,7 @@ flowchart LR
 - Redis is a fast path and the BullMQ backing store, not the financial authority.
 - The API enqueues a webhook job after committing the payment.
 - A separate worker retries delivery to a webhook sink and dead-letters exhausted jobs.
-- Prometheus scrapes API and worker metrics.
+- Prometheus scrapes API and worker metrics through a pass-through sensor proxy.
 
 ### Managing and experimental system
 
@@ -77,9 +80,11 @@ flowchart LR
   `preflight -> baseline -> inject -> observe -> revert -> recover -> verify -> report`.
 - The safety layer restricts Docker actions to local, labeled Compose targets.
 - FS-1 injects service outages through Docker.
+- FS-3 stops the metrics sensor so controller behavior under missing telemetry is tested.
 - FS-4 injects TCP latency, jitter, timeout, and connection resets through Toxiproxy.
 - The controller uses PostgreSQL-backed policies, hysteresis, cooldowns, and restart
-  limits to restart a failed worker safely.
+  limits to restart a failed worker safely. Missing telemetry enters blind mode and falls
+  back to independently observed Docker state.
 - The response tracker records fault, detection, plan, action, and recovery events.
 - The invariant checker evaluates I1-I6 after the experiment.
 
@@ -97,13 +102,13 @@ separate from genuine findings.
 
 ## Current verified state
 
-Plan milestones Day 1 through Day 14 are implemented. The repository currently has:
+Plan milestones Day 1 through Day 15 are implemented. The repository currently has:
 
-- seven healthy Docker Compose services;
-- 43 unit tests and 10 integration tests passing;
+- eight healthy Docker Compose services;
+- 54 unit tests and 10 integration tests passing;
 - an idempotent payment API, balanced ledger, queue worker, sink, and Prometheus metrics;
 - reproducible load generation and I1-I6 checks;
-- a safe experiment runner with FS-1 and FS-4;
+- a safe experiment runner with FS-1, FS-3, and FS-4;
 - a response tracker and rule-based MAPE-K worker-restart controller;
 - two genuine findings and one explicitly synthetic scenario.
 
@@ -123,8 +128,8 @@ not a discovered defect.
 - Rule-based controller only; no ML in the critical path.
 - Toxiproxy provides TCP-stream faults, not true packet loss.
 - Results are functional development evidence, not production capacity claims.
-- Aggregate N>=10 statistics, telemetry fault classes FS-2/FS-3, the transactional
-  outbox fix, final CI smoke runs, and v1 polish are still pending.
+- Aggregate N>=10 statistics, FS-2 telemetry corruption, the transactional outbox fix,
+  final CI smoke runs, and v1 polish are still pending.
 - No LICENSE has been selected yet, by explicit project decision.
 
 Read next:

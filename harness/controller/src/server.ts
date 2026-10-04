@@ -6,10 +6,12 @@ import { DockerTargetManager } from "./docker-target.js";
 import { JsonlControllerEventSink } from "./events.js";
 import { createControllerMetrics } from "./metrics.js";
 import { PostgresPolicyStore } from "./store.js";
+import { PrometheusTelemetryMonitor } from "./telemetry.js";
 
 const config = z
   .object({
     DATABASE_URL: z.string().url(),
+    PROMETHEUS_URL: z.string().url().default("http://127.0.0.1:19090"),
     CONTROLLER_PORT: z.coerce.number().int().min(1).max(65535).default(3100),
     CONTROLLER_RUN_ID: z.string().min(1).optional(),
     CONTROLLER_EVENTS_PATH: z.string().min(1).optional(),
@@ -33,6 +35,7 @@ const metrics = createControllerMetrics();
 const controller = new MapekController(
   store,
   new DockerTargetManager(),
+  new PrometheusTelemetryMonitor(config.PROMETHEUS_URL),
   new JsonlControllerEventSink(config.CONTROLLER_RUN_ID, config.CONTROLLER_EVENTS_PATH),
   metrics,
   logger

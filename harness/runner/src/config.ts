@@ -16,6 +16,12 @@ export const experimentSchema = z
         inject_after_s: z.number().nonnegative()
       })
       .optional(),
+    fs3: z
+      .object({
+        action: z.literal("stop"),
+        inject_after_s: z.number().nonnegative()
+      })
+      .optional(),
     fs4: z
       .object({
         proxy: z.enum(["api-postgres", "api-redis", "worker-sink"]),
@@ -70,6 +76,23 @@ export const experimentSchema = z
         message: "fs1 options are only valid for FS_1"
       });
     }
+    if (experiment.fault === "FS_3" && !experiment.fs3) {
+      context.addIssue({ code: "custom", path: ["fs3"], message: "FS_3 requires fs3 options" });
+    }
+    if (experiment.fault !== "FS_3" && experiment.fs3) {
+      context.addIssue({
+        code: "custom",
+        path: ["fs3"],
+        message: "fs3 options are only valid for FS_3"
+      });
+    }
+    if (experiment.fault === "FS_3" && experiment.target !== "metrics-proxy") {
+      context.addIssue({
+        code: "custom",
+        path: ["target"],
+        message: "FS_3 target must be metrics-proxy"
+      });
+    }
     if (experiment.fault === "FS_4" && !experiment.fs4) {
       context.addIssue({ code: "custom", path: ["fs4"], message: "FS_4 requires fs4 options" });
     }
@@ -102,6 +125,13 @@ export const experimentSchema = z
       context.addIssue({
         code: "custom",
         path: ["fs1", "inject_after_s"],
+        message: "must occur before duration_s"
+      });
+    }
+    if (experiment.fs3 && experiment.fs3.inject_after_s >= experiment.duration_s) {
+      context.addIssue({
+        code: "custom",
+        path: ["fs3", "inject_after_s"],
         message: "must occur before duration_s"
       });
     }

@@ -1,8 +1,8 @@
 # Current startup runbook
 
 This runbook covers only components that exist in the repository now. It does not
-describe the planned metrics proxy, FS-2/FS-3 injectors, aggregate report generator,
-transactional outbox, or any other future component.
+describe the planned FS-2 corruption modes, aggregate report generator, transactional
+outbox, or any other future component.
 
 Commands assume Windows PowerShell from `E:\Projects\chaos-harness`.
 
@@ -11,7 +11,7 @@ Commands assume Windows PowerShell from `E:\Projects\chaos-harness`.
 - Docker Desktop running with the Linux container engine.
 - Node.js 24; the repository pins the major version in `.nvmrc`.
 - npm 12 or a compatible npm version.
-- Ports 3000, 3001, 3002, 5432, 6380, 8474, 8666-8670, and 19090 available.
+- Ports 3000, 3001, 3002, 3003, 5432, 6380, 8474, 8666-8670, and 19090 available.
 
 Check the tools:
 
@@ -38,11 +38,12 @@ or credentials conflict with another local project.
 ### 2. Start the infrastructure dependencies
 
 ```powershell
-docker compose up -d postgres redis prometheus toxiproxy
+docker compose up -d postgres redis toxiproxy
 docker compose ps
 ```
 
-Wait until all four show `healthy` before applying migrations.
+Wait until all three show `healthy` before applying migrations. Prometheus now depends
+on the application metrics proxy, so it starts with the complete stack after migration.
 
 ### 3. Generate the Prisma client and apply migrations
 
@@ -63,7 +64,7 @@ docker compose up --build -d
 docker compose ps
 ```
 
-The expected result is seven running, healthy services.
+The expected result is eight running, healthy services.
 
 ## Current components
 
@@ -71,6 +72,7 @@ The expected result is seven running, healthy services.
 | ----------------- | ------------------------------------------ | ----------------------------------------- | ---------------------------------------------------------- |
 | PostgreSQL        | Compose `postgres`                         | `127.0.0.1:5432`                          | Source of truth, ledger, sink records, controller policies |
 | Redis             | Compose `redis`                            | `127.0.0.1:6380`                          | API fast path and BullMQ storage                           |
+| Metrics proxy     | Compose `metrics-proxy`                    | `http://127.0.0.1:3003`                   | Pass-through Prometheus sensor and FS-3 target             |
 | Prometheus        | Compose `prometheus`                       | `http://127.0.0.1:19090`                  | Metrics scraping and recording rules                       |
 | Toxiproxy         | Compose `toxiproxy`                        | API at `http://127.0.0.1:8474`            | FS-4 dependency-path faults                                |
 | Webhook sink      | Compose `webhook-sink`                     | `http://127.0.0.1:3002`                   | Persists attempted webhook deliveries                      |
@@ -83,23 +85,24 @@ The expected result is seven running, healthy services.
 
 ## Start or restart individual Compose components
 
-Compose starts declared dependencies automatically. Use `--build` for the three custom
+Compose starts declared dependencies automatically. Use `--build` for the four custom
 Node service images after source changes.
 
 ```powershell
 docker compose up -d postgres
 docker compose up -d redis
-docker compose up -d prometheus
 docker compose up -d toxiproxy
 docker compose up --build -d webhook-sink
 docker compose up --build -d payment-worker
 docker compose up --build -d payment-api
+docker compose up --build -d metrics-proxy
+docker compose up -d prometheus
 ```
 
 To rebuild all custom services after code changes:
 
 ```powershell
-docker compose up --build -d payment-api payment-worker webhook-sink
+docker compose up --build -d payment-api payment-worker webhook-sink metrics-proxy
 ```
 
 ## Verify the running stack
@@ -110,6 +113,9 @@ Invoke-RestMethod http://127.0.0.1:3000/healthz
 Invoke-RestMethod http://127.0.0.1:3000/readyz
 Invoke-RestMethod http://127.0.0.1:3001/healthz
 Invoke-RestMethod http://127.0.0.1:3002/healthz
+Invoke-RestMethod http://127.0.0.1:3003/healthz
+curl.exe -sS http://127.0.0.1:3003/metrics/payment-api
+curl.exe -sS http://127.0.0.1:3003/metrics/payment-worker
 curl.exe -sS http://127.0.0.1:8474/proxies
 ```
 
@@ -120,8 +126,10 @@ Prometheus checks:
 
 - Health: `http://127.0.0.1:19090/-/healthy`
 - Targets: `http://127.0.0.1:19090/targets`
-- API metrics: `http://127.0.0.1:3000/metrics`
-- Worker metrics: `http://127.0.0.1:3001/metrics`
+- Proxy API metrics: `http://127.0.0.1:3003/metrics/payment-api`
+- Proxy worker metrics: `http://127.0.0.1:3003/metrics/payment-worker`
+- Direct endpoints remain available for diagnosis at ports 3000 and 3001, but Prometheus
+  uses the proxy routes.
 
 ## Send one smoke payment
 
@@ -219,12 +227,24 @@ To run the controller manually in its own terminal:
 
 ```powershell
 $env:DATABASE_URL='postgresql://chaos:chaos@127.0.0.1:5432/chaos_harness'
+$env:PROMETHEUS_URL='http://127.0.0.1:19090'
 $env:CONTROLLER_PORT='3100'
 npm run start --workspace @chaos/controller
 ```
 
 Stop a manual controller with Ctrl+C. Do not run a manual controller at the same time as
 a controller-enabled experiment unless you intentionally want two control loops.
+
+### Current FS-3 sensor experiment
+
+```powershell
+npm run start --workspace @chaos/runner -- experiments/sensor-outage-blind-mode.yml --dry-run
+npm run start --workspace @chaos/runner -- experiments/sensor-outage-blind-mode.yml
+```
+
+The real run temporarily stops the metrics proxy. The controller should emit blind and
+restored events with no plan/action for the healthy worker. Confirm `metrics-proxy` and
+both Prometheus jobs recover afterward.
 
 ### Current FS-4 experiments
 
@@ -246,6 +266,7 @@ curl.exe -sS http://127.0.0.1:8474/proxies
 docker compose logs --tail 100 payment-api
 docker compose logs --tail 100 payment-worker
 docker compose logs --tail 100 webhook-sink
+docker compose logs --tail 100 metrics-proxy
 docker compose logs --tail 100 postgres redis prometheus toxiproxy
 ```
 

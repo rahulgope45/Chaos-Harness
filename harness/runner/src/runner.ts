@@ -14,9 +14,10 @@ import {
 import { runLoad } from "@chaos/loadgen";
 import type { Experiment } from "./config.js";
 import { injectFs1, waitForInjection } from "./fs1.js";
+import { injectFs3SensorStop } from "./fs3.js";
 import { ToxiproxyClient, toxicDefinition } from "./fs4.js";
 import { executeLifecycle, type Phase } from "./lifecycle.js";
-import { readSteadyState, type SteadyStateSnapshot } from "./prometheus.js";
+import { readScrapeAvailability, readSteadyState, type SteadyStateSnapshot } from "./prometheus.js";
 import { buildResponseResult, ResponseEventLog } from "./response-tracker.js";
 import {
   SafetySession,
@@ -101,6 +102,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           ...process.env,
           DATABASE_URL: options.databaseUrl,
           CONTROLLER_PORT: String(experiment.controller.port),
+          PROMETHEUS_URL: options.prometheusUrl,
           CONTROLLER_RUN_ID: runId,
           CONTROLLER_EVENTS_PATH: join(artifactDirectory, "response-events.jsonl")
         },
@@ -165,11 +167,22 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     await executeLifecycle({
       onPhase: phase,
       preflight: async () => {
-        if (!["none", "FS_1", "FS_4"].includes(experiment.fault)) {
+        if (!["none", "FS_1", "FS_3", "FS_4"].includes(experiment.fault)) {
           throw new Error("Fault injection is disabled until the requested injector is installed");
         }
-        if (experiment.fault === "none" || experiment.fault === "FS_1") {
+        if (["none", "FS_1", "FS_3"].includes(experiment.fault)) {
           target = await resolveAllowedTarget(experiment.target);
+        }
+        if (experiment.fault === "FS_3") {
+          const telemetry = await readScrapeAvailability(options.prometheusUrl, [
+            "payment-api",
+            "payment-worker"
+          ]);
+          if (!telemetry.available) {
+            throw new Error(
+              `FS-3 preflight requires healthy telemetry: ${telemetry.missing_jobs.join(", ")}`
+            );
+          }
         }
         if (experiment.fault === "FS_4") {
           if (!experiment.fs4) throw new Error("FS-4 preflight options are unavailable");
@@ -222,6 +235,34 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
                 fault: "FS_4",
                 action: fs4.toxic,
                 target: fs4.proxy,
+                at: injectedAt
+              })}\n`
+            );
+          })();
+          return;
+        }
+        if (experiment.fault === "FS_3") {
+          if (!experiment.fs3 || !target) throw new Error("FS-3 preflight state is unavailable");
+          const fs3 = experiment.fs3;
+          faultTask = (async () => {
+            await waitForInjection(fs3.inject_after_s * 1000, safety.signal);
+            await injectFs3SensorStop(target, safety);
+            const injectedAt = new Date().toISOString();
+            await responseEvents.record({
+              event: "fault_injected",
+              at: injectedAt,
+              source: "runner",
+              fault: "FS_3",
+              action: "stop_sensor",
+              target: experiment.target
+            });
+            timeline.write(
+              `${JSON.stringify({
+                run_id: runId,
+                event: "fault_injected",
+                fault: "FS_3",
+                action: "stop_sensor",
+                target: experiment.target,
                 at: injectedAt
               })}\n`
             );
@@ -290,6 +331,17 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
         const maxErrorRate = effectiveRecoveryErrorRate();
         while (Date.now() <= deadline) {
           if (safety.signal.aborted) throw safety.signal.reason;
+          if (experiment.fault === "FS_3") {
+            const telemetry = await readScrapeAvailability(options.prometheusUrl, [
+              "payment-api",
+              "payment-worker"
+            ]);
+            if (!telemetry.available) {
+              consecutive = 0;
+              await new Promise((resolve) => setTimeout(resolve, responseSampleIntervalMs));
+              continue;
+            }
+          }
           recovery = await readSteadyState(options.prometheusUrl);
           consecutive = recovery.error_rate <= maxErrorRate ? consecutive + 1 : 0;
           if (consecutive >= experiment.recovery.consecutive_healthy) {

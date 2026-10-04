@@ -7,11 +7,11 @@ rule-based MAPE-K controller are kept structurally separate.
 ## Status
 
 Active development. The managed payment stack, reproducible load generator, I1–I6
-checker, no-fault experiment runner, Docker safety boundary, FS-1, and response tracker
-and rule-based controller are implemented. FS-4 provides allowlisted Toxiproxy network
-faults on the API-to-PostgreSQL, API-to-Redis, and worker-to-sink paths. A/A controls
-pass; only implemented injectors are enabled behind the safety boundary. Defect claims
-are added only after reproducible fault runs produce evidence artifacts and run IDs.
+checker, no-fault experiment runner, Docker safety boundary, response tracker, and
+rule-based controller are implemented. FS-1 covers service outages, FS-3 covers metrics
+sensor loss, and FS-4 provides allowlisted Toxiproxy network faults. A/A controls pass;
+only implemented injectors are enabled behind the safety boundary. Defect claims are
+added only after reproducible fault runs produce evidence artifacts and run IDs.
 
 Controller run `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd`
 detected a killed worker in 733 ms, selected and verified a restart, completed 281/281
@@ -35,6 +35,11 @@ degradation without corrupting acknowledged payments, and a sink-timeout run tha
 produced expected transport duplicates without duplicate financial effects. See
 `docs/fs4.md`.
 
+FS-3 run `sensor-outage-blind-mode-2026-10-04T05-26-35-890Z-e0f0d4a8` stopped the
+metrics proxy. The controller entered blind mode, emitted an alert, used Docker state as
+its fallback, and performed no action against the healthy worker. All 214 operations and
+I1-I6 passed. See `docs/fs3.md`.
+
 ## Handover
 
 - [Project introduction](docs/handover/00-project-introduction.md)
@@ -55,7 +60,7 @@ presented as a discovered defect. See
 4. Open Prometheus at <http://127.0.0.1:19090>.
 
 All published ports bind to `127.0.0.1`. Only containers labeled
-`chaos-target=true` may be attacked by the future experiment runner.
+`chaos-target=true` may be attacked by the experiment runner.
 
 ## Quality checks
 

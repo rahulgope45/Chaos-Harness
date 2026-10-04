@@ -24,7 +24,7 @@ silencing another.
 | Topic                 | Short description                                                                                                       |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Containers vs images  | An image is the immutable template; a container is one running instance with state and networking.                      |
-| Docker Compose        | Declares the seven-service local topology, dependencies, ports, volumes, labels, and health checks.                     |
+| Docker Compose        | Declares the eight-service local topology, dependencies, ports, volumes, labels, and health checks.                     |
 | Health check          | A container-level probe used by Compose dependency ordering. It is not proof of business correctness.                   |
 | Liveness vs readiness | Liveness says the process runs; readiness checks whether dependencies are usable. The API exposes both.                 |
 | Named volumes         | Preserve PostgreSQL, Redis, and Prometheus state across `docker compose down`.                                          |
@@ -86,16 +86,19 @@ consumers. Read ADR-0003, ADR-0004, F-001, and S-001 together.
 
 ## 6. Observability and Prometheus
 
-| Topic                     | Short description                                                                              |
-| ------------------------- | ---------------------------------------------------------------------------------------------- |
-| RED method                | Rate, Errors, and Duration summarize request-serving behavior.                                 |
-| Counter                   | Monotonically increasing event total, such as completed jobs. Use rates over a time window.    |
-| Gauge                     | Value that can rise or fall, such as queue depth.                                              |
-| Histogram                 | Counts observations in buckets; Prometheus estimates p95 with `histogram_quantile`.            |
-| Pull model                | Prometheus scrapes `/metrics`; the service does not push each observation to Prometheus.       |
-| Scrape target `up`        | Shows whether Prometheus could scrape a target, not whether the business workflow is correct.  |
-| Recording rule            | Stores a frequently used PromQL result such as error rate or p95 for simpler/faster queries.   |
-| Structured event timeline | Metrics show aggregate behavior; JSONL response events preserve exact control-loop boundaries. |
+| Topic                     | Short description                                                                               |
+| ------------------------- | ----------------------------------------------------------------------------------------------- |
+| RED method                | Rate, Errors, and Duration summarize request-serving behavior.                                  |
+| Counter                   | Monotonically increasing event total, such as completed jobs. Use rates over a time window.     |
+| Gauge                     | Value that can rise or fall, such as queue depth.                                               |
+| Histogram                 | Counts observations in buckets; Prometheus estimates p95 with `histogram_quantile`.             |
+| Pull model                | Prometheus scrapes `/metrics`; the service does not push each observation to Prometheus.        |
+| Scrape target `up`        | Shows whether Prometheus could scrape a target, not whether the business workflow is correct.   |
+| Recording rule            | Stores a frequently used PromQL result such as error rate or p95 for simpler/faster queries.    |
+| Structured event timeline | Metrics show aggregate behavior; JSONL response events preserve exact control-loop boundaries.  |
+| Metrics proxy / sensor    | A pass-through hop makes the observation path independently stoppable for FS-3.                 |
+| Missing data              | Absence is ambiguous: app, endpoint, proxy, network, or Prometheus may be responsible.          |
+| Blind mode                | The controller declares telemetry unavailable and avoids decisions based on the missing values. |
 
 Common trap: an empty PromQL vector is not automatically zero. The baseline work fixed a
 zero-error rule so healthy periods record `0` rather than missing data.
@@ -156,7 +159,7 @@ successful injected run is not trustworthy if the control run is noisy.
 
 | Stage     | Current meaning in this project                                                                      |
 | --------- | ---------------------------------------------------------------------------------------------------- |
-| Monitor   | Inspect Docker state for policy targets. Prometheus-based validation expands in Days 15-16.          |
+| Monitor   | Check proxy-backed Prometheus availability and inspect Docker state for policy targets.              |
 | Analyze   | Evaluate immutable snapshots and count consecutive policy breaches.                                  |
 | Plan      | Select the PostgreSQL-backed action only if hysteresis, cooldown, and restart-window rules allow it. |
 | Execute   | Restart the approved local container and verify its running state.                                   |
@@ -170,6 +173,8 @@ Related concepts:
 - **Policy as data:** changing a validated row changes behavior without rebuilding code.
 - **Separation of concerns:** the runner injects; the controller responds; JSONL events
   report timing without direct orchestration calls.
+- **Independent corroboration:** missing Prometheus data does not override healthy
+  Docker state. Present-but-corrupted telemetry validation is the Day 16 extension.
 
 ## 11. Response timing
 
@@ -227,7 +232,7 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 2. **Check recent logs:** `docker compose logs --tail 100 <service>`.
 3. **Check API liveness/readiness:** `/healthz` then `/readyz`.
 4. **Check Toxiproxy cleanup:** `curl.exe -sS http://127.0.0.1:8474/proxies`.
-5. **Check Prometheus targets:** open `http://127.0.0.1:19090/targets`.
+5. **Check the sensor:** call the two port-3003 proxy routes, then open Prometheus targets.
 6. **Check the experiment report and timeline:** determine which phase actually failed.
 7. **Check the client journal:** distinguish timeout, 5xx, retry, and acknowledged result.
 8. **Check invariants:** use violating IDs to query payment, ledger, sink, and queue state.
@@ -243,7 +248,7 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 | Payment exists but webhook is absent           | API enqueue log/window, BullMQ queue/DLQ, worker logs, sink records; suspect F-001 window                     |
 | Duplicate sink rows                            | Compare `event_id`; check injected fault and I6 policy, then verify I1/I2 for side effects                    |
 | Worker stays stopped                           | Controller running, policy enabled, Docker label/project match, restart budget/cooldown, controller log       |
-| Metrics missing                                | Service `/metrics`, Prometheus target status, scrape config, container network                                |
+| Metrics missing                                | Direct service `/metrics`, proxy port 3003 routes/logs, Prometheus targets, scrape config, container network  |
 | Experiment reports recovery but clients failed | Compare Prometheus recovery definition with load `summary.json`; correctness pass is not availability success |
 | New run sees old rows                          | Confirm run-isolated idempotency keys and the selected journal time window                                    |
 | Runner says another experiment is active       | Confirm no runner process, inspect timeline/cleanup, then handle only `.chaos-experiment.lock`                |

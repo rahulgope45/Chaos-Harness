@@ -153,4 +153,30 @@ describe("response tracker", () => {
       "anomaly_detected"
     ]);
   });
+
+  it("preserves blind-mode alerts without treating them as anomaly detection", () => {
+    const events: ResponseEvent[] = [
+      event({
+        event: "fault_injected",
+        at: "2026-10-04T00:00:00.000Z",
+        source: "runner",
+        fault: "FS_3",
+        action: "stop_sensor",
+        target: "metrics-proxy"
+      }),
+      event({
+        event: "telemetry_unavailable",
+        at: "2026-10-04T00:00:02.000Z",
+        source: "controller",
+        mode: "blind",
+        fallback: "docker",
+        reason: "missing_or_down_targets",
+        missing_jobs: ["payment-api", "payment-worker"]
+      })
+    ];
+
+    const result = buildResponseResult(runId, events, bound);
+    expect(result.timestamps.anomaly_detected_at).toBeNull();
+    expect(result.events[1]?.event).toBe("telemetry_unavailable");
+  });
 });

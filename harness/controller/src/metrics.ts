@@ -26,7 +26,26 @@ export function createControllerMetrics() {
     labelNames: ["target"] as const,
     registers: [registry]
   });
-  return { registry, cycleDuration, actions, policyBlocks, targetRunning };
+  const telemetryAvailable = new Gauge({
+    name: "chaos_controller_telemetry_available",
+    help: "Whether every required telemetry scrape target is available",
+    registers: [registry]
+  });
+  const telemetryAlerts = new Counter({
+    name: "chaos_controller_telemetry_alerts_total",
+    help: "Transitions into telemetry blind mode",
+    labelNames: ["reason"] as const,
+    registers: [registry]
+  });
+  return {
+    registry,
+    cycleDuration,
+    actions,
+    policyBlocks,
+    targetRunning,
+    telemetryAvailable,
+    telemetryAlerts
+  };
 }
 
 export type ControllerMetrics = ReturnType<typeof createControllerMetrics>;

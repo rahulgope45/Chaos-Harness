@@ -197,3 +197,18 @@
   distributed-systems decisions used by the current project.
 - Corrected the safety document's stale statement that fault injection was disabled.
 - Next: implement Day 15 FS-3 observability faults through a metrics proxy.
+
+## 2026-10-04 — FS-3 sensor disruption and controller blind mode
+
+- Added a pass-through metrics-proxy service and routed both Prometheus application jobs
+  through its target-specific endpoints.
+- Added an allowlisted FS-3 action that can stop only the labeled metrics proxy, registers
+  restoration before mutation, and waits for proxy-backed scrape recovery.
+- Added controller telemetry monitoring, blind-mode/restoration events, availability
+  metrics, and Docker-state fallback with no action inferred from missing data.
+- Live run `sensor-outage-blind-mode-2026-10-04T05-26-35-890Z-e0f0d4a8` completed
+  214/214 operations with I1-I6 passing. It emitted blind and restored events with zero
+  anomaly, plan, or action events.
+- Verified all eight Compose services healthy after automatic restoration. The suite has
+  54 passing unit tests and 10 passing integration tests.
+- Next: implement Day 16 FS-2 telemetry corruption and false-action measurement.

@@ -10,8 +10,10 @@ scrape_configs:
     static_configs:
       - targets: ["localhost:9090"]
   - job_name: payment-api
+    metrics_path: /metrics/payment-api
     static_configs:
-      - targets: ["payment-api:3000"]
+      - targets: ["metrics-proxy:3003"]
   - job_name: payment-worker
+    metrics_path: /metrics/payment-worker
     static_configs:
-      - targets: ["payment-worker:3001"]
+      - targets: ["metrics-proxy:3003"]

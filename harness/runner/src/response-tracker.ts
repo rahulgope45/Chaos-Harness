@@ -38,6 +38,19 @@ export const responseEventSchema = z.discriminatedUnion("event", [
   }),
   z.object({
     ...eventBase,
+    event: z.literal("telemetry_unavailable"),
+    mode: z.literal("blind"),
+    fallback: z.literal("docker"),
+    reason: z.enum(["missing_or_down_targets", "prometheus_unavailable"]),
+    missing_jobs: z.array(z.string().min(1)).min(1)
+  }),
+  z.object({
+    ...eventBase,
+    event: z.literal("telemetry_restored"),
+    monitored_jobs: z.array(z.string().min(1)).min(1)
+  }),
+  z.object({
+    ...eventBase,
     event: z.literal("recovered"),
     observed_error_rate: z.number().min(0),
     max_error_rate: z.number().min(0),

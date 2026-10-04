@@ -23,7 +23,7 @@ remaining Day 1 work and implemented Days 2-14 were intentionally accelerated on
 |       12 | Response tracker                         | Complete                                         |
 |       13 | Rule-based MAPE-K controller             | Complete                                         |
 |       14 | FS-4 network faults                      | Complete                                         |
-|       15 | Metrics proxy and FS-3                   | Not started                                      |
+|       15 | Metrics proxy and FS-3                   | Complete                                         |
 |       16 | FS-2 telemetry corruption                | Not started                                      |
 |       17 | Multi-run aggregation                    | Not started                                      |
 |       18 | Full bug-hunt matrix                     | Partially pre-satisfied; full matrix pending     |
@@ -272,16 +272,25 @@ injection. Toxiproxy changes TCP streams only; true packet loss is not claimed.
 - Sink timeout run `sink-timeout-retry-2026-10-04T04-47-36-937Z-734ec032` completed
   120/120; I6 reported 24 expected transport duplicates and I1/I2 stayed clean.
 
-## Day 15: Metrics proxy and FS-3 — pending
+## Day 15: Metrics proxy and FS-3
 
-**Planned:** Put a pass-through metrics proxy between Prometheus and service metrics,
-then stop the proxy/scraper to create missing telemetry. Add controller blind mode that
-does not infer failure from absent data, falls back to Docker health, and emits an alert
-event.
+**What:** Added a pass-through metrics-proxy service for the API and worker scrape paths,
+routed Prometheus through it, added a sensor-stop injector, and added controller blind
+mode with unavailable/restored events and telemetry metrics.
 
-**Why next:** The current controller can recover a stopped worker, but it has not yet
-been tested against sensor loss. Done means a healthy service is not restarted just
-because its metrics disappeared.
+**Why:** Missing metrics are not proof that an application failed. A controller that
+restarts from absent data can turn a sensor outage into a real service outage.
+
+**How:** FS-3 is schema-restricted to the local labeled `metrics-proxy`. The runner
+verifies both proxy-backed jobs before injection, registers restoration before stopping
+the proxy, and requires both jobs to return before recovery. The controller emits one
+transition alert, makes no decision from missing telemetry, and continues to observe
+Docker state as an independent fallback.
+
+**Evidence:** run `sensor-outage-blind-mode-2026-10-04T05-26-35-890Z-e0f0d4a8`
+completed 214/214 operations with 46 ms client p95 and I1-I6 passing. It emitted
+`telemetry_unavailable` and `telemetry_restored`, with zero anomaly, plan, or action
+events. The runner measured 14,932 ms to restored telemetry plus the recovery bound.
 
 ## Day 16: FS-2 telemetry corruption — pending
 
@@ -289,8 +298,8 @@ because its metrics disappeared.
 modes. Validate bounds, monotonic counters, and staleness, and corroborate telemetry with
 Docker state before destructive action.
 
-**Why:** Bad data can make an automated controller actively harmful. The required result
-is a measured false-action count for every corruption mode.
+**Why next:** Bad data can make an automated controller actively harmful. The required
+result is a measured false-action count for every corruption mode.
 
 ## Day 17: Multi-run orchestration and reports — pending
 
@@ -334,5 +343,5 @@ example, and a consolidated Docker-socket security section.
 limitations, finding/fix summary, demo recording, v1.0.0 tag, and resume bullets based
 only on verified evidence.
 
-**Why last:** Final claims must reflect completed FS-2/FS-3, N>=10 aggregation, and
+**Why last:** Final claims must reflect completed FS-2, N>=10 aggregation, and
 before/after fixes rather than today's partial result set.

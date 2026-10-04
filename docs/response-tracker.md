@@ -1,10 +1,10 @@
 # Response tracker
 
-The response tracker validates and appends five event types to
-`response-events.jsonl`: `fault_injected`, `anomaly_detected`, `plan_selected`,
-`action_executed`, and `recovered`. The runner writes fault and recovery events; the
-controller writes the middle three through the same schema without directly calling
-runner code.
+The response tracker validates and appends seven event types to `response-events.jsonl`:
+`fault_injected`, `anomaly_detected`, `plan_selected`, `action_executed`,
+`telemetry_unavailable`, `telemetry_restored`, and `recovered`. The runner writes fault
+and recovery events; the controller writes application-response and telemetry-state
+events through the same schema without directly calling runner code.
 
 Each run produces `response.json` with schema version 1, source timestamps, the effective
 recovery bound, and these durations:
@@ -29,3 +29,7 @@ FS-1 run `kill-worker-mid-batch-2026-10-04T04-19-35-332Z-791c2def` recorded:
 
 This is one integration proof, not an aggregate performance claim. Day 17 requires at
 least ten repeats before publishing median or p90 response statistics.
+
+FS-3 telemetry events are preserved in the same event list but are not substituted for
+application anomaly detection. Therefore the verified sensor-outage run correctly has
+MTTD `null` while still proving that the controller entered and exited blind mode.

@@ -1,7 +1,13 @@
 interface PrometheusResponse {
   status: "success" | "error";
-  data?: { result?: Array<{ value?: [number, string] }> };
+  data?: { result?: Array<{ metric?: Record<string, string>; value?: [number, string] }> };
   error?: string;
+}
+
+export interface ScrapeAvailability {
+  available: boolean;
+  missing_jobs: string[];
+  measured_at: string;
 }
 
 export interface SteadyStateSnapshot {
@@ -34,6 +40,29 @@ export async function readSteadyState(prometheusUrl: string): Promise<SteadyStat
     error_rate: errorRate ?? 0,
     p95_seconds: p95,
     throughput_per_second: throughput ?? 0,
+    measured_at: new Date().toISOString()
+  };
+}
+
+export async function readScrapeAvailability(
+  prometheusUrl: string,
+  jobs: readonly string[]
+): Promise<ScrapeAvailability> {
+  const url = new URL("/api/v1/query", prometheusUrl);
+  url.searchParams.set("query", `up{job=~"${jobs.join("|")}",instance="metrics-proxy:3003"}`);
+  const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+  if (!response.ok) throw new Error(`Prometheus returned ${response.status}`);
+  const body = (await response.json()) as PrometheusResponse;
+  if (body.status !== "success") throw new Error(body.error ?? "Prometheus query failed");
+  const values = new Map(
+    (body.data?.result ?? []).flatMap(({ metric, value }) =>
+      metric?.job && value ? [[metric.job, value[1]] as const] : []
+    )
+  );
+  const missingJobs = jobs.filter((job) => values.get(job) !== "1");
+  return {
+    available: missingJobs.length === 0,
+    missing_jobs: missingJobs,
     measured_at: new Date().toISOString()
   };
 }

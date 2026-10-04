@@ -9,6 +9,7 @@ COPY packages/queue/package.json packages/queue/package.json
 COPY services/payment-api/package.json services/payment-api/package.json
 COPY services/payment-worker/package.json services/payment-worker/package.json
 COPY services/webhook-sink/package.json services/webhook-sink/package.json
+COPY services/metrics-proxy/package.json services/metrics-proxy/package.json
 
 RUN npm ci
 

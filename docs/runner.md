@@ -10,10 +10,11 @@ successful run preserves the validated config, phase timeline, Prometheus baseli
 load journal and summary, invariant output, response event stream, response timing, and
 final JSON report.
 
-`fault: none`, FS-1, and FS-4 are executable. FS-1 supports kill, stop, pause, and
-restart behind the Docker safety layer. FS-4 accepts only the three statically configured
-Toxiproxy paths and supports latency with jitter, timeout, and reset-peer toxics. FS-2
-and FS-3 remain refused until their corresponding injectors are installed.
+`fault: none`, FS-1, FS-3, and FS-4 are executable. FS-1 supports kill, stop, pause, and
+restart behind the Docker safety layer. FS-3 can stop only the labeled metrics proxy and
+requires proxy-backed Prometheus targets to recover. FS-4 accepts only the three
+statically configured Toxiproxy paths and supports latency with jitter, timeout, and
+reset-peer toxics. FS-2 remains refused until its injector is installed.
 
 Experiments may set `duplicate_observation_s` independently of
 `invariant_drain_timeout_s`. The former watches for delayed duplicate transport events;
@@ -56,3 +57,10 @@ Run `sink-timeout-retry-2026-10-04T04-47-36-937Z-734ec032` completed 120/120 ope
 I1–I5 passed and I6 reported 24 duplicate event IDs, each delivered twice. Those are
 expected transport duplicates under an injected timeout; no duplicate financial effect
 was observed. Both runs automatically removed their toxic before recovery verification.
+
+## Verified sensor disruption
+
+FS-3 run `sensor-outage-blind-mode-2026-10-04T05-26-35-890Z-e0f0d4a8` stopped and
+restored the metrics proxy. The controller emitted one blind-mode alert and a restoration
+event, with no anomaly, plan, or action event. The workload completed 214/214 operations
+and I1-I6 passed. Recovery was not declared until both proxy-backed scrape jobs returned.

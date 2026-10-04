@@ -7,6 +7,7 @@ import { createControllerMetrics } from "./metrics.js";
 import type { ControllerPolicy, TargetSnapshot } from "./policy.js";
 import type { PolicyStore } from "./store.js";
 import type { TargetManager } from "./docker-target.js";
+import type { TelemetryMonitor, TelemetrySnapshot } from "./telemetry.js";
 
 const policy: ControllerPolicy = {
   id: "restart-payment-worker-v1",
@@ -21,6 +22,23 @@ const policy: ControllerPolicy = {
   restartWindowMs: 60_000,
   pollIntervalMs: 500
 };
+
+const telemetrySnapshot = (available: boolean): TelemetrySnapshot =>
+  available
+    ? {
+        available: true,
+        missingJobs: [],
+        monitoredJobs: ["payment-api", "payment-worker"],
+        observedAtMs: 1000,
+        reason: "available"
+      }
+    : {
+        available: false,
+        missingJobs: ["payment-api", "payment-worker"],
+        monitoredJobs: ["payment-api", "payment-worker"],
+        observedAtMs: 1000,
+        reason: "missing_or_down_targets"
+      };
 
 describe("MAPE-K controller cycle", () => {
   it("reloads policy, detects after hysteresis, plans, and verifies restart", async () => {
@@ -55,6 +73,7 @@ describe("MAPE-K controller cycle", () => {
     const controller = new MapekController(
       store,
       targets,
+      { observe: async () => telemetrySnapshot(true) },
       events,
       createControllerMetrics(),
       pino({ level: "silent" })
@@ -69,6 +88,55 @@ describe("MAPE-K controller cycle", () => {
       "anomaly_detected",
       "plan_selected",
       "action_executed"
+    ]);
+  });
+
+  it("enters blind mode once and does not restart a healthy Docker target", async () => {
+    let available = false;
+    let restarts = 0;
+    const recorded: ResponseEventInput[] = [];
+    const store: PolicyStore = {
+      loadEnabled: async () => [policy],
+      close: async () => undefined
+    };
+    const targets: TargetManager = {
+      observe: async () => ({
+        service: "payment-worker",
+        running: true,
+        paused: false,
+        observedAtMs: 1000
+      }),
+      restartAndVerify: async () => {
+        restarts += 1;
+      }
+    };
+    const telemetry: TelemetryMonitor = {
+      observe: async () => telemetrySnapshot(available)
+    };
+    const events: ControllerEventSink = {
+      record: async (input) => {
+        recorded.push(input);
+        return null;
+      }
+    };
+    const controller = new MapekController(
+      store,
+      targets,
+      telemetry,
+      events,
+      createControllerMetrics(),
+      pino({ level: "silent" })
+    );
+
+    await controller.cycle();
+    await controller.cycle();
+    available = true;
+    await controller.cycle();
+
+    expect(restarts).toBe(0);
+    expect(recorded.map(({ event }) => event)).toEqual([
+      "telemetry_unavailable",
+      "telemetry_restored"
     ]);
   });
 });

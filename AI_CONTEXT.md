@@ -12,26 +12,27 @@ and run ID.
 
 ## Feature status
 
-| Feature                  | Status      | Evidence                                             |
-| ------------------------ | ----------- | ---------------------------------------------------- |
-| Workspace/tooling        | Complete    | lint, format, typecheck, and 2 config tests pass     |
-| Local infrastructure     | Complete    | PostgreSQL, Redis, Prometheus, and Toxiproxy healthy |
-| Database invariants      | Complete    | 3 live PostgreSQL rejection tests pass               |
-| Payment API              | Complete    | 5 live integration tests, race and Redis fallback    |
-| Queue, worker, sink      | Complete    | 2 live tests plus healthy container end-to-end run   |
-| Observability            | Complete    | live metrics, both Prometheus targets up, rules load |
-| Load generator           | Complete    | run-isolated keys; 43 unit tests pass                |
-| Invariant checker I1–I6  | Complete    | delayed I6 replay evidence plus synthetic proofs     |
-| Experiment runner        | Complete    | A/A control report with I1–I6 passing                |
-| Safety layer             | Complete    | refusal/abort tests, live dry-run, safe control      |
-| FS-1 injector            | Complete    | findings F-001 and F-002; delayed duplicate report   |
-| Synthetic scenario S-001 | Complete    | planted non-idempotent consumer; never a finding     |
-| Response tracker         | Complete    | live MTTR 6,939 ms; honest null MTTD                 |
-| MAPE-K controller        | Complete    | live MTTD 733 ms; 281/281 and I1–I6 pass             |
-| FS-4 network faults      | Complete    | two live runs; automatic toxic cleanup               |
-| Handover documentation   | Complete    | intro, startup, day history, and study guide         |
-| FS-2, FS-3               | Not started | —                                                    |
-| Aggregate/fix phase      | Partial     | run evidence exists; F-001 and N>=10 work pending    |
+| Feature                  | Status      | Evidence                                           |
+| ------------------------ | ----------- | -------------------------------------------------- |
+| Workspace/tooling        | Complete    | lint, format, typecheck, and 2 config tests pass   |
+| Local infrastructure     | Complete    | eight Compose services healthy                     |
+| Database invariants      | Complete    | 3 live PostgreSQL rejection tests pass             |
+| Payment API              | Complete    | 5 live integration tests, race and Redis fallback  |
+| Queue, worker, sink      | Complete    | 2 live tests plus healthy container end-to-end run |
+| Observability            | Complete    | both app jobs scrape through metrics proxy         |
+| Load generator           | Complete    | run-isolated keys; 54 unit tests pass              |
+| Invariant checker I1–I6  | Complete    | delayed I6 replay evidence plus synthetic proofs   |
+| Experiment runner        | Complete    | A/A control report with I1–I6 passing              |
+| Safety layer             | Complete    | refusal/abort tests, live dry-run, safe control    |
+| FS-1 injector            | Complete    | findings F-001 and F-002; delayed duplicate report |
+| Synthetic scenario S-001 | Complete    | planted non-idempotent consumer; never a finding   |
+| Response tracker         | Complete    | live MTTR 6,939 ms; honest null MTTD               |
+| MAPE-K controller        | Complete    | live MTTD 733 ms; 281/281 and I1–I6 pass           |
+| FS-4 network faults      | Complete    | two live runs; automatic toxic cleanup             |
+| FS-3 sensor disruption   | Complete    | blind/restored events; zero controller actions     |
+| Handover documentation   | Complete    | intro, startup, day history, and study guide       |
+| FS-2 telemetry faults    | Not started | —                                                  |
+| Aggregate/fix phase      | Partial     | run evidence exists; F-001 and N>=10 work pending  |
 
 ## Verified local environment
 
@@ -40,6 +41,7 @@ and run ID.
 - PostgreSQL: `127.0.0.1:5432`.
 - Redis: `127.0.0.1:6380`; port 6379 belongs to an unrelated local project.
 - Prometheus: `127.0.0.1:19090`; ports 9090 and 9091 are already occupied locally.
+- Metrics proxy: `127.0.0.1:3003`.
 - Toxiproxy API: `127.0.0.1:8474`.
 
 ## Known dependency issue
@@ -69,6 +71,8 @@ silently force the downgrade.
   Hysteresis, cooldown, and restart-window limits are mandatory policy fields.
 - FS-4 is restricted to three static Toxiproxy paths. It supports latency/jitter,
   timeout, and reset-peer toxics; it does not claim true packet loss.
+- Missing proxy-backed telemetry enters blind mode and emits an alert. No destructive
+  action is inferred from absence; Docker state remains the independent fallback.
 - No LICENSE is required yet.
 
 ## Database layer
@@ -98,15 +102,15 @@ exponential backoff. The worker posts to the sink, gracefully closes in-flight w
 logs stalled jobs, and copies exhausted events to a dedicated dead-letter queue. The
 sink persists every accepted delivery and supports controlled failure and latency.
 
-All seven Compose services are healthy. A real request through `127.0.0.1:3000` was
+All eight Compose services are healthy. A real request through `127.0.0.1:3000` was
 delivered to the containerized sink on `127.0.0.1:3002`.
 
 ## Observability
 
 The API exports request count and duration histogram metrics. The worker exports
 completed/failed job counters, job duration, and live queue depth. Prometheus scrapes
-both services and loads recording rules for error rate, p95 latency, and throughput.
-Live verification returned `up=1` for both targets after controlled payment traffic.
+both through `services/metrics-proxy` and loads recording rules for error rate, p95
+latency, and throughput. Live verification returned `up=1` for both proxy-backed jobs.
 
 ## Baseline load
 
@@ -174,8 +178,8 @@ now unique per run, and I6 observes delayed duplicates independently of I5's dra
 
 ## Response tracker
 
-The runner appends validated `fault_injected`, `anomaly_detected`, `plan_selected`,
-`action_executed`, and `recovered` events to a per-run JSONL stream. `response.json`
+The runner/controller append validated fault, anomaly, plan, action, telemetry-blind,
+telemetry-restored, and recovery events to a per-run JSONL stream. `response.json`
 records schema version 1, effective recovery bounds, timestamps, MTTD, MTTR, and
 intermediate durations. Run
 `kill-worker-mid-batch-2026-10-04T04-19-35-332Z-791c2def` measured an unhealed MTTR of
@@ -191,6 +195,21 @@ controller response events through the shared file protocol. Run
 `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd` recorded MTTD 733 ms,
 MTTR 8,581 ms, 281/281 successful operations, and I1–I6 passing. These are single-run
 functional measurements, not Day 17 aggregate statistics.
+
+## FS-3 sensor disruption
+
+`services/metrics-proxy` is the single pass-through sensor for the payment API and worker
+Prometheus jobs. FS-3 may stop only that labeled container. The runner requires healthy
+proxy-backed jobs before injection, registers restoration before stopping it, and waits
+for both jobs to return before recovery.
+
+The controller emits a transition-based blind-mode alert when either required job is
+missing/down, never derives a destructive action from absent data, and continues to use
+Docker state for the current container restart policy. Run
+`sensor-outage-blind-mode-2026-10-04T05-26-35-890Z-e0f0d4a8` emitted blind and restored
+events, no anomaly/plan/action events, completed 214/214 operations, and passed I1-I6.
+The runner recorded 14,932 ms to recovery; MTTD is null because sensor loss was not
+misclassified as an application anomaly. This is one functional run.
 
 ## FS-4 network faults
 
@@ -215,8 +234,8 @@ revert.
 
 ## Next implementation
 
-Implement Day 15 FS-3 observability faults through a metrics proxy, with explicit stale,
-delayed, and unavailable telemetry behavior and controller evidence.
+Implement Day 16 FS-2 telemetry corruption through the metrics proxy, including spike,
+drop, freeze/stale, noise, and counter-reset modes plus false-action measurement.
 
 ## Handover documents
 

@@ -40,6 +40,43 @@ services:
     networks:
       - chaos-network
 
+  metrics-proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["npm", "run", "start", "--workspace", "@chaos/metrics-proxy"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-chaos}:${POSTGRES_PASSWORD:-chaos}@postgres:5432/${POSTGRES_DB:-chaos_harness}
+      REDIS_URL: redis://redis:6379
+      METRICS_PROXY_PORT: 3003
+      PAYMENT_API_METRICS_URL: http://payment-api:3000/metrics
+      PAYMENT_WORKER_METRICS_URL: http://payment-worker:3001/metrics
+      LOG_LEVEL: info
+    ports:
+      - "127.0.0.1:${METRICS_PROXY_PORT:-3003}:3003"
+    labels:
+      chaos-target: "true"
+    depends_on:
+      payment-api:
+        condition: service_healthy
+      payment-worker:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3003/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    networks:
+      - chaos-network
+
   prometheus:
     image: prom/prometheus:v3.15.0-busybox
     restart: "no"
@@ -52,6 +89,9 @@ services:
       - ./infra/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - ./infra/prometheus/recording-rules.yml:/etc/prometheus/recording-rules.yml:ro
       - prometheus_data:/prometheus
+    depends_on:
+      metrics-proxy:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:9090/-/healthy"]
       interval: 5s
