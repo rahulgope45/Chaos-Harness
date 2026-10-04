@@ -20,11 +20,12 @@ and run ID.
 | Payment API                | Complete    | 5 live integration tests, race and Redis fallback    |
 | Queue, worker, sink        | Complete    | 2 live tests plus healthy container end-to-end run   |
 | Observability              | Complete    | live metrics, both Prometheus targets up, rules load |
-| Load generator             | Complete    | run-isolated keys; 28 unit tests pass                |
+| Load generator             | Complete    | run-isolated keys; 29 unit tests pass                |
 | Invariant checker I1–I6    | Complete    | delayed I6 replay evidence plus synthetic proofs     |
 | Experiment runner          | Complete    | A/A control report with I1–I6 passing                |
 | Safety layer               | Complete    | refusal/abort tests, live dry-run, safe control      |
 | FS-1 injector              | Complete    | findings F-001 and F-002; delayed duplicate report   |
+| Synthetic scenario S-001   | Complete    | planted non-idempotent consumer; never a finding     |
 | Other injectors/controller | Not started | —                                                    |
 | Evidence runs and fixes    | Not started | —                                                    |
 
@@ -56,6 +57,8 @@ silently force the downgrade.
   no duplicate financial effects.
 - Deliberately corrupted data is labeled synthetic and never reported as a genuine
   discovered defect.
+- S-001 is the single requested fabricated scenario: an explicitly planted
+  non-idempotent webhook consumer duplicates an email side effect on redelivery.
 - No LICENSE is required yet.
 
 ## Database layer
@@ -161,5 +164,5 @@ now unique per run, and I6 observes delayed duplicates independently of I5's dra
 
 ## Next implementation
 
-Create one explicitly synthetic bug demonstration, keeping its planted mechanism and
-evidence separate from genuine findings F-001 and F-002. Then continue with FS-2.
+Implement FS-2 network latency/timeout injection through Toxiproxy, preserving the same
+safety, artifact, and classification rules.

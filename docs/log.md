@@ -127,3 +127,12 @@
 - Classified the duplicates as report-only under ADR-0004 because no duplicate financial
   effect occurred.
 - Next: add one clearly labeled synthetic defect demonstration, then implement FS-2.
+
+## 2026-10-04 — Explicit synthetic scenario S-001
+
+- Added a deliberately non-idempotent webhook consumer fixture that sends a receipt
+  email effect once per delivery without deduplicating `event_id`.
+- Replayed one event twice and generated deterministic evidence showing two side effects.
+- Labeled the implementation, test, documentation, and artifact as synthetic; it is not
+  counted as a genuine finding.
+- Next: implement FS-2 through the existing Toxiproxy boundary.

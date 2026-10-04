@@ -1,0 +1,38 @@
+{
+  "scenario_id": "S-001",
+  "classification": "synthetic",
+  "genuine_finding": false,
+  "planted_design": "consumer performs a side effect without deduplicating event_id",
+  "expected_contract": "at most one receipt email side effect per event_id",
+  "stimulus": {
+    "event": {
+      "eventId": "synthetic-event-001",
+      "paymentId": "00000000-0000-4000-8000-000000000001"
+    },
+    "delivery_count": 2
+  },
+  "observed": {
+    "side_effect_count": 2,
+    "side_effects": [
+      {
+        "sequence": 1,
+        "eventId": "synthetic-event-001",
+        "paymentId": "00000000-0000-4000-8000-000000000001",
+        "kind": "receipt_email_sent"
+      },
+      {
+        "sequence": 2,
+        "eventId": "synthetic-event-001",
+        "paymentId": "00000000-0000-4000-8000-000000000001",
+        "kind": "receipt_email_sent"
+      }
+    ]
+  },
+  "status": "detected",
+  "violations": [
+    {
+      "event_id": "synthetic-event-001",
+      "side_effect_count": 2
+    }
+  ]
+}

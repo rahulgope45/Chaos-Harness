@@ -24,6 +24,11 @@ revealed and fixed genuine finding F-002: repeated seeds reused persisted idempo
 keys and could contaminate evidence across runs. See
 `docs/findings/F-002-cross-run-evidence-contamination.md`.
 
+One intentionally fabricated case is kept separately as synthetic scenario S-001. It
+models a non-idempotent webhook consumer duplicating an email side effect and is never
+presented as a discovered defect. See
+`docs/synthetic/S-001-non-idempotent-webhook-consumer.md`.
+
 ## Local infrastructure
 
 1. Copy `.env.example` to `.env` if you need to override the safe local defaults.
