@@ -24,7 +24,7 @@ and run ID.
 | Invariant checker I1–I6    | Complete    | live I1–I6 pass plus 6 synthetic corruption proofs   |
 | Experiment runner          | Complete    | A/A control report with I1–I6 passing                |
 | Safety layer               | Complete    | refusal/abort tests, live dry-run, safe control      |
-| FS-1 injector              | Not started | Next feature                                         |
+| FS-1 injector              | Complete    | worker pass plus API event-loss finding F-001        |
 | Other injectors/controller | Not started | —                                                    |
 | Evidence runs and fixes    | Not started | —                                                    |
 
@@ -50,8 +50,8 @@ silently force the downgrade.
 - Only local containers labeled `chaos-target=true` may be attacked.
 - I6 duplicate delivery is report-only after a real injected fault and fails a
   no-fault control run. I1 and I2 always fail on duplicate financial effects.
-- Genuine candidate defects are commit-before-enqueue event loss and worker
-  crash-after-side-effect duplicate processing.
+- Genuine finding F-001 confirms commit-before-enqueue event loss under API SIGKILL.
+  Worker crash-after-side-effect duplicate processing remains a candidate.
 - Deliberately corrupted data is labeled synthetic and never reported as a genuine
   discovered defect.
 - No LICENSE is required yet.
@@ -132,8 +132,19 @@ dry-run approved `payment-api`, and safety-wrapped control run
 `no-fault-control-2026-10-04T03-33-27-280Z-adf0733d` passed 56/56 operations and I1–I6;
 all seven services remained healthy.
 
+## FS-1 and genuine finding F-001
+
+FS-1 implements kill, stop, pause, and restart behind the allowlist and pre-registered
+cleanup. Worker-kill run `kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb`
+passed 394/394 operations and I1–I6. API-kill run
+`kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` failed I5: four payments
+committed during timed-out requests had no sink delivery or DLQ record after 45 seconds.
+This confirms the ADR-0003 commit-before-enqueue window as genuine finding F-001. Both
+services were automatically restored healthy. The planned fix is a transactional outbox
+with before/after replay evidence.
+
 ## Next implementation
 
-Implement FS-1 Docker actions behind the safety session, then run worker-kill and
-API-after-commit experiments without a controller. Preserve any genuine findings with
-run IDs; do not count synthetic fixtures as bugs.
+Commit FS-1 and F-001, then pursue the second genuine candidate: duplicate processing
+when a worker dies after the webhook side effect but before BullMQ completion. Keep any
+deterministic failpoint labeled synthetic unless the behavior reproduces without it.

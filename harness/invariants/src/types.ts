@@ -9,6 +9,8 @@ export interface JournalEntry {
   attempt: number;
   status: number | null;
   payment_id: string | null;
+  started_at?: string | undefined;
+  completed_at?: string | undefined;
 }
 
 export interface InvariantResult {

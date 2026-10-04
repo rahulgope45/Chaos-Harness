@@ -8,7 +8,9 @@ const journalEntrySchema = z.object({
   request_hash: z.string().min(1),
   attempt: z.number().int().positive(),
   status: z.number().int().nullable(),
-  payment_id: z.string().uuid().nullable()
+  payment_id: z.string().uuid().nullable(),
+  started_at: z.string().datetime().optional(),
+  completed_at: z.string().datetime().optional()
 });
 
 export async function readJournal(path: string): Promise<JournalEntry[]> {

@@ -1,0 +1,9 @@
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","phase":"preflight","at":"2026-10-04T03:41:27.314Z"}
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","phase":"baseline","at":"2026-10-04T03:41:27.464Z"}
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","phase":"inject","at":"2026-10-04T03:41:27.474Z"}
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","phase":"observe","at":"2026-10-04T03:41:27.474Z"}
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker","at":"2026-10-04T03:41:30.212Z"}
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","phase":"revert","at":"2026-10-04T03:41:35.489Z"}
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","phase":"recovery_wait","at":"2026-10-04T03:41:35.872Z"}
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","phase":"verify","at":"2026-10-04T03:41:36.913Z"}
+{"run_id":"kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb","phase":"report","at":"2026-10-04T03:41:39.004Z"}

@@ -98,3 +98,17 @@
 - Safety-wrapped control `no-fault-control-2026-10-04T03-33-27-280Z-adf0733d` passed
   56/56 operations and I1–I6; all seven services remained healthy afterward.
 - Next: add FS-1 actions behind this boundary and run the first unhealed experiments.
+
+## 2026-10-04 — FS-1 and first genuine finding
+
+- Added kill, stop, pause, and restart actions with recovery registered before mutation.
+- Worker-kill run `kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb` passed
+  394/394 operations and I1–I6; the worker was restored healthy.
+- Corrected I5 to include every payment committed during the journal time window, not
+  only payments whose client received a 2xx response.
+- API-kill run `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` confirmed
+  F-001: four committed payments had no delivery or DLQ record after a 45-second drain.
+- Preserved the failed report and documented the enqueue-after-commit root cause and
+  transactional-outbox remediation. Both killed services were restored healthy.
+- Next: hunt the worker crash-after-side-effect duplicate candidate without counting
+  deterministic synthetic fixtures as genuine evidence.

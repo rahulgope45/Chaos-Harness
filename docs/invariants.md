@@ -4,14 +4,14 @@ The checker evaluates one client journal against live PostgreSQL and BullMQ stat
 returns typed records shaped as `{ invariant, status, violations, evidence }` and exits
 non-zero when any hard invariant fails.
 
-| ID  | Contract                                                                                          | Scope                                 |
-| --- | ------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| I1  | At most one payment per idempotency key; every successful response for a key names one payment ID | Global database plus selected journal |
-| I2  | Debits equal credits per payment and globally                                                     | Global database                       |
-| I3  | Every payment acknowledged with 2xx still exists                                                  | Selected journal                      |
-| I4  | No payment lacks ledger entries and no ledger entry lacks a payment                               | Global database                       |
-| I5  | Every acknowledged payment is delivered or dead-lettered after a bounded drain                    | Selected journal plus sink and DLQ    |
-| I6  | Duplicate delivery event IDs are counted                                                          | Selected journal's payments           |
+| ID  | Contract                                                                                          | Scope                                  |
+| --- | ------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| I1  | At most one payment per idempotency key; every successful response for a key names one payment ID | Global database plus selected journal  |
+| I2  | Debits equal credits per payment and globally                                                     | Global database                        |
+| I3  | Every payment acknowledged with 2xx still exists                                                  | Selected journal                       |
+| I4  | No payment lacks ledger entries and no ledger entry lacks a payment                               | Global database                        |
+| I5  | Every payment committed during the journal window is delivered or dead-lettered after a drain     | Journal window, database, sink and DLQ |
+| I6  | Duplicate delivery event IDs are counted                                                          | Selected journal's payments            |
 
 I6 follows ADR-0004: duplicates fail no-fault controls, but default to `report` after an
 actually injected fault. Setting `INVARIANT_I6_POLICY=fail` makes fault runs stricter.

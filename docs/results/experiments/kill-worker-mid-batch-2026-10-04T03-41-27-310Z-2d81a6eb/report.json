@@ -1,0 +1,109 @@
+{
+  "run_id": "kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb",
+  "experiment": "kill-worker-mid-batch",
+  "hypothesis": "Killing the webhook worker loses no acknowledged payment events after recovery.",
+  "fault": "FS_1",
+  "target": "payment-worker",
+  "seed": 201,
+  "started_at": "2026-10-04T03:41:27.314Z",
+  "completed_at": "2026-10-04T03:41:39.004Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.004791666666666666,
+    "throughput_per_second": 0.38984504506947715,
+    "measured_at": "2026-10-04T03:41:27.473Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.004791666666666667,
+    "throughput_per_second": 0.389846366631863,
+    "measured_at": "2026-10-04T03:41:36.913Z"
+  },
+  "load": {
+    "run_id": "baseline-2026-10-04T03-41-27-474Z-s201-5e3d5fca",
+    "seed": 201,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 50,
+    "scheduled_operations": 394,
+    "successful_operations": 394,
+    "failed_operations": 0,
+    "replay_operations": 17,
+    "client_p95_ms": 39,
+    "achieved_throughput_per_second": 49.182374235426295,
+    "elapsed_seconds": 8.011,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-41-27-474Z-s201-5e3d5fca",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-41-27-474Z-s201-5e3d5fca",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-41-27-474Z-s201-5e3d5fca",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-41-27-474Z-s201-5e3d5fca",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-41-27-474Z-s201-5e3d5fca",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-41-27-474Z-s201-5e3d5fca",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

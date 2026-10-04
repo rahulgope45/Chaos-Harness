@@ -1,0 +1,9 @@
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","phase":"preflight","at":"2026-10-04T03:43:44.849Z"}
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","phase":"baseline","at":"2026-10-04T03:43:45.032Z"}
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","phase":"inject","at":"2026-10-04T03:43:45.053Z"}
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","phase":"observe","at":"2026-10-04T03:43:45.054Z"}
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-api","at":"2026-10-04T03:43:51.618Z"}
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","phase":"revert","at":"2026-10-04T03:43:53.082Z"}
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","phase":"recovery_wait","at":"2026-10-04T03:43:53.614Z"}
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","phase":"verify","at":"2026-10-04T03:43:54.657Z"}
+{"run_id":"kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248","event":"run_failed","error":"One or more invariants failed","at":"2026-10-04T03:44:40.406Z"}

@@ -1,0 +1,93 @@
+[
+  {
+    "invariant": "I1",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+      "journal_entries": 1468,
+      "successful_entries": 93,
+      "unique_acknowledged_payments": 93
+    }
+  },
+  {
+    "invariant": "I2",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+      "journal_entries": 1468,
+      "successful_entries": 93,
+      "unique_acknowledged_payments": 93
+    }
+  },
+  {
+    "invariant": "I3",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+      "journal_entries": 1468,
+      "successful_entries": 93,
+      "unique_acknowledged_payments": 93
+    }
+  },
+  {
+    "invariant": "I4",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+      "journal_entries": 1468,
+      "successful_entries": 93,
+      "unique_acknowledged_payments": 93
+    }
+  },
+  {
+    "invariant": "I5",
+    "status": "fail",
+    "violations": [
+      {
+        "payment_id": "e929346c-8ddb-4254-a8f0-87fc2fe005ae",
+        "delivered": false,
+        "dead_lettered": false
+      },
+      {
+        "payment_id": "266c390c-20e2-4cf0-a3f4-d4451578114a",
+        "delivered": false,
+        "dead_lettered": false
+      },
+      {
+        "payment_id": "7eaee051-0984-4b70-8e7c-97d672435c6f",
+        "delivered": false,
+        "dead_lettered": false
+      },
+      {
+        "payment_id": "251c3dd3-f4b0-4e84-8695-db2c2c38712f",
+        "delivered": false,
+        "dead_lettered": false
+      }
+    ],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+      "journal_entries": 1468,
+      "successful_entries": 93,
+      "unique_acknowledged_payments": 93,
+      "drain_timeout_ms": 45000
+    }
+  },
+  {
+    "invariant": "I6",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+      "journal_entries": 1468,
+      "successful_entries": 93,
+      "unique_acknowledged_payments": 93,
+      "fault_injected": true,
+      "configured_policy": "report",
+      "effective_policy": "report"
+    }
+  }
+]

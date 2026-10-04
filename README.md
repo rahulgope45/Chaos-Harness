@@ -12,6 +12,12 @@ controls pass; fault injection remains disabled until each injector is implement
 behind that boundary. Defect claims will only be added after reproducible fault runs
 produce evidence artifacts and run IDs.
 
+FS-1 is now implemented. Run
+`kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` confirmed the first genuine
+defect: four committed payments lost their webhook event because database commit and
+queue enqueue are not atomic. See
+`docs/findings/F-001-commit-before-enqueue-event-loss.md`.
+
 ## Local infrastructure
 
 1. Copy `.env.example` to `.env` if you need to override the safe local defaults.

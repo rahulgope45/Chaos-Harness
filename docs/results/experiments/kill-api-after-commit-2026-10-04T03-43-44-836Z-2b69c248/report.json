@@ -1,0 +1,131 @@
+{
+  "run_id": "kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248",
+  "experiment": "kill-api-after-commit",
+  "hypothesis": "Killing the API during load leaves no committed payment without a terminal event.",
+  "fault": "FS_1",
+  "target": "payment-api",
+  "seed": 301,
+  "started_at": "2026-10-04T03:43:44.848Z",
+  "completed_at": "2026-10-04T03:44:40.406Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.02456783536585366,
+    "throughput_per_second": 1.7255056172157324,
+    "measured_at": "2026-10-04T03:43:45.052Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.02456783536585366,
+    "throughput_per_second": 1.7255056172157324,
+    "measured_at": "2026-10-04T03:43:54.656Z"
+  },
+  "load": {
+    "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+    "seed": 301,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 100,
+    "scheduled_operations": 783,
+    "successful_operations": 93,
+    "failed_operations": 690,
+    "replay_operations": 32,
+    "client_p95_ms": 1853,
+    "achieved_throughput_per_second": 97.63092269326684,
+    "elapsed_seconds": 8.02,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+        "journal_entries": 1468,
+        "successful_entries": 93,
+        "unique_acknowledged_payments": 93
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+        "journal_entries": 1468,
+        "successful_entries": 93,
+        "unique_acknowledged_payments": 93
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+        "journal_entries": 1468,
+        "successful_entries": 93,
+        "unique_acknowledged_payments": 93
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+        "journal_entries": 1468,
+        "successful_entries": 93,
+        "unique_acknowledged_payments": 93
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "fail",
+      "violations": [
+        {
+          "payment_id": "e929346c-8ddb-4254-a8f0-87fc2fe005ae",
+          "delivered": false,
+          "dead_lettered": false
+        },
+        {
+          "payment_id": "266c390c-20e2-4cf0-a3f4-d4451578114a",
+          "delivered": false,
+          "dead_lettered": false
+        },
+        {
+          "payment_id": "7eaee051-0984-4b70-8e7c-97d672435c6f",
+          "delivered": false,
+          "dead_lettered": false
+        },
+        {
+          "payment_id": "251c3dd3-f4b0-4e84-8695-db2c2c38712f",
+          "delivered": false,
+          "dead_lettered": false
+        }
+      ],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+        "journal_entries": 1468,
+        "successful_entries": 93,
+        "unique_acknowledged_payments": 93,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-04T03-43-45-054Z-s301-36989358",
+        "journal_entries": 1468,
+        "successful_entries": 93,
+        "unique_acknowledged_payments": 93,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "failed",
+  "error": "One or more invariants failed"
+}

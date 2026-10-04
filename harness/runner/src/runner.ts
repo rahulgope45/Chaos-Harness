@@ -10,9 +10,15 @@ import {
 } from "@chaos/invariants";
 import { runLoad } from "@chaos/loadgen";
 import type { Experiment } from "./config.js";
+import { injectFs1, waitForInjection } from "./fs1.js";
 import { executeLifecycle, type Phase } from "./lifecycle.js";
 import { readSteadyState, type SteadyStateSnapshot } from "./prometheus.js";
-import { SafetySession, resolveAllowedTarget, watchErrorRate } from "./safety.js";
+import {
+  SafetySession,
+  resolveAllowedTarget,
+  watchErrorRate,
+  type TargetIdentity
+} from "./safety.js";
 
 interface RunnerOptions {
   experiment: Experiment;
@@ -46,6 +52,8 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   let recovery: SteadyStateSnapshot | null = null;
   let loadSummary: Awaited<ReturnType<typeof runLoad>> | null = null;
   let invariantResults: Awaited<ReturnType<typeof runInvariantChecks>> = [];
+  let target: TargetIdentity | null = null;
+  let faultTask: Promise<void> = Promise.resolve();
 
   const phase = async (name: Phase) => {
     if (safety.signal.aborted) throw safety.signal.reason;
@@ -58,10 +66,10 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     await executeLifecycle({
       onPhase: phase,
       preflight: async () => {
-        if (experiment.fault !== "none") {
+        if (experiment.fault !== "none" && experiment.fault !== "FS_1") {
           throw new Error("Fault injection is disabled until the requested injector is installed");
         }
-        await resolveAllowedTarget(experiment.target);
+        target = await resolveAllowedTarget(experiment.target);
         const health = await fetch(`${options.paymentApiUrl}/healthz`, {
           signal: AbortSignal.timeout(5000)
         });
@@ -78,19 +86,40 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           }
         );
       },
-      inject: async () => undefined,
+      inject: async () => {
+        if (experiment.fault !== "FS_1") return;
+        if (!experiment.fs1 || !target) throw new Error("FS-1 preflight state is unavailable");
+        const fs1 = experiment.fs1;
+        faultTask = (async () => {
+          await waitForInjection(fs1.inject_after_s * 1000, safety.signal);
+          await injectFs1(target, fs1.action, safety);
+          timeline.write(
+            `${JSON.stringify({
+              run_id: runId,
+              event: "fault_injected",
+              fault: "FS_1",
+              action: fs1.action,
+              target: experiment.target,
+              at: new Date().toISOString()
+            })}\n`
+          );
+        })();
+      },
       observe: async () => {
         const loadRoot = join(artifactDirectory, "load");
         const watcherStop = new AbortController();
-        const load = runLoad({
-          baseUrl: options.paymentApiUrl,
-          seed: experiment.seed + options.iteration,
-          durationSeconds: experiment.duration_s,
-          ratePerSecond: experiment.rate_per_second,
-          timeoutMs: 2000,
-          outputRoot: loadRoot,
-          signal: safety.signal
-        });
+        const load = Promise.all([
+          runLoad({
+            baseUrl: options.paymentApiUrl,
+            seed: experiment.seed + options.iteration,
+            durationSeconds: experiment.duration_s,
+            ratePerSecond: experiment.rate_per_second,
+            timeoutMs: 2000,
+            outputRoot: loadRoot,
+            signal: safety.signal
+          }),
+          faultTask
+        ]).then(([summary]) => summary);
         const watcher = watchErrorRate(
           () => readSteadyState(options.prometheusUrl),
           experiment.abort_if.error_rate_above,
@@ -126,9 +155,9 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           invariantResults = (
             await runInvariantChecks(source, {
               journal: await readJournal(journalPath),
-              faultInjected: false,
+              faultInjected: experiment.fault !== "none",
               duplicatePolicy: "report",
-              drainTimeoutMs: 5000
+              drainTimeoutMs: experiment.invariant_drain_timeout_s * 1000
             })
           ).filter(({ invariant }) => experiment.invariants.includes(invariant));
         } finally {
@@ -167,6 +196,38 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
       }
     });
     return runId;
+  } catch (error) {
+    const failure = error instanceof Error ? error : new Error(String(error));
+    timeline.write(
+      `${JSON.stringify({ run_id: runId, event: "run_failed", error: failure.message, at: new Date().toISOString() })}\n`
+    );
+    await writeFile(
+      join(artifactDirectory, "report.json"),
+      `${JSON.stringify(
+        {
+          run_id: runId,
+          experiment: experiment.name,
+          hypothesis: experiment.hypothesis,
+          fault: experiment.fault,
+          target: experiment.target,
+          seed: experiment.seed + options.iteration,
+          started_at: new Date(startedAt).toISOString(),
+          completed_at: new Date().toISOString(),
+          baseline,
+          recovery,
+          load: loadSummary,
+          invariants: invariantResults,
+          status: "failed",
+          error: failure.message
+        },
+        null,
+        2
+      )}\n`,
+      { flag: "wx" }
+    ).catch((writeError: NodeJS.ErrnoException) => {
+      if (writeError.code !== "EEXIST") throw writeError;
+    });
+    throw new Error(`Experiment ${runId} failed: ${failure.message}`, { cause: error });
   } finally {
     try {
       await safety.cleanup();

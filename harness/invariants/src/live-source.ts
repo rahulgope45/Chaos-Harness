@@ -18,6 +18,24 @@ export class LiveInvariantSource implements InvariantSource {
     });
   }
 
+  private async committedPaymentIds(context: CheckContext): Promise<string[]> {
+    const acknowledged = acknowledgedPaymentIds(context.journal);
+    const starts = context.journal.flatMap((entry) =>
+      entry.started_at ? [new Date(entry.started_at)] : []
+    );
+    const completions = context.journal.flatMap((entry) =>
+      entry.completed_at ? [new Date(entry.completed_at)] : []
+    );
+    if (starts.length === 0 || completions.length === 0) return acknowledged;
+    const startedAt = new Date(Math.min(...starts.map((date) => date.getTime())));
+    const completedAt = new Date(Math.max(...completions.map((date) => date.getTime())));
+    const committed = await this.database.payment.findMany({
+      where: { createdAt: { gte: startedAt, lte: completedAt } },
+      select: { id: true }
+    });
+    return [...new Set([...acknowledged, ...committed.map(({ id }) => id)])];
+  }
+
   async queryI1(context: CheckContext): Promise<Violation[]> {
     const duplicateRows = await this.database.$queryRaw<
       Array<{ idempotency_key: string; count: bigint }>
@@ -103,7 +121,7 @@ export class LiveInvariantSource implements InvariantSource {
   }
 
   async queryI5(context: CheckContext): Promise<Violation[]> {
-    const paymentIds = acknowledgedPaymentIds(context.journal);
+    const paymentIds = await this.committedPaymentIds(context);
     if (paymentIds.length === 0) return [];
     const deadline = Date.now() + context.drainTimeoutMs;
     let missing = paymentIds;
@@ -137,7 +155,7 @@ export class LiveInvariantSource implements InvariantSource {
   }
 
   async queryI6(context: CheckContext): Promise<Violation[]> {
-    const paymentIds = acknowledgedPaymentIds(context.journal);
+    const paymentIds = await this.committedPaymentIds(context);
     if (paymentIds.length === 0) return [];
     const deliveries = await this.database.webhookDelivery.findMany({
       where: { paymentId: { in: paymentIds } },
