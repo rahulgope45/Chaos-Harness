@@ -18,8 +18,8 @@ and run ID.
 | Local infrastructure         | Complete    | PostgreSQL, Redis, Prometheus, and Toxiproxy healthy |
 | Database invariants          | Complete    | 3 live PostgreSQL rejection tests pass               |
 | Payment API                  | Complete    | 5 live integration tests, race and Redis fallback    |
-| Queue, worker, sink          | Not started | Next feature                                         |
-| Observability/load generator | Not started | —                                                    |
+| Queue, worker, sink          | Complete    | 2 live tests plus healthy container end-to-end run   |
+| Observability/load generator | Not started | Next feature                                         |
 | Invariant checker I1–I6      | Not started | —                                                    |
 | Runner and safety layer      | Not started | —                                                    |
 | Fault injectors/controller   | Not started | —                                                    |
@@ -72,9 +72,18 @@ cache/short in-flight locking, handles the unique-key race, writes payment plus 
 ledger entries in one transaction, logs structured requests, and handles graceful
 shutdown.
 
+## Queue, worker, and sink
+
+The API enqueues `payment-created` only after its database transaction commits. This is
+the intentional ADR-0003 failure window. BullMQ attempts delivery three times with
+exponential backoff. The worker posts to the sink, gracefully closes in-flight work,
+logs stalled jobs, and copies exhausted events to a dedicated dead-letter queue. The
+sink persists every accepted delivery and supports controlled failure and latency.
+
+All seven Compose services are healthy. A real request through `127.0.0.1:3000` was
+delivered to the containerized sink on `127.0.0.1:3002`.
+
 ## Next implementation
 
-Build the BullMQ webhook queue, payment worker, and webhook sink. Preserve the
-intentional v1 commit-before-enqueue design so a later real FS-1 experiment can test
-the lost-event hypothesis. Add bounded retries, dead-letter handling, configurable sink
-failure/latency, and graceful worker shutdown.
+Add RED metrics to the API and worker, Prometheus scrape targets and recording rules,
+then implement the seeded open-loop load generator and append-only client journal.

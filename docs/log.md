@@ -29,3 +29,15 @@
 - Proved replay, mismatch, a 50-way same-key race, lookup, and Redis fallback with five
   live integration tests.
 - Next: add the BullMQ worker, webhook sink, retries, and dead-letter path.
+
+## 2026-10-04 — Queue, worker, and webhook sink
+
+- Added enqueue-after-commit webhook jobs and documented the intentional crash window
+  in ADR-0003.
+- Added a separate worker with bounded exponential retries, stalled-job logging,
+  graceful shutdown, and a dedicated dead-letter queue.
+- Added a configurable webhook sink that persists each accepted delivery.
+- Proved happy-path delivery and exhausted-retry dead lettering with two live tests.
+- Built and started separate API, worker, and sink containers; all seven Compose
+  services are healthy and a real containerized payment reached the sink.
+- Next: add metrics, Prometheus rules, and the reproducible load generator.

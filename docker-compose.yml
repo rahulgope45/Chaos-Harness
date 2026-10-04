@@ -76,6 +76,103 @@ services:
     networks:
       - chaos-network
 
+  webhook-sink:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["npm", "run", "start", "--workspace", "@chaos/webhook-sink"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-chaos}:${POSTGRES_PASSWORD:-chaos}@postgres:5432/${POSTGRES_DB:-chaos_harness}
+      REDIS_URL: redis://redis:6379
+      WEBHOOK_SINK_PORT: 3002
+      LOG_LEVEL: info
+    ports:
+      - "127.0.0.1:${WEBHOOK_SINK_PORT:-3002}:3002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3002/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    networks:
+      - chaos-network
+
+  payment-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["npm", "run", "start", "--workspace", "@chaos/payment-worker"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-chaos}:${POSTGRES_PASSWORD:-chaos}@postgres:5432/${POSTGRES_DB:-chaos_harness}
+      REDIS_URL: redis://redis:6379
+      WEBHOOK_SINK_URL: http://webhook-sink:3002
+      WORKER_CONCURRENCY: 4
+      LOG_LEVEL: info
+    labels:
+      chaos-target: "true"
+    depends_on:
+      redis:
+        condition: service_healthy
+      webhook-sink:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "kill -0 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    networks:
+      - chaos-network
+
+  payment-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["npm", "run", "start", "--workspace", "@chaos/payment-api"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-chaos}:${POSTGRES_PASSWORD:-chaos}@postgres:5432/${POSTGRES_DB:-chaos_harness}
+      REDIS_URL: redis://redis:6379
+      PROMETHEUS_URL: http://prometheus:9090
+      PAYMENT_API_PORT: 3000
+      LOG_LEVEL: info
+    ports:
+      - "127.0.0.1:${PAYMENT_API_PORT:-3000}:3000"
+    labels:
+      chaos-target: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      webhook-sink:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    networks:
+      - chaos-network
+
 volumes:
   postgres_data:
   redis_data:

@@ -7,6 +7,9 @@ const envSchema = z.object({
   PROMETHEUS_URL: z.string().url().default("http://localhost:9090"),
   PAYMENT_API_PORT: z.coerce.number().int().min(1).max(65535).default(3000),
   REDIS_LOCK_TTL_MS: z.coerce.number().int().positive().default(5000),
+  WEBHOOK_SINK_PORT: z.coerce.number().int().min(1).max(65535).default(3002),
+  WEBHOOK_SINK_URL: z.string().url().default("http://localhost:3002"),
+  WORKER_CONCURRENCY: z.coerce.number().int().positive().default(4),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info")
 });
 

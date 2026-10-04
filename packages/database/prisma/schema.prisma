@@ -27,8 +27,21 @@ model Payment {
   status         PaymentStatus   @default(COMPLETED)
   createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   ledgerEntries  LedgerEntry[]
+  deliveries    WebhookDelivery[]
 
   @@map("payments")
+}
+
+model WebhookDelivery {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  eventId    String   @map("event_id")
+  paymentId  String   @map("payment_id") @db.Uuid
+  payment    Payment  @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  receivedAt DateTime @default(now()) @map("received_at") @db.Timestamptz(6)
+
+  @@index([eventId])
+  @@index([paymentId])
+  @@map("webhook_deliveries")
 }
 
 model LedgerEntry {

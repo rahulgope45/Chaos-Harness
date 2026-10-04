@@ -6,9 +6,10 @@ rule-based MAPE-K controller are kept structurally separate.
 
 ## Status
 
-Active development. The repository currently contains the workspace foundation
-and local infrastructure. Measured results and defect claims will only be added
-after reproducible runs produce evidence artifacts and run IDs.
+Active development. The local infrastructure, database invariants, idempotent payment
+API, BullMQ worker, and webhook sink are implemented. Measured chaos results and defect
+claims will only be added after reproducible runs produce evidence artifacts and run
+IDs.
 
 ## Local infrastructure
 
