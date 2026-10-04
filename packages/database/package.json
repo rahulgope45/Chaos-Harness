@@ -1,0 +1,27 @@
+{
+  "name": "@chaos/database",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "prisma generate --config prisma7.config.ts",
+    "migrate:deploy": "prisma migrate deploy --config prisma7.config.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.6",
+    "@types/pg": "8.23.1",
+    "prisma": "7.10.0",
+    "typescript": "5.7.3",
+    "vitest": "5.0.1"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/client": "7.10.0",
+    "dotenv": "18.0.5",
+    "pg": "8.23.1"
+  }
+}

@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum LedgerDirection {
+  DEBIT
+  CREDIT
+}
+
+model Payment {
+  id             String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  idempotencyKey String          @unique @map("idempotency_key")
+  requestHash    String          @map("request_hash")
+  amountMinor    BigInt          @map("amount_minor")
+  currency       String          @db.VarChar(3)
+  status         PaymentStatus   @default(COMPLETED)
+  createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  ledgerEntries  LedgerEntry[]
+
+  @@map("payments")
+}
+
+model LedgerEntry {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  paymentId   String          @map("payment_id") @db.Uuid
+  payment     Payment         @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  account     String
+  direction   LedgerDirection
+  amountMinor BigInt          @map("amount_minor")
+  createdAt   DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([paymentId])
+  @@map("ledger_entries")
+}
