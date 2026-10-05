@@ -111,7 +111,7 @@ separate from genuine findings.
 
 ## Current verified state
 
-Plan milestones Day 1 through Day 20 are implemented. The repository currently has:
+Plan milestones Day 1 through Day 21 are implemented. Version 1.0.0 currently has:
 
 - nine healthy Docker Compose services;
 - 94 unit tests and 10 live integration tests passing, including outbox relay coverage;
@@ -122,6 +122,7 @@ Plan milestones Day 1 through Day 20 are implemented. The repository currently h
 - a manifest-driven N>=10 matrix runner with JSON and Markdown aggregate reports;
 - CI quality, live integration, and bounded chaos-smoke jobs with uploaded evidence;
 - a one-command local demo and compile-tested fault-adapter extension scaffold;
+- a final evidence-led README, recording script, release notes, and verified resume bullets;
 - two genuine findings and one explicitly synthetic scenario.
 
 Day 17 matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed all 130
@@ -158,7 +159,8 @@ not a discovered defect.
 - Results are functional development evidence, not production capacity claims.
 - PostgreSQL process loss is not tested: the source-of-truth container remains outside
   the mutation allowlist; ADR-0011 records the blast-radius decision.
-- Final README/results polish, demo recording, and the v1 tag remain pending.
+- A hosted CI run and optional video capture require pushing the release commit; neither
+  is claimed by the local evidence.
 - No LICENSE has been selected yet, by explicit project decision.
 
 Read next:
@@ -166,3 +168,5 @@ Read next:
 - `01-current-startup-runbook.md` to run the current system.
 - `02-day-by-day-implementation.md` for implemented and remaining milestones.
 - `03-study-guide.md` for the concepts and debugging path.
+- `../demo-script.md` for the reproducible recording walkthrough.
+- `../resume-bullets.md` for evidence-backed portfolio language.

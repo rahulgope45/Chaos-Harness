@@ -10,6 +10,10 @@ separate from the managing MAPE-K controller. PostgreSQL is the source of truth;
 Redis is an optional fast path. Never claim measured results without a run artifact
 and run ID.
 
+Root release version: 1.0.0. Day 1 through Day 21 are complete. The release commit is
+tagged locally as `v1.0.0`; do not claim a GitHub release or hosted CI result until the
+commit/tag are pushed and GitHub reports them.
+
 ## Feature status
 
 | Feature                  | Status   | Evidence                                            |
@@ -36,6 +40,7 @@ and run ID.
 | Handover documentation   | Complete | intro, startup, day history, and study guide        |
 | Finding fix phase        | Complete | F-001/F-002 fixes regression-covered                |
 | Day 20 delivery          | Complete | CI integration/smoke, demo, extension/security docs |
+| Day 21 release polish    | Complete | final README, recording script, resume bullets, v1  |
 
 ## Verified local environment
 
@@ -349,10 +354,19 @@ completed 49/49 operations, passed I1-I6 for 47 unique acknowledged payments, an
 recorded 4,852 ms unhealed MTTR. Afterward all nine services were healthy, telemetry mode
 was `none`, every proxy had zero toxics, and no experiment lock remained.
 
+## Day 21 release polish
+
+The final README now leads with architecture, I1-I6, repeated results, F-001/F-002 proof,
+quick start, and limitations. `CHANGELOG.md` records v1.0.0; `docs/demo-script.md` is the
+reproducible recording walkthrough and explicitly says no video is checked in;
+`docs/resume-bullets.md` contains only artifact-backed numbers. Root package version is
+1.0.0 and the release commit is tagged locally as `v1.0.0`.
+
 ## Next implementation
 
-Complete Day 21: final README/results polish, limitations and finding/fix summary, demo
-recording, verified resume bullets, and the v1.0.0 tag.
+No planned v1 feature remains. Future work is optional maintenance: push the release and
+observe hosted CI, capture the scripted video, revisit Prisma advisories, or begin a
+separately scoped v2. Do not add these as completed evidence until they actually occur.
 
 ## Handover documents
 

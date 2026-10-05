@@ -29,7 +29,7 @@ remaining Day 1 work and implemented Days 2-14 were intentionally accelerated on
 |       18 | Full bug-hunt matrix                     | Complete                                         |
 |       19 | Fix and prove                            | Complete                                         |
 |       20 | CI, docs, extensibility                  | Complete                                         |
-|       21 | Final polish and v1 tag                  | Not started                                      |
+|       21 | Final polish and v1 tag                  | Complete                                         |
 
 ## Day 1: Foundation
 
@@ -429,11 +429,24 @@ I1-I6 passed for 47 unique acknowledged payments, and unhealed MTTR was 4,852 ms
 nine services were healthy afterward with no lock, telemetry mode `none`, and zero
 Toxiproxy toxics.
 
-## Day 21: Final polish — pending
+## Day 21: Final polish and v1 release
 
-**Planned:** Final architecture/results README using only aggregate measured values,
-limitations, finding/fix summary, demo recording, v1.0.0 tag, and resume bullets based
-only on verified evidence.
+**What:** Rebuilt the README around the problem, nine-service architecture, I1-I6
+contracts, measured matrix results, genuine finding/fix proof, quick start, safety, and
+limitations. Added v1.0.0 release notes, a reproducible 4–6 minute recording script, and
+role-specific resume bullets tied to exact run IDs. Bumped the root release manifest to
+1.0.0 and created the local `v1.0.0` tag after the release commit.
 
-**Why last:** Final claims must reflect completed FS-2, N>=10 aggregation, and
-before/after fixes rather than today's partial result set.
+**Why:** Presentation claims must be downstream of verified experiments. Completing this
+after the matrices, genuine fixes, and final smoke prevents stale architecture diagrams,
+inflated reliability language, or resume numbers without artifacts.
+
+**How:** Every numeric README and resume claim was reconciled against the Day 17/18
+aggregates, F-001 before/after artifacts, or the Day 20 smoke report. Missing MTTD stays
+missing, availability degradation is not called resilience, S-001 remains synthetic,
+and the README explicitly states that hosted CI/video are not yet claimed.
+
+**Evidence:** Final gates cover 94 unit tests, ten live integration tests, lint,
+formatting, strict typecheck, Compose/YAML validation, package version 1.0.0, clean fault
+surfaces, and the preserved final smoke run
+`ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893`.

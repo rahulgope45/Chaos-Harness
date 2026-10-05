@@ -318,3 +318,22 @@
 - `npm audit` still reports the four documented high Prisma CLI transitive advisories;
   its only offered fix is the incompatible forced downgrade to Prisma 6.19.3.
 - Next: Day 21 final polish and v1 release preparation.
+
+## 2026-10-05 — Day 21 final polish and local v1.0.0 release
+
+- Replaced the development-status README with an evidence-led project narrative,
+  architecture diagram, invariant contract, repeated result table, finding/fix proof,
+  quick start, repository map, and explicit safety/limitation section.
+- Added `CHANGELOG.md`, a reproducible 4–6 minute demo recording script, and resume bullets
+  whose numbers map to exact matrix or run IDs. No video or hosted-CI result is claimed.
+- Reconciled all four handover files and `AI_CONTEXT.md`, including the nine-service count,
+  Day 1–21 completion, and remaining external follow-ups.
+- Bumped the root manifest and lockfile release version to 1.0.0.
+- Final verification passed 94 unit tests, ten live integration tests, lint, formatting,
+  strict typecheck, Compose and workflow YAML validation, README link checks, and package
+  version 1.0.0.
+- Release safety state had nine healthy services, telemetry mode `none`, no experiment
+  lock, and zero toxics on all three proxies.
+- The release commit is tagged locally as annotated tag `v1.0.0`. Pushing the commit/tag,
+  observing hosted CI, and capturing the scripted video remain external follow-ups and
+  are not claimed as completed evidence.

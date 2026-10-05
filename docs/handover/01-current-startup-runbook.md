@@ -5,6 +5,15 @@ transactional outbox relay added on Day 19.
 
 Commands assume Windows PowerShell from `E:\Projects\chaos-harness`.
 
+The release manifest is version 1.0.0. From a tagged checkout, verify it with:
+
+```powershell
+node -p "require('./package.json').version"
+git describe --tags --exact-match
+```
+
+The expected values are `1.0.0` and `v1.0.0` after the local release tag is created.
+
 ## Prerequisites
 
 - Docker Desktop running with the Linux container engine.

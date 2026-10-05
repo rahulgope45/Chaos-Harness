@@ -24,7 +24,7 @@ silencing another.
 | Topic                 | Short description                                                                                                       |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | Containers vs images  | An image is the immutable template; a container is one running instance with state and networking.                      |
-| Docker Compose        | Declares the eight-service local topology, dependencies, ports, volumes, labels, and health checks.                     |
+| Docker Compose        | Declares the nine-service local topology, dependencies, ports, volumes, labels, and health checks.                      |
 | Health check          | A container-level probe used by Compose dependency ordering. It is not proof of business correctness.                   |
 | Liveness vs readiness | Liveness says the process runs; readiness checks whether dependencies are usable. The API exposes both.                 |
 | Named volumes         | Preserve PostgreSQL, Redis, and Prometheus state across `docker compose down`.                                          |
@@ -314,6 +314,8 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 10. Median, nearest-rank percentiles, missing-data handling, and pass-rate semantics.
 11. Distributed dual writes and the transactional outbox pattern.
 12. Docker-socket threat modeling and safe fault-adapter extension contracts.
+13. Evidence-backed technical communication: separate measured results, limitations,
+    synthetic fixtures, and future work.
 
 After each topic, reproduce one current test or experiment and explain its artifact chain
 without looking at the implementation. That is the fastest way to become able to debug
