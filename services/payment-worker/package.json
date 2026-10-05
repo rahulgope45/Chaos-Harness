@@ -18,12 +18,12 @@
     "@chaos/payment-api": "0.0.0",
     "@chaos/outbox-relay": "0.0.0",
     "@chaos/webhook-sink": "0.0.0",
-    "@types/node": "24.13.6",
+    "@types/node": "26.6.4",
     "@types/supertest": "7.2.1",
     "ioredis": "6.0.0",
     "supertest": "7.3.1",
     "tsx": "4.23.15",
-    "typescript": "5.7.3",
-    "vitest": "5.0.1"
+    "typescript": "7.0.2",
+    "vitest": "5.0.3"
   }
 }

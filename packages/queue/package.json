@@ -10,7 +10,7 @@
     "bullmq": "6.3.10"
   },
   "devDependencies": {
-    "@types/node": "24.13.6",
-    "typescript": "5.7.3"
+    "@types/node": "26.6.4",
+    "typescript": "7.0.2"
   }
 }
