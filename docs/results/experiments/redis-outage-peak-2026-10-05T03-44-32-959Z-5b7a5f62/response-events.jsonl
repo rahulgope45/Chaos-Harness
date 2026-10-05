@@ -1,0 +1,2 @@
+{"run_id":"redis-outage-peak-2026-10-05T03-44-32-959Z-5b7a5f62","at":"2026-10-05T03:44:36.456Z","source":"runner","event":"fault_injected","fault":"FS_1","action":"stop","target":"redis"}
+{"run_id":"redis-outage-peak-2026-10-05T03-44-32-959Z-5b7a5f62","at":"2026-10-05T03:44:48.544Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

@@ -144,18 +144,19 @@ retries can never excuse duplicate financial effects.
 
 ## 9. Chaos experiment design and safety
 
-| Topic                | Short description                                                                                  |
-| -------------------- | -------------------------------------------------------------------------------------------------- |
-| Fault vs failure     | A fault is the injected cause; a failure is an externally visible incorrect outcome.               |
-| Hypothesis           | A falsifiable statement about recovery and correctness, written before injection.                  |
-| Steady state         | Measurable normal behavior used as the baseline and recovery target.                               |
-| Control/A-A run      | Runs the full harness without a fault to reveal harness-created false positives.                   |
-| Blast radius         | The set of systems a fault can affect. Here it is limited to one local Compose project and labels. |
-| Preflight            | Checks config, target, health, and dependencies before mutation.                                   |
-| Guaranteed revert    | Cleanup is registered before mutation and executes in `finally`, including error paths.            |
-| Kill switch/deadline | SIGINT/SIGTERM and maximum duration abort work and trigger cleanup.                                |
-| Dry-run              | Resolves and validates a target while performing zero mutation.                                    |
-| Evidence artifact    | Config, journal, timeline, events, checks, and report stored under a unique run ID.                |
+| Topic                | Short description                                                                                       |
+| -------------------- | ------------------------------------------------------------------------------------------------------- |
+| Fault vs failure     | A fault is the injected cause; a failure is an externally visible incorrect outcome.                    |
+| Hypothesis           | A falsifiable statement about recovery and correctness, written before injection.                       |
+| Steady state         | Measurable normal behavior used as the baseline and recovery target.                                    |
+| Control/A-A run      | Runs the full harness without a fault to reveal harness-created false positives.                        |
+| Blast radius         | The set of systems a fault can affect. Here it is limited to one local Compose project and labels.      |
+| Preflight            | Checks config, target, health, and dependencies before mutation.                                        |
+| Guaranteed revert    | Cleanup is registered before mutation and executes in `finally`, including error paths.                 |
+| Kill switch/deadline | SIGINT/SIGTERM and maximum duration abort work and trigger cleanup.                                     |
+| Dry-run              | Resolves and validates a target while performing zero mutation.                                         |
+| Evidence artifact    | Config, journal, timeline, events, checks, and report stored under a unique run ID.                     |
+| Compound scenario    | A controlled ordering of multiple disruptions; Day 18 replaces the controller while its target is down. |
 
 Always run dry-run and a no-fault control after changing the runner or safety code. A
 successful injected run is not trustworthy if the control run is noisy.
@@ -182,6 +183,9 @@ Related concepts:
   healthy Docker state. A restart requires the independent container observation.
 - **Transition alerting:** emit one invalid event per bad-data episode, then one
   validated event after recovery instead of flooding every control-loop cycle.
+- **Controller process recovery:** restarting the managing process is different from
+  restarting the managed worker. Prove the target was already down, the replacement
+  controller started, and its own action—not runner cleanup—recovered the target.
 
 ## 11. Response timing
 
@@ -216,6 +220,11 @@ The Day 17 aggregate is grouped by fault class, but every row remains traceable 
 run IDs. Only controller-enabled FS-1 repeats emitted `anomaly_detected`, so their MTTD
 is aggregated from ten values while 30 other FS-1 MTTD samples are explicitly missing.
 Do not compare p90 values without checking sample count and missing count first.
+
+The Day 18 gap aggregate adds ten runs each for Redis outage, controller replacement,
+and peak PostgreSQL latency. All 30 invariant sets passed, while Redis and PostgreSQL
+still caused thousands of client failures. This is the practical distinction between
+data correctness and service availability: one can pass while the other is poor.
 
 ## 13. Network fault injection
 
@@ -264,7 +273,8 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 6. **Check the experiment report and timeline:** determine which phase actually failed.
 7. **Check the client journal:** distinguish timeout, 5xx, retry, and acknowledged result.
 8. **Check invariants:** use violating IDs to query payment, ledger, sink, and queue state.
-9. **Check controller evidence:** inspect `controller.log` and response-event ordering.
+9. **Check controller evidence:** inspect `controller.log`, response-event ordering, and
+   `controller-restart-assessment.json` when restart orchestration is configured.
 10. **Reproduce with the same experiment and seed:** change only one variable at a time.
 
 ### Symptom map
@@ -276,6 +286,7 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 | Payment exists but webhook is absent           | API enqueue log/window, BullMQ queue/DLQ, worker logs, sink records; suspect F-001 window                      |
 | Duplicate sink rows                            | Compare `event_id`; check injected fault and I6 policy, then verify I1/I2 for side effects                     |
 | Worker stays stopped                           | Controller running, policy enabled, Docker label/project match, restart budget/cooldown, controller log        |
+| Controller restarted but run failed            | Restart assessment ordering, worker-down observation, child log, post-restart action and recovery timestamps   |
 | Metrics missing                                | Direct service `/metrics`, proxy port 3003 routes/logs, Prometheus targets, scrape config, container network   |
 | Metrics present but controller says invalid    | Inspect `telemetry_invalid` issues, proxy chaos state, canaries, sample timestamp, bounds, and counter history |
 | Experiment reports recovery but clients failed | Compare Prometheus recovery definition with load `summary.json`; correctness pass is not availability success  |

@@ -1,0 +1,11 @@
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","phase":"preflight","at":"2026-10-05T03:48:32.149Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","phase":"baseline","at":"2026-10-05T03:48:33.131Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","phase":"inject","at":"2026-10-05T03:48:33.149Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","phase":"observe","at":"2026-10-05T03:48:33.149Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker","at":"2026-10-05T03:48:34.962Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","event":"controller_restart_started","target":"payment-worker","target_outage_observed":true,"at":"2026-10-05T03:48:34.969Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","event":"controller_restarted","target":"payment-worker","at":"2026-10-05T03:48:36.020Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","phase":"revert","at":"2026-10-05T03:48:43.125Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","phase":"recovery_wait","at":"2026-10-05T03:48:43.156Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","phase":"verify","at":"2026-10-05T03:48:44.196Z"}
+{"run_id":"controller-restart-during-worker-outage-2026-10-05T03-48-32-147Z-be8528ff","phase":"report","at":"2026-10-05T03:48:44.950Z"}

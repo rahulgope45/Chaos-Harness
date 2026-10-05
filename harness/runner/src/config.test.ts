@@ -60,3 +60,45 @@ describe("FS-2 experiment config", () => {
     ).toThrow(/metrics-proxy/);
   });
 });
+
+describe("controller restart experiment config", () => {
+  it("accepts a controller restart while an FS-1 worker outage is active", () => {
+    const parsed = experimentSchema.parse({
+      ...base,
+      target: "payment-worker",
+      fault: "FS_1",
+      fs1: { action: "kill", inject_after_s: 2 },
+      controller: { enabled: true, restart_during_outage: true }
+    });
+
+    expect(parsed.controller).toEqual({
+      enabled: true,
+      port: 3100,
+      restart_during_outage: true
+    });
+  });
+
+  it("rejects restart orchestration without an enabled controller", () => {
+    expect(() =>
+      experimentSchema.parse({
+        ...base,
+        target: "payment-worker",
+        fault: "FS_1",
+        fs1: { action: "kill", inject_after_s: 2 },
+        controller: { enabled: false, restart_during_outage: true }
+      })
+    ).toThrow(/requires the controller to be enabled/);
+  });
+
+  it("rejects restart orchestration when the fault is not a worker outage", () => {
+    expect(() =>
+      experimentSchema.parse({
+        ...base,
+        target: "metrics-proxy",
+        fault: "FS_3",
+        fs3: { action: "stop", inject_after_s: 2 },
+        controller: { enabled: true, restart_during_outage: true }
+      })
+    ).toThrow(/requires an FS_1 kill or stop of payment-worker/);
+  });
+});

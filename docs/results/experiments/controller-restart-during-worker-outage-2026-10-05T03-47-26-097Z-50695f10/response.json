@@ -1,0 +1,115 @@
+{
+  "schema_version": 1,
+  "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T03:47:29.514Z",
+    "anomaly_detected_at": "2026-10-05T03:47:31.313Z",
+    "plan_selected_at": "2026-10-05T03:47:31.317Z",
+    "action_executed_at": "2026-10-05T03:47:31.772Z",
+    "recovered_at": "2026-10-05T03:47:38.090Z"
+  },
+  "durations_ms": {
+    "mttd": 1799,
+    "mttr": 8576,
+    "detection_to_plan": 4,
+    "plan_to_action": 455,
+    "action_to_recovery": 6318
+  },
+  "events": [
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:29.514Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_1",
+      "action": "kill",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:29.523Z",
+      "source": "runner",
+      "event": "controller_restart_started",
+      "target": "payment-worker",
+      "target_outage_observed": true
+    },
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:30.595Z",
+      "source": "runner",
+      "event": "controller_restarted",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:31.313Z",
+      "source": "controller",
+      "event": "anomaly_detected",
+      "signal": "container_running",
+      "observed": 0,
+      "threshold": 1
+    },
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:31.317Z",
+      "source": "controller",
+      "event": "plan_selected",
+      "policy_id": "restart-payment-worker-v1",
+      "action": "restart",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:31.772Z",
+      "source": "controller",
+      "event": "action_executed",
+      "action": "restart",
+      "target": "payment-worker",
+      "success": true
+    },
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:32.281Z",
+      "source": "controller",
+      "event": "telemetry_unavailable",
+      "mode": "blind",
+      "fallback": "docker",
+      "reason": "missing_or_down_targets",
+      "missing_jobs": [
+        "payment-worker"
+      ]
+    },
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:37.791Z",
+      "source": "controller",
+      "event": "telemetry_invalid",
+      "mode": "guarded",
+      "fallback": "docker",
+      "issues": [
+        {
+          "reason": "counter_reset",
+          "metric": "payment_worker_jobs_completed_total"
+        }
+      ]
+    },
+    {
+      "run_id": "controller-restart-during-worker-outage-2026-10-05T03-47-26-097Z-50695f10",
+      "at": "2026-10-05T03:47:38.090Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

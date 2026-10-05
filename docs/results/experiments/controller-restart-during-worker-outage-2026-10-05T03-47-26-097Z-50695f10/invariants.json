@@ -1,0 +1,73 @@
+[
+  {
+    "invariant": "I1",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T03-47-27-053Z-s1903-af3ae6e0",
+      "journal_entries": 518,
+      "successful_entries": 518,
+      "unique_acknowledged_payments": 485
+    }
+  },
+  {
+    "invariant": "I2",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T03-47-27-053Z-s1903-af3ae6e0",
+      "journal_entries": 518,
+      "successful_entries": 518,
+      "unique_acknowledged_payments": 485
+    }
+  },
+  {
+    "invariant": "I3",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T03-47-27-053Z-s1903-af3ae6e0",
+      "journal_entries": 518,
+      "successful_entries": 518,
+      "unique_acknowledged_payments": 485
+    }
+  },
+  {
+    "invariant": "I4",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T03-47-27-053Z-s1903-af3ae6e0",
+      "journal_entries": 518,
+      "successful_entries": 518,
+      "unique_acknowledged_payments": 485
+    }
+  },
+  {
+    "invariant": "I5",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T03-47-27-053Z-s1903-af3ae6e0",
+      "journal_entries": 518,
+      "successful_entries": 518,
+      "unique_acknowledged_payments": 485,
+      "drain_timeout_ms": 60000
+    }
+  },
+  {
+    "invariant": "I6",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T03-47-27-053Z-s1903-af3ae6e0",
+      "journal_entries": 518,
+      "successful_entries": 518,
+      "unique_acknowledged_payments": 485,
+      "fault_injected": true,
+      "configured_policy": "report",
+      "observation_ms": 0,
+      "effective_policy": "report"
+    }
+  }
+]

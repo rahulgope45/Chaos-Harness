@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "run_id": "postgres-latency-peak-2026-10-05T03-50-42-055Z-ed385278",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T03:50:43.962Z",
+    "anomaly_detected_at": null,
+    "plan_selected_at": null,
+    "action_executed_at": null,
+    "recovered_at": "2026-10-05T03:50:57.154Z"
+  },
+  "durations_ms": {
+    "mttd": null,
+    "mttr": 13192,
+    "detection_to_plan": null,
+    "plan_to_action": null,
+    "action_to_recovery": null
+  },
+  "events": [
+    {
+      "run_id": "postgres-latency-peak-2026-10-05T03-50-42-055Z-ed385278",
+      "at": "2026-10-05T03:50:43.962Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_4",
+      "action": "latency",
+      "target": "api-postgres"
+    },
+    {
+      "run_id": "postgres-latency-peak-2026-10-05T03-50-42-055Z-ed385278",
+      "at": "2026-10-05T03:50:57.154Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

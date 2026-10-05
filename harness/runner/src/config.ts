@@ -47,9 +47,10 @@ export const experimentSchema = z
     controller: z
       .object({
         enabled: z.boolean().default(false),
-        port: z.number().int().min(1).max(65535).default(3100)
+        port: z.number().int().min(1).max(65535).default(3100),
+        restart_during_outage: z.boolean().default(false)
       })
-      .default({ enabled: false, port: 3100 }),
+      .default({ enabled: false, port: 3100, restart_during_outage: false }),
     seed: z.number().int().nonnegative(),
     repeat: z.number().int().min(1).max(100),
     duration_s: z.number().int().min(1).max(3600),
@@ -171,6 +172,28 @@ export const experimentSchema = z
         path: ["fs4", "inject_after_s"],
         message: "must occur before duration_s"
       });
+    }
+    if (experiment.controller.restart_during_outage) {
+      if (!experiment.controller.enabled) {
+        context.addIssue({
+          code: "custom",
+          path: ["controller", "enabled"],
+          message: "controller restart during outage requires the controller to be enabled"
+        });
+      }
+      if (
+        experiment.fault !== "FS_1" ||
+        experiment.target !== "payment-worker" ||
+        !experiment.fs1 ||
+        !["kill", "stop"].includes(experiment.fs1.action)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["controller", "restart_during_outage"],
+          message:
+            "controller restart during outage requires an FS_1 kill or stop of payment-worker"
+        });
+      }
     }
   });
 

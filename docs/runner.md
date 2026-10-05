@@ -28,6 +28,13 @@ Response events use a versioned Zod schema and an append-only JSONL file. MTTD a
 are computed only from actual boundary events. The standalone `response.json` is written
 for successful and failed runs; missing controller events remain `null`.
 
+Controller-enabled FS-1 worker experiments may set
+`controller.restart_during_outage: true`. The runner stops its controller child before
+the worker fault, confirms Docker reports the worker down, starts a replacement
+controller, and records `controller_restart_started` and `controller_restarted`. The
+run passes this scenario only when `controller-restart-assessment.json` also shows a
+successful controller recovery action and final recovery after restart began.
+
 Run the control experiment:
 
 ```powershell
@@ -39,6 +46,13 @@ Run the complete repeated matrix:
 ```powershell
 npm run matrix -- --dry-run experiments/day17-matrix.yml
 npm run matrix -- experiments/day17-matrix.yml
+```
+
+Run the Day 18 gap matrix:
+
+```powershell
+npm run matrix -- --dry-run experiments/day18-gap-matrix.yml
+npm run matrix -- experiments/day18-gap-matrix.yml
 ```
 
 The matrix manifest enforces at least ten repeats per listed experiment, varies seeds
@@ -95,3 +109,12 @@ runs across the 13 implemented configurations. It preserved 128 passing reports 
 I5 failures that reproduce known F-001. The aggregate contains median, nearest-rank p90,
 min, max, missing timing counts, invariant pass/non-failure rates, and every source run
 ID. See `docs/matrix.md` for the measured results and interpretation.
+
+## Verified Day 18 bug-hunt gaps
+
+Matrix `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` completed 30/30 runs with
+no failed report: ten Redis stops at 100 requests/second, ten controller restarts during
+verified worker outages at 50 requests/second, and ten 750 ms PostgreSQL-latency runs at
+50 requests/second. I1-I6 passed in every run. All ten controller restart assessments
+passed. The latency and Redis scenarios produced substantial client failures, but no
+correctness invariant failed, so they are degradations rather than new findings.

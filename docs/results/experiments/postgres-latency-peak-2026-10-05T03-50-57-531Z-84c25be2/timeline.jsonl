@@ -1,0 +1,9 @@
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","phase":"preflight","at":"2026-10-05T03:50:57.533Z"}
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","phase":"baseline","at":"2026-10-05T03:50:57.555Z"}
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","phase":"inject","at":"2026-10-05T03:50:57.571Z"}
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","phase":"observe","at":"2026-10-05T03:50:57.571Z"}
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","event":"fault_injected","fault":"FS_4","action":"latency","target":"api-postgres","at":"2026-10-05T03:50:59.011Z"}
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","phase":"revert","at":"2026-10-05T03:51:11.568Z"}
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","phase":"recovery_wait","at":"2026-10-05T03:51:11.571Z"}
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","phase":"verify","at":"2026-10-05T03:51:12.608Z"}
+{"run_id":"postgres-latency-peak-2026-10-05T03-50-57-531Z-84c25be2","phase":"report","at":"2026-10-05T03:51:12.975Z"}

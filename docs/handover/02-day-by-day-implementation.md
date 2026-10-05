@@ -26,7 +26,7 @@ remaining Day 1 work and implemented Days 2-14 were intentionally accelerated on
 |       15 | Metrics proxy and FS-3                   | Complete                                         |
 |       16 | FS-2 telemetry corruption                | Complete                                         |
 |       17 | Multi-run aggregation                    | Complete                                         |
-|       18 | Full bug-hunt matrix                     | Partially pre-satisfied; full matrix pending     |
+|       18 | Full bug-hunt matrix                     | Complete                                         |
 |       19 | Fix and prove                            | Partially pre-satisfied; F-001 fix pending       |
 |       20 | CI, docs, extensibility                  | Partially complete                               |
 |       21 | Final polish and v1 tag                  | Not started                                      |
@@ -348,14 +348,33 @@ Aggregate median/p90 MTTR was FS-1 7,085/8,706 ms, FS-2 26,107/27,638 ms, FS-3
 MTTD samples; their median/p90 was 632/872 ms. The report explicitly counts the other
 MTTD values as missing.
 
-## Day 18: Full bug-hunt matrix — partially pre-satisfied
+## Day 18: Full bug-hunt matrix
 
-**Already achieved early:** Two genuine findings exist: F-001 in the service and F-002
-in the harness. The requested count is therefore met without fabricating findings.
+**What:** Closed the uncovered hunt scenarios with Redis outage at 100 requests/second,
+controller process replacement during a verified worker outage at 50 requests/second,
+and 750 ms PostgreSQL latency with 100 ms jitter at 50 requests/second. Each scenario
+ran ten times with distinct seeds and deterministic injection offsets.
 
-**Still pending:** Run the full matrix at peak load, including Redis down, PostgreSQL
-latency/retries, controller restart during outage, and any explicitly approved PostgreSQL
-target experiment. Triage every new violation with a minimal reproducer.
+**Why:** The Day 17 matrix covered the implemented catalog, but Redis loss and controller
+replacement during an active outage did not yet exist, and PostgreSQL latency had not
+been repeated at the higher load. The goal was to search honestly for additional defects,
+not to manufacture a result after F-001 and F-002 already satisfied the two-finding goal.
+
+**How:** Added explicit controller restart lifecycle events and
+`controller-restart-assessment.json`. A configured run stops the first controller,
+kills the worker, confirms Docker observes the worker down, starts a replacement
+controller, and requires its successful recovery action plus final recovery. The
+`experiments/day18-gap-matrix.yml` manifest owns the 30 repetitions. PostgreSQL remains
+outside the direct container mutation allowlist; ADR-0011 chooses the narrower
+API-to-PostgreSQL Toxiproxy path so the sink, controller policy store, and invariant
+checker retain evidence access.
+
+**Evidence:** matrix `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` completed
+30/30 with 30 passing reports. I1-I6 passed in every run, and all ten controller restart
+assessments passed. Redis outage produced 1,836 successful and 8,063 failed client
+operations; PostgreSQL latency produced 880 successful and 4,089 failed operations.
+Those are real availability degradations, not correctness findings. No new defect was
+found, so the genuine list remains F-001 and F-002; S-001 remains explicitly synthetic.
 
 ## Day 19: Fix and prove — partially pre-satisfied
 

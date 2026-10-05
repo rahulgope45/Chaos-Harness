@@ -257,3 +257,22 @@
 - The final suite has 85 passing unit tests and 10 passing integration tests.
 - Next: complete the remaining Day 18 peak bug-hunt scenarios without counting repeated
   F-001 evidence as additional defects.
+
+## 2026-10-05 — Day 18 peak bug-hunt completion
+
+- Added peak Redis-outage and PostgreSQL-latency configs plus a controller-replacement
+  scenario that starts the new controller only after Docker confirms the worker is down.
+- Added validated controller restart lifecycle events and a per-run assessment requiring
+  restart ordering, observed target outage, a successful controller action, and recovery.
+- Matrix `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` completed 30/30 runs with
+  all reports and I1-I6 outcomes passing. All ten controller restart assessments passed.
+- Redis outage recorded 1,836 successful and 8,063 failed client operations; peak
+  PostgreSQL latency recorded 880 successful and 4,089 failed operations. These are
+  availability degradations, not new correctness defects.
+- ADR-0011 keeps PostgreSQL outside the direct container mutation allowlist and uses the
+  narrower API-to-PostgreSQL proxy boundary so verification evidence remains available.
+- No new genuine defect was found. The project still has exactly two genuine findings
+  plus one explicitly synthetic scenario.
+- Post-run state had eight healthy services, no experiment lock, and the suite remained
+  ready for the next milestone.
+- Next: Day 19 transactional-outbox fix and before/after proof for F-001.

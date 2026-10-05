@@ -20,6 +20,14 @@ with varied deterministic fault offsets. It produced aggregate JSON and Markdown
 median, nearest-rank p90, min, max, missing timing counts, invariant rates, and all
 source run IDs. See `docs/matrix.md`.
 
+Day 18 gap matrix `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` added ten
+peak-load repetitions each for Redis outage, controller restart during a worker outage,
+and PostgreSQL latency. All 30 reports and every I1-I6 result passed. All ten controller
+restart assessments proved the worker was already down, the replacement controller
+started, and a successful recovery action followed. No new defect was found; the genuine
+finding count remains two. Direct PostgreSQL-container mutation remains excluded by the
+blast-radius decision in ADR-0011.
+
 Controller run `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd`
 detected a killed worker in 733 ms, selected and verified a restart, completed 281/281
 operations, and passed I1–I6. Across the ten Day 17 controller repeats, MTTD was 632 ms

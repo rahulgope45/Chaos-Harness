@@ -67,3 +67,27 @@ not substitute telemetry-state or runner events for application anomaly detectio
 
 The two failed repetitions strengthen the evidence for existing F-001. They are not
 counted as new defects, and the telemetry corruptions remain deliberate injected faults.
+
+## Day 18 gap matrix
+
+Manifest `experiments/day18-gap-matrix.yml` covers the scenarios that were absent or not
+at peak load in Day 17: Redis stopped under 100 requests/second, controller replacement
+while a killed worker is observed down under 50 requests/second, and 750 ms PostgreSQL
+downstream latency with 100 ms jitter under 50 requests/second. Each has ten seeds and
+ten deterministic fault offsets.
+
+Matrix `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` completed all 30 runs and
+reported `all_passed`. I1-I6 passed in every run. The ten controller scenarios also
+produced ten passing `controller-restart-assessment.json` files. FS-1 median/p90 MTTR
+across Redis and controller scenarios was 10,693/13,325 ms; controller-only MTTD was
+1,871/3,420 ms. FS-4 PostgreSQL-latency MTTR was 13,352.5/13,690 ms and client p95 was
+2,014/2,015 ms.
+
+Redis outage produced 1,836 successful and 8,063 failed client operations across its ten
+runs; PostgreSQL latency produced 880 successful and 4,089 failed operations. These are
+availability degradations, not new correctness defects, because all committed run-scoped
+payments reached a terminal delivery state and I1-I6 remained clean.
+
+PostgreSQL itself remains outside the `chaos-target=true` mutation allowlist. ADR-0011
+records why dependency-path latency is retained while direct database-container mutation
+is excluded from this portfolio hunt.

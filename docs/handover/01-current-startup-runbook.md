@@ -212,6 +212,7 @@ npm run start --workspace @chaos/runner -- experiments/kill-worker-mid-batch.yml
 npm run start --workspace @chaos/runner -- experiments/kill-worker-mid-batch.yml
 npm run start --workspace @chaos/runner -- experiments/kill-api-after-commit.yml
 npm run start --workspace @chaos/runner -- experiments/kill-worker-after-side-effect.yml
+npm run start --workspace @chaos/runner -- experiments/redis-outage-peak.yml
 ```
 
 These commands intentionally stop or kill local labeled containers. Read the YAML before
@@ -221,10 +222,14 @@ running and verify cleanup with `docker compose ps` afterward.
 
 ```powershell
 npm run start --workspace @chaos/runner -- experiments/kill-worker-with-controller.yml
+npm run start --workspace @chaos/runner -- experiments/controller-restart-during-worker-outage.yml
 ```
 
 The runner starts and stops the controller process and shares only the response-event
-JSONL file with it.
+JSONL file with it. The restart-during-outage scenario additionally requires
+`controller-restart-assessment.json` to show the worker was observed down, the
+replacement controller started, a successful recovery action followed, and recovery
+completed.
 
 To run the controller manually in its own terminal:
 
@@ -272,6 +277,7 @@ both Prometheus jobs recover afterward.
 ```powershell
 npm run start --workspace @chaos/runner -- experiments/postgres-latency-retry.yml --dry-run
 npm run start --workspace @chaos/runner -- experiments/postgres-latency-retry.yml
+npm run start --workspace @chaos/runner -- experiments/postgres-latency-peak.yml
 npm run start --workspace @chaos/runner -- experiments/sink-timeout-retry.yml
 ```
 
@@ -306,6 +312,21 @@ code 2 means coverage completed but at least one underlying experiment reported 
 failure; the report is still written. The verified Day 17 matrix exited 2 because two
 API-kill runs reproduced known I5 finding F-001.
 
+### Complete Day 18 gap matrix
+
+This is the current focused bug-hunt matrix: ten Redis stops, ten controller replacements
+during worker outages, and ten peak PostgreSQL-latency runs.
+
+```powershell
+npm run matrix -- --dry-run experiments/day18-gap-matrix.yml
+npm run matrix -- experiments/day18-gap-matrix.yml
+```
+
+The verified run `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` completed 30/30
+with all reports passing. It does not attack the PostgreSQL container directly; that
+container intentionally has no chaos-target label. Use the allowlisted Toxiproxy path
+for current database-dependency experiments.
+
 ## Logs and fast diagnosis
 
 ```powershell
@@ -324,6 +345,7 @@ Every experiment creates `docs/results/experiments/<run-id>/`. Start diagnosis w
 4. `load/<load-run-id>/summary.json` and `journal.jsonl` for client behavior.
 5. `invariants.json` for violating IDs and evidence counts.
 6. `controller.log` when the experiment enabled the controller.
+7. `controller-restart-assessment.json` for a configured controller replacement.
 
 If an interrupted run leaves `.chaos-experiment.lock` behind, first confirm that no
 runner process is active and all faults have been reverted. Only then remove that one

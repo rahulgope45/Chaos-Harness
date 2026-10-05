@@ -38,6 +38,17 @@ export const responseEventSchema = z.discriminatedUnion("event", [
   }),
   z.object({
     ...eventBase,
+    event: z.literal("controller_restart_started"),
+    target: z.literal("payment-worker"),
+    target_outage_observed: z.boolean()
+  }),
+  z.object({
+    ...eventBase,
+    event: z.literal("controller_restarted"),
+    target: z.literal("payment-worker")
+  }),
+  z.object({
+    ...eventBase,
     event: z.literal("telemetry_unavailable"),
     mode: z.literal("blind"),
     fallback: z.literal("docker"),

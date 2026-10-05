@@ -1,0 +1,17 @@
+{
+  "target": "payment-worker",
+  "fault_observed": true,
+  "restart_started_after_fault": true,
+  "target_outage_observed": true,
+  "restart_completed_after_start": true,
+  "successful_action_after_restart_start": true,
+  "recovered_after_restart_start": true,
+  "timestamps": {
+    "fault_at": "2026-10-05T03:47:42.238Z",
+    "restart_started_at": "2026-10-05T03:47:42.269Z",
+    "restart_completed_at": "2026-10-05T03:47:44.668Z",
+    "successful_action_at": "2026-10-05T03:47:47.149Z",
+    "recovered_at": "2026-10-05T03:47:50.611Z"
+  },
+  "passed": true
+}

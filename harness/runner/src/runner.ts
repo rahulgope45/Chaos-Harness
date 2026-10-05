@@ -70,6 +70,24 @@ interface Fs2Assessment {
   passed: boolean;
 }
 
+interface ControllerRestartAssessment {
+  target: "payment-worker";
+  fault_observed: boolean;
+  restart_started_after_fault: boolean;
+  target_outage_observed: boolean;
+  restart_completed_after_start: boolean;
+  successful_action_after_restart_start: boolean;
+  recovered_after_restart_start: boolean;
+  timestamps: {
+    fault_at: string | null;
+    restart_started_at: string | null;
+    restart_completed_at: string | null;
+    successful_action_at: string | null;
+    recovered_at: string | null;
+  };
+  passed: boolean;
+}
+
 export async function runExperiment(options: RunnerOptions): Promise<string> {
   const { experiment } = options;
   const runId = `${experiment.name}-${new Date().toISOString().replace(/[:.]/gu, "-")}-${randomUUID().slice(0, 8)}`;
@@ -105,6 +123,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   let controllerTargetHealthyThroughout = true;
   let readControllerTargetHealth: (() => Promise<boolean>) | null = null;
   let fs2Assessment: Fs2Assessment | null = null;
+  let controllerRestartAssessment: ControllerRestartAssessment | null = null;
   let faultTask: Promise<void> = Promise.resolve();
   let controllerProcess: ChildProcess | null = null;
   let controllerLog: ReturnType<typeof createWriteStream> | null = null;
@@ -163,6 +182,74 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     };
   };
 
+  const assessControllerRestart = async (): Promise<ControllerRestartAssessment | null> => {
+    if (!experiment.controller.restart_during_outage) return null;
+    const events = await responseEvents.read();
+    const fault = events.find((event) => event.event === "fault_injected");
+    const restartStarted = events.find((event) => event.event === "controller_restart_started");
+    const restartCompleted = events.find((event) => event.event === "controller_restarted");
+    const successfulAction = events.find(
+      (event) =>
+        event.event === "action_executed" &&
+        event.source === "controller" &&
+        event.target === "payment-worker" &&
+        event.success &&
+        restartStarted !== undefined &&
+        Date.parse(event.at) >= Date.parse(restartStarted.at)
+    );
+    const recovered = events.find(
+      (event) =>
+        event.event === "recovered" &&
+        restartStarted !== undefined &&
+        Date.parse(event.at) >= Date.parse(restartStarted.at)
+    );
+    const restartStartedAfterFault =
+      fault !== undefined &&
+      restartStarted !== undefined &&
+      Date.parse(restartStarted.at) >= Date.parse(fault.at);
+    const restartCompletedAfterStart =
+      restartStarted !== undefined &&
+      restartCompleted !== undefined &&
+      Date.parse(restartCompleted.at) >= Date.parse(restartStarted.at);
+    const targetOutageObserved =
+      restartStarted?.event === "controller_restart_started" &&
+      restartStarted.target_outage_observed;
+    return {
+      target: "payment-worker",
+      fault_observed: fault !== undefined,
+      restart_started_after_fault: restartStartedAfterFault,
+      target_outage_observed: targetOutageObserved,
+      restart_completed_after_start: restartCompletedAfterStart,
+      successful_action_after_restart_start: successfulAction !== undefined,
+      recovered_after_restart_start: recovered !== undefined,
+      timestamps: {
+        fault_at: fault?.at ?? null,
+        restart_started_at: restartStarted?.at ?? null,
+        restart_completed_at: restartCompleted?.at ?? null,
+        successful_action_at: successfulAction?.at ?? null,
+        recovered_at: recovered?.at ?? null
+      },
+      passed:
+        fault !== undefined &&
+        restartStartedAfterFault &&
+        targetOutageObserved &&
+        restartCompletedAfterStart &&
+        successfulAction !== undefined &&
+        recovered !== undefined
+    };
+  };
+
+  const persistControllerRestartAssessment = async () => {
+    if (!controllerRestartAssessment) return;
+    await writeFile(
+      join(artifactDirectory, "controller-restart-assessment.json"),
+      `${JSON.stringify(controllerRestartAssessment, null, 2)}\n`,
+      { flag: "wx" }
+    ).catch((error: NodeJS.ErrnoException) => {
+      if (error.code !== "EEXIST") throw error;
+    });
+  };
+
   const phase = async (name: Phase) => {
     if (safety.signal.aborted) throw safety.signal.reason;
     timeline.write(
@@ -172,10 +259,15 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
 
   const startController = async () => {
     if (!experiment.controller.enabled) return;
+    if (controllerProcess?.exitCode === null) {
+      throw new Error("Controller is already running");
+    }
     const require = createRequire(import.meta.url);
     const tsxCli = require.resolve("tsx/cli");
-    controllerLog = createWriteStream(join(artifactDirectory, "controller.log"), { flags: "wx" });
-    await once(controllerLog, "open");
+    if (!controllerLog) {
+      controllerLog = createWriteStream(join(artifactDirectory, "controller.log"), { flags: "wx" });
+      await once(controllerLog, "open");
+    }
     controllerProcess = spawn(
       process.execPath,
       [tsxCli, join(options.repositoryRoot, "harness", "controller", "src", "server.ts")],
@@ -210,7 +302,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     throw new Error("Controller did not become healthy before startup timeout");
   };
 
-  const stopController = async () => {
+  const stopControllerProcess = async () => {
     const child = controllerProcess;
     if (child && child.exitCode === null) {
       child.kill("SIGTERM");
@@ -225,6 +317,11 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
         });
       });
     }
+    if (controllerProcess === child) controllerProcess = null;
+  };
+
+  const stopController = async () => {
+    await stopControllerProcess();
     await new Promise<void>(
       (resolve, reject) =>
         controllerLog?.end((error?: Error | null) => (error ? reject(error) : resolve())) ??
@@ -403,6 +500,9 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
         const fs1 = experiment.fs1;
         faultTask = (async () => {
           await waitForInjection(fs1.inject_after_s * 1000, safety.signal);
+          if (experiment.controller.restart_during_outage) {
+            await stopControllerProcess();
+          }
           await injectFs1(target, fs1.action, safety);
           const injectedAt = new Date().toISOString();
           await responseEvents.record({
@@ -423,6 +523,47 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
               at: injectedAt
             })}\n`
           );
+          if (experiment.controller.restart_during_outage) {
+            const targetOutageObserved = !(await createTargetHealthReader(target)());
+            const restartStartedAt = new Date().toISOString();
+            await responseEvents.record({
+              event: "controller_restart_started",
+              at: restartStartedAt,
+              source: "runner",
+              target: "payment-worker",
+              target_outage_observed: targetOutageObserved
+            });
+            timeline.write(
+              `${JSON.stringify({
+                run_id: runId,
+                event: "controller_restart_started",
+                target: "payment-worker",
+                target_outage_observed: targetOutageObserved,
+                at: restartStartedAt
+              })}\n`
+            );
+            if (!targetOutageObserved) {
+              throw new Error(
+                "Controller restart precondition failed: worker outage was not observed"
+              );
+            }
+            await startController();
+            const restartedAt = new Date().toISOString();
+            await responseEvents.record({
+              event: "controller_restarted",
+              at: restartedAt,
+              source: "runner",
+              target: "payment-worker"
+            });
+            timeline.write(
+              `${JSON.stringify({
+                run_id: runId,
+                event: "controller_restarted",
+                target: "payment-worker",
+                at: restartedAt
+              })}\n`
+            );
+          }
         })();
       },
       observe: async () => {
@@ -539,7 +680,12 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           `${JSON.stringify(invariantResults, null, 2)}\n`,
           { flag: "wx" }
         );
+        controllerRestartAssessment = await assessControllerRestart();
+        await persistControllerRestartAssessment();
         if (exitCodeFor(invariantResults) !== 0) throw new Error("One or more invariants failed");
+        if (controllerRestartAssessment && !controllerRestartAssessment.passed) {
+          throw new Error("Controller restart acceptance criteria failed");
+        }
         if (readControllerTargetHealth && !(await readControllerTargetHealth())) {
           controllerTargetHealthyThroughout = false;
         }
@@ -569,6 +715,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           recovery,
           response: await responseResult(),
           fs2_assessment: fs2Assessment,
+          controller_restart_assessment: controllerRestartAssessment,
           load: loadSummary,
           invariants: invariantResults,
           status: "passed"
@@ -587,6 +734,8 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     const failure = error instanceof Error ? error : new Error(String(error));
     const response = await responseResult();
     fs2Assessment ??= await assessFs2();
+    controllerRestartAssessment ??= await assessControllerRestart();
+    await persistControllerRestartAssessment();
     timeline.write(
       `${JSON.stringify({ run_id: runId, event: "run_failed", error: failure.message, at: new Date().toISOString() })}\n`
     );
@@ -606,6 +755,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           recovery,
           response,
           fs2_assessment: fs2Assessment,
+          controller_restart_assessment: controllerRestartAssessment,
           load: loadSummary,
           invariants: invariantResults,
           status: "failed",

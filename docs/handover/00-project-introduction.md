@@ -107,10 +107,10 @@ separate from genuine findings.
 
 ## Current verified state
 
-Plan milestones Day 1 through Day 17 are implemented. The repository currently has:
+Plan milestones Day 1 through Day 18 are implemented. The repository currently has:
 
 - eight healthy Docker Compose services;
-- 85 unit tests and 10 integration tests passing;
+- 89 unit tests and 10 integration tests passing;
 - an idempotent payment API, balanced ledger, queue worker, sink, and Prometheus metrics;
 - reproducible load generation and I1-I6 checks;
 - a safe experiment runner with FS-1 through FS-4;
@@ -122,6 +122,12 @@ Day 17 matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed al
 planned runs. All ten controls passed I1-I6. The only two failed reports were I5 failures
 from `kill-api-after-commit`, reproducing existing F-001; all other 128 reports passed.
 All 50 telemetry-corruption assessments recorded zero false actions.
+
+Day 18 matrix `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` completed 30/30
+added peak-load runs: ten Redis outages, ten controller replacements during observed
+worker outages, and ten PostgreSQL-latency runs. All reports and every I1-I6 result
+passed. All ten controller restart assessments passed. Redis and PostgreSQL disruption
+caused real client-visible degradation, but no new correctness defect emerged.
 
 The genuine findings are:
 
@@ -139,8 +145,9 @@ not a discovered defect.
 - Rule-based controller only; no ML in the critical path.
 - Toxiproxy provides TCP-stream faults, not true packet loss.
 - Results are functional development evidence, not production capacity claims.
-- The transactional outbox fix, remaining Day 18 peak scenarios, final CI smoke runs,
-  and v1 polish are still pending.
+- PostgreSQL process loss is not tested: the source-of-truth container remains outside
+  the mutation allowlist; ADR-0011 records the blast-radius decision.
+- The transactional outbox fix, final CI smoke runs, and v1 polish are still pending.
 - No LICENSE has been selected yet, by explicit project decision.
 
 Read next:

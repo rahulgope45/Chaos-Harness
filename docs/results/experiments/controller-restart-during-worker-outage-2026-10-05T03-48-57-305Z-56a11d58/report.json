@@ -1,0 +1,231 @@
+{
+  "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+  "experiment": "controller-restart-during-worker-outage",
+  "hypothesis": "A restarted controller observes and recovers an already-killed worker without violating payment invariants.",
+  "fault": "FS_1",
+  "target": "payment-worker",
+  "seed": 1910,
+  "started_at": "2026-10-05T03:48:57.307Z",
+  "completed_at": "2026-10-05T03:49:09.451Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.4443550203443422,
+    "throughput_per_second": 20.50916980236618,
+    "measured_at": "2026-10-05T03:48:58.189Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.42139208540189965,
+    "throughput_per_second": 21.082142045974592,
+    "measured_at": "2026-10-05T03:49:09.226Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T03:49:00.342Z",
+      "anomaly_detected_at": "2026-10-05T03:49:02.082Z",
+      "plan_selected_at": "2026-10-05T03:49:02.086Z",
+      "action_executed_at": "2026-10-05T03:49:02.574Z",
+      "recovered_at": "2026-10-05T03:49:09.226Z"
+    },
+    "durations_ms": {
+      "mttd": 1740,
+      "mttr": 8884,
+      "detection_to_plan": 4,
+      "plan_to_action": 488,
+      "action_to_recovery": 6652
+    },
+    "events": [
+      {
+        "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+        "at": "2026-10-05T03:49:00.342Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_1",
+        "action": "kill",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+        "at": "2026-10-05T03:49:00.352Z",
+        "source": "runner",
+        "event": "controller_restart_started",
+        "target": "payment-worker",
+        "target_outage_observed": true
+      },
+      {
+        "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+        "at": "2026-10-05T03:49:01.369Z",
+        "source": "runner",
+        "event": "controller_restarted",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+        "at": "2026-10-05T03:49:02.082Z",
+        "source": "controller",
+        "event": "anomaly_detected",
+        "signal": "container_running",
+        "observed": 0,
+        "threshold": 1
+      },
+      {
+        "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+        "at": "2026-10-05T03:49:02.086Z",
+        "source": "controller",
+        "event": "plan_selected",
+        "policy_id": "restart-payment-worker-v1",
+        "action": "restart",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+        "at": "2026-10-05T03:49:02.574Z",
+        "source": "controller",
+        "event": "action_executed",
+        "action": "restart",
+        "target": "payment-worker",
+        "success": true
+      },
+      {
+        "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+        "at": "2026-10-05T03:49:04.987Z",
+        "source": "controller",
+        "event": "telemetry_invalid",
+        "mode": "guarded",
+        "fallback": "docker",
+        "issues": [
+          {
+            "reason": "counter_reset",
+            "metric": "payment_worker_jobs_completed_total"
+          }
+        ]
+      },
+      {
+        "run_id": "controller-restart-during-worker-outage-2026-10-05T03-48-57-305Z-56a11d58",
+        "at": "2026-10-05T03:49:09.226Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "controller_restart_assessment": {
+    "target": "payment-worker",
+    "fault_observed": true,
+    "restart_started_after_fault": true,
+    "target_outage_observed": true,
+    "restart_completed_after_start": true,
+    "successful_action_after_restart_start": true,
+    "recovered_after_restart_start": true,
+    "timestamps": {
+      "fault_at": "2026-10-05T03:49:00.342Z",
+      "restart_started_at": "2026-10-05T03:49:00.352Z",
+      "restart_completed_at": "2026-10-05T03:49:01.369Z",
+      "successful_action_at": "2026-10-05T03:49:02.574Z",
+      "recovered_at": "2026-10-05T03:49:09.226Z"
+    },
+    "passed": true
+  },
+  "load": {
+    "run_id": "baseline-2026-10-05T03-48-58-190Z-s1910-e4c8bcca",
+    "seed": 1910,
+    "configured_duration_seconds": 10,
+    "configured_rate_per_second": 50,
+    "scheduled_operations": 492,
+    "successful_operations": 492,
+    "failed_operations": 0,
+    "replay_operations": 23,
+    "client_p95_ms": 34,
+    "achieved_throughput_per_second": 49.185244426672,
+    "elapsed_seconds": 10.003,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-48-58-190Z-s1910-e4c8bcca",
+        "journal_entries": 492,
+        "successful_entries": 492,
+        "unique_acknowledged_payments": 469
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-48-58-190Z-s1910-e4c8bcca",
+        "journal_entries": 492,
+        "successful_entries": 492,
+        "unique_acknowledged_payments": 469
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-48-58-190Z-s1910-e4c8bcca",
+        "journal_entries": 492,
+        "successful_entries": 492,
+        "unique_acknowledged_payments": 469
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-48-58-190Z-s1910-e4c8bcca",
+        "journal_entries": 492,
+        "successful_entries": 492,
+        "unique_acknowledged_payments": 469
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-48-58-190Z-s1910-e4c8bcca",
+        "journal_entries": 492,
+        "successful_entries": 492,
+        "unique_acknowledged_payments": 469,
+        "drain_timeout_ms": 60000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-48-58-190Z-s1910-e4c8bcca",
+        "journal_entries": 492,
+        "successful_entries": 492,
+        "unique_acknowledged_payments": 469,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

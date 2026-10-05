@@ -32,6 +32,13 @@ Controller-enabled experiments launch it as a separate Node process. It writes
 validated JSONL protocol that the runner reads; there are no direct process calls
 between their control loops.
 
+For the Day 18 lifecycle test, the runner can deliberately replace its controller child
+while the worker is down. This is process orchestration, not a controller self-restart:
+the runner stops the first controller, kills and verifies the worker outage, launches a
+new controller, and then observes the ordinary MAPE-K response through the shared event
+protocol. A dedicated assessment rejects runs that merely restarted a process without
+recovering the already-failed target.
+
 ## Verified experiment
 
 Run `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd` killed the payment
@@ -51,6 +58,12 @@ This remains the first functional proof. Day 17 matrix
 `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` repeated the same
 controller-enabled scenario ten times. MTTD median/p90/min/max was
 632/872/615/1,004 ms; MTTR was 8,649/9,021/7,777/9,491 ms. All ten reports passed I1-I6.
+
+Day 18 matrix `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` repeated the
+controller-replacement scenario ten times. Every run observed the worker down before
+starting the replacement controller, recorded a successful post-restart recovery action,
+passed its controller restart assessment, and passed I1-I6. MTTD median/p90/min/max was
+1,871/3,420/1,726/3,745 ms; MTTR was 8,798.5/9,233/8,285/9,408 ms.
 
 ## Verified blind mode
 

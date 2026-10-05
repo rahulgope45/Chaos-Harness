@@ -14,7 +14,7 @@ and run ID.
 
 | Feature                  | Status   | Evidence                                           |
 | ------------------------ | -------- | -------------------------------------------------- |
-| Workspace/tooling        | Complete | lint, format, typecheck, 85 unit tests pass        |
+| Workspace/tooling        | Complete | lint, format, typecheck, 89 unit tests pass        |
 | Local infrastructure     | Complete | eight Compose services healthy                     |
 | Database invariants      | Complete | 3 live PostgreSQL rejection tests pass             |
 | Payment API              | Complete | 5 live integration tests, race and Redis fallback  |
@@ -31,7 +31,8 @@ and run ID.
 | FS-4 network faults      | Complete | two live runs; automatic toxic cleanup             |
 | FS-3 sensor disruption   | Complete | blind/restored events; zero controller actions     |
 | FS-2 telemetry faults    | Complete | five modes detected; zero false actions            |
-| Multi-run aggregation    | Complete | 130/130 runs; aggregate JSON and Markdown          |
+| Multi-run aggregation    | Complete | Day 17 130/130 plus Day 18 30/30 gap matrix        |
+| Day 18 bug hunt          | Complete | 30/30 added peak scenarios passed I1-I6            |
 | Handover documentation   | Complete | intro, startup, day history, and study guide       |
 | Finding fix phase        | Partial  | F-001 transactional outbox fix still pending       |
 
@@ -72,6 +73,9 @@ silently force the downgrade.
   Hysteresis, cooldown, and restart-window limits are mandatory policy fields.
 - FS-4 is restricted to three static Toxiproxy paths. It supports latency/jitter,
   timeout, and reset-peer toxics; it does not claim true packet loss.
+- PostgreSQL remains outside the direct Docker mutation allowlist. Day 18 uses the
+  API-to-PostgreSQL proxy so evidence storage and invariant verification survive the
+  experiment; see ADR-0011.
 - Missing proxy-backed telemetry enters blind mode and emits an alert. No destructive
   action is inferred from absence; Docker state remains the independent fallback.
 - Present telemetry is rejected when required series are missing, samples are
@@ -150,6 +154,12 @@ preflight, baseline, inject, observe, guaranteed revert, recovery wait, verify, 
 report phases. Non-control faults are refused until safety and injectors exist. Control
 run `no-fault-control-2026-10-04T03-24-48-758Z-3b023a1f` completed with 56/56 successful
 operations and I1–I6 passing; its complete artifact directory is preserved.
+
+For `controller.restart_during_outage`, the runner stops its current controller child,
+injects and verifies the worker outage, starts a replacement child using the same run
+event stream, and writes `controller-restart-assessment.json`. Passing requires the
+fault/restart ordering, an observed worker outage, a successful controller recovery
+action, and recovery after restart began.
 
 ## Safety layer
 
@@ -284,11 +294,27 @@ events. All ten controls passed I1-I6; I1-I4 passed in all 130 runs; I5 passed 1
 I6 report-only outcomes retained 100% non-failure rates. See `docs/matrix.md` and the
 matrix `aggregate.json` for min/max values, exact invariant rates, and all run IDs.
 
+## Day 18 peak bug hunt
+
+Manifest `experiments/day18-gap-matrix.yml` repeats Redis stop at 100 requests/second,
+controller replacement during a verified worker outage at 50 requests/second, and 750
+ms PostgreSQL latency with 100 ms jitter at 50 requests/second ten times each.
+
+Matrix `day18-gap-matrix-2026-10-05T03-43-56-583Z-d6c0aea6` completed 30/30 with every
+report and I1-I6 result passing. All ten controller restart assessments passed. Redis
+outage recorded 1,836 successful and 8,063 failed client operations; PostgreSQL latency
+recorded 880 successful and 4,089 failed operations. These are availability degradations,
+not correctness defects. No new genuine finding emerged; the project remains at F-001
+and F-002 plus explicitly synthetic S-001.
+
+PostgreSQL is intentionally not labeled `chaos-target=true`. ADR-0011 keeps direct
+source-of-truth container mutation outside this portfolio's blast radius and uses the
+API-to-PostgreSQL Toxiproxy boundary for database-path disruption.
+
 ## Next implementation
 
-Implement the remaining Day 18 peak bug-hunt scenarios: Redis down, controller restart
-during an outage, and the explicitly scoped PostgreSQL-target experiment if retained.
-Treat the two Day 17 I5 failures as additional F-001 evidence, not separate bugs.
+Implement Day 19's remaining work: fix F-001 with a transactional outbox and relay, then
+rerun the exact reproducer and preserve before/after evidence. F-002 is already fixed.
 
 ## Handover documents
 

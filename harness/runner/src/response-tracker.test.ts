@@ -214,4 +214,39 @@ describe("response tracker", () => {
       "telemetry_validated"
     ]);
   });
+
+  it("preserves controller restart lifecycle evidence without changing response timings", () => {
+    const events: ResponseEvent[] = [
+      event({
+        event: "fault_injected",
+        at: "2026-10-04T00:00:00.000Z",
+        source: "runner",
+        fault: "FS_1",
+        action: "kill",
+        target: "payment-worker"
+      }),
+      event({
+        event: "controller_restart_started",
+        at: "2026-10-04T00:00:00.100Z",
+        source: "runner",
+        target: "payment-worker",
+        target_outage_observed: true
+      }),
+      event({
+        event: "controller_restarted",
+        at: "2026-10-04T00:00:00.500Z",
+        source: "runner",
+        target: "payment-worker"
+      })
+    ];
+
+    const result = buildResponseResult(runId, events, bound);
+    expect(result.events.map(({ event: name }) => name)).toEqual([
+      "fault_injected",
+      "controller_restart_started",
+      "controller_restarted"
+    ]);
+    expect(result.durations_ms.mttd).toBeNull();
+    expect(result.durations_ms.mttr).toBeNull();
+  });
 });

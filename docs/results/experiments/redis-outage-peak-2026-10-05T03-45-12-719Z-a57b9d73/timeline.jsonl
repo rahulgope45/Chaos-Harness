@@ -1,0 +1,9 @@
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","phase":"preflight","at":"2026-10-05T03:45:12.721Z"}
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","phase":"baseline","at":"2026-10-05T03:45:12.812Z"}
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","phase":"inject","at":"2026-10-05T03:45:12.824Z"}
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","phase":"observe","at":"2026-10-05T03:45:12.825Z"}
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","event":"fault_injected","fault":"FS_1","action":"stop","target":"redis","at":"2026-10-05T03:45:16.081Z"}
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","phase":"revert","at":"2026-10-05T03:45:26.833Z"}
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","phase":"recovery_wait","at":"2026-10-05T03:45:27.167Z"}
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","phase":"verify","at":"2026-10-05T03:45:28.184Z"}
+{"run_id":"redis-outage-peak-2026-10-05T03-45-12-719Z-a57b9d73","phase":"report","at":"2026-10-05T03:45:28.467Z"}
