@@ -121,14 +121,15 @@ async function endpointReady(url: string): Promise<boolean> {
 }
 
 async function suiteReady(): Promise<boolean> {
-  const [api, metrics, sink, prometheus, metricsMode] = await Promise.all([
+  const [api, metrics, sink, relay, prometheus, metricsMode] = await Promise.all([
     endpointReady(`${process.env.PAYMENT_API_URL ?? "http://127.0.0.1:3000"}/readyz`),
     endpointReady(`${process.env.METRICS_PROXY_URL ?? "http://127.0.0.1:3003"}/healthz`),
     endpointReady(`${process.env.WEBHOOK_SINK_URL ?? "http://127.0.0.1:3002"}/healthz`),
+    endpointReady(`${process.env.OUTBOX_RELAY_URL ?? "http://127.0.0.1:3004"}/readyz`),
     endpointReady(`${process.env.PROMETHEUS_URL ?? "http://127.0.0.1:19090"}/-/ready`),
     metricsProxy.readMode()
   ]);
-  return api && metrics && sink && prometheus && metricsMode === "none";
+  return api && metrics && sink && relay && prometheus && metricsMode === "none";
 }
 
 await waitForMatrixReadiness(suiteReady);
@@ -149,6 +150,7 @@ for (const { entry, experiment: source } of loaded) {
         sinkUrl: process.env.WEBHOOK_SINK_URL ?? "http://127.0.0.1:3002",
         toxiproxyUrl: process.env.TOXIPROXY_URL ?? "http://127.0.0.1:8474",
         metricsProxyUrl: process.env.METRICS_PROXY_URL ?? "http://127.0.0.1:3003",
+        outboxRelayUrl: process.env.OUTBOX_RELAY_URL ?? "http://127.0.0.1:3004",
         metricsProxyChaosToken:
           process.env.METRICS_PROXY_CHAOS_TOKEN ?? "local-chaos-control-token",
         iteration: 0

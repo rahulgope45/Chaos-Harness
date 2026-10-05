@@ -27,7 +27,7 @@ remaining Day 1 work and implemented Days 2-14 were intentionally accelerated on
 |       16 | FS-2 telemetry corruption                | Complete                                         |
 |       17 | Multi-run aggregation                    | Complete                                         |
 |       18 | Full bug-hunt matrix                     | Complete                                         |
-|       19 | Fix and prove                            | Partially pre-satisfied; F-001 fix pending       |
+|       19 | Fix and prove                            | Complete                                         |
 |       20 | CI, docs, extensibility                  | Partially complete                               |
 |       21 | Final polish and v1 tag                  | Not started                                      |
 
@@ -376,14 +376,30 @@ operations; PostgreSQL latency produced 880 successful and 4,089 failed operatio
 Those are real availability degradations, not correctness findings. No new defect was
 found, so the genuine list remains F-001 and F-002; S-001 remains explicitly synthetic.
 
-## Day 19: Fix and prove — partially pre-satisfied
+## Day 19: Fix and prove
 
-**Already achieved early:** F-002 was fixed and regression-covered with run-isolated
-keys.
+**What:** Closed both genuine defects. F-002 was already regression-covered with
+run-isolated keys. F-001 is now fixed by a transactional webhook outbox and separate
+relay. The API stores the outbox row in the payment/ledger transaction; the relay
+publishes pending rows with their event UUID as the BullMQ job ID and records success or
+retry evidence.
 
-**Still pending:** Fix F-001 with a transactional outbox and relay, then rerun the exact
-same seed/config and preserve before/after artifacts. Do not mark the finding resolved
-until I5 passes under the reproducer.
+**Why:** PostgreSQL commit and Redis enqueue cannot be one atomic write. Durable intent
+inside PostgreSQL removes the API crash window, while a deterministic queue identity
+makes a relay crash between enqueue and mark safe to retry.
+
+**How:** Added the `webhook_outbox` migration, one-to-one payment relation, relay service,
+port 3004 health/readiness, persisted attempts/errors, Compose wiring, runner/matrix
+readiness checks, and unit/live integration coverage. Historical payments were not
+backfilled, preventing unintended webhook replay and preserving the before-evidence
+boundary. ADR-0012 records the choice and supersedes ADR-0003.
+
+**Evidence:** The unchanged `experiments/kill-api-after-commit.yml` with seed 301 and a
+two-second injection offset passed I1-I6 in run
+`kill-api-after-commit-2026-10-05T04-07-33-206Z-e4ca8f09`. I5 checked 192 acknowledged
+payments with no missing terminal event. Its run-window evidence records 201 committed
+payments, 201 matching outbox rows, and 201 published rows. The original failing run
+`kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` remains the before artifact.
 
 ## Day 20: CI, documentation, and extensibility — partially complete
 

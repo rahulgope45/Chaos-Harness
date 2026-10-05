@@ -52,6 +52,7 @@ for (let iteration = 0; iteration < experiment.repeat; iteration += 1) {
       sinkUrl: process.env.WEBHOOK_SINK_URL ?? "http://127.0.0.1:3002",
       toxiproxyUrl: process.env.TOXIPROXY_URL ?? "http://127.0.0.1:8474",
       metricsProxyUrl: process.env.METRICS_PROXY_URL ?? "http://127.0.0.1:3003",
+      outboxRelayUrl: process.env.OUTBOX_RELAY_URL ?? "http://127.0.0.1:3004",
       metricsProxyChaosToken: process.env.METRICS_PROXY_CHAOS_TOKEN ?? "local-chaos-control-token",
       iteration
     })

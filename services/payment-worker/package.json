@@ -16,6 +16,7 @@
   "devDependencies": {
     "@chaos/database": "0.0.0",
     "@chaos/payment-api": "0.0.0",
+    "@chaos/outbox-relay": "0.0.0",
     "@chaos/webhook-sink": "0.0.0",
     "@types/node": "24.13.6",
     "@types/supertest": "7.2.1",

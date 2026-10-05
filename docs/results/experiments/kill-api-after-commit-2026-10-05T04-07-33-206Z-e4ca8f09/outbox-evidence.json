@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "run_id": "kill-api-after-commit-2026-10-05T04-07-33-206Z-e4ca8f09",
+  "source": "PostgreSQL run-window query",
+  "window": {
+    "started_at": "2026-10-05T04:07:33.210Z",
+    "completed_at": "2026-10-05T04:07:43.949Z"
+  },
+  "query": "SELECT COUNT(*) AS payments_created_during_run, COUNT(o.event_id) AS matching_outbox_rows, COUNT(o.published_at) AS published_outbox_rows FROM payments p LEFT JOIN webhook_outbox o ON o.payment_id = p.id WHERE p.created_at >= $started_at AND p.created_at <= $completed_at",
+  "payments_created_during_run": 201,
+  "matching_outbox_rows": 201,
+  "published_outbox_rows": 201,
+  "pending_outbox_rows": 0
+}

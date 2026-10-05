@@ -142,6 +142,13 @@ export function createPaymentService({ database, redis, lockTtlMs }: Dependencie
               }
             ]
           });
+          await transaction.webhookOutbox.create({
+            data: {
+              eventId: randomUUID(),
+              paymentId: created.id,
+              occurredAt: new Date()
+            }
+          });
           return created;
         });
 

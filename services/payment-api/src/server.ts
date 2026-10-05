@@ -1,6 +1,5 @@
 import { loadConfig } from "@chaos/config";
 import { createPrismaClient } from "@chaos/database";
-import { Queue, WEBHOOK_QUEUE, redisConnection, type WebhookJob } from "@chaos/queue";
 import { Redis } from "ioredis";
 import pino from "pino";
 import { createApp } from "./app.js";
@@ -9,9 +8,6 @@ const config = loadConfig();
 const logger = pino({ level: config.LOG_LEVEL });
 const database = createPrismaClient(config.DATABASE_URL);
 const redis = new Redis(config.REDIS_URL, { lazyConnect: true, maxRetriesPerRequest: 1 });
-const webhookQueue = new Queue<WebhookJob>(WEBHOOK_QUEUE, {
-  connection: redisConnection(config.REDIS_URL)
-});
 
 redis.on("error", (error) => {
   logger.warn({ err: error }, "redis unavailable; payment correctness will use PostgreSQL");
@@ -22,7 +18,6 @@ await redis.connect().catch(() => undefined);
 const app = createApp({
   database,
   redis,
-  webhookQueue,
   lockTtlMs: config.REDIS_LOCK_TTL_MS,
   logger
 });
@@ -37,7 +32,7 @@ async function shutdown(signal: string): Promise<void> {
   logger.info({ signal }, "shutting down payment API");
 
   server.close(async (error) => {
-    await Promise.allSettled([database.$disconnect(), redis.quit(), webhookQueue.close()]);
+    await Promise.allSettled([database.$disconnect(), redis.quit()]);
     process.exitCode = error ? 1 : 0;
   });
 

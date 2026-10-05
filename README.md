@@ -14,6 +14,13 @@ network faults. A/A controls pass; only implemented injectors are enabled behind
 safety boundary. Defect claims are added only after reproducible fault runs produce
 evidence artifacts and run IDs.
 
+Day 19 replaced the API's commit-then-enqueue dual write with a transactional PostgreSQL
+outbox and a separate relay. The unchanged seed-301 API-kill reproducer that originally
+failed I5 now passes I1-I6 in run
+`kill-api-after-commit-2026-10-05T04-07-33-206Z-e4ca8f09`; all 201 payments committed in
+the run window had matching published outbox rows. F-001 is resolved, with both before
+and after artifacts preserved.
+
 Day 17 matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed all 130
 planned runs: ten repeats of every one of the 13 implemented experiment configurations,
 with varied deterministic fault offsets. It produced aggregate JSON and Markdown with
@@ -33,10 +40,10 @@ detected a killed worker in 733 ms, selected and verified a restart, completed 2
 operations, and passed I1–I6. Across the ten Day 17 controller repeats, MTTD was 632 ms
 median and 872 ms p90; controller-run MTTR was 8,649 ms median and 9,021 ms p90.
 
-FS-1 is now implemented. Run
+FS-1 is implemented. Before-fix run
 `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` confirmed the first genuine
 defect: four committed payments lost their webhook event because database commit and
-queue enqueue are not atomic. See
+queue enqueue were not atomic. The Day 19 outbox fix above closes that window. See
 `docs/findings/F-001-commit-before-enqueue-event-loss.md`.
 
 The worker crash-after-webhook experiment reported four expected at-least-once transport

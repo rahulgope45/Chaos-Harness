@@ -1,12 +1,13 @@
 # F-001: committed payments can lose their webhook event
 
-- Status: confirmed, open
+- Status: resolved and regression-verified on 2026-10-05
 - Severity: high in the sample system
 - Fault: FS-1 SIGKILL of `payment-api`
 - Evidence runs:
-  - `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248`
-  - `kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04`
-  - `kill-api-after-commit-2026-10-05T02-37-15-648Z-ee48b428`
+  - Before fix: `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248`,
+    `kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04`, and
+    `kill-api-after-commit-2026-10-05T02-37-15-648Z-ee48b428`.
+  - After fix: `kill-api-after-commit-2026-10-05T04-07-33-206Z-e4ca8f09`.
 - Violated invariant: I5
 
 ## Observation
@@ -33,16 +34,37 @@ These repetitions strengthen this finding; they are not counted as new defects.
 
 ## Root cause
 
-`POST /payments` commits the payment and balanced ledger transaction first, then adds a
-BullMQ job. SIGKILL can land between those independent operations. PostgreSQL retains
-the payment, but Redis never receives an event to process or dead-letter. This is the
-failure window documented in ADR-0003 and now demonstrated by a real run.
+Before remediation, `POST /payments` committed the payment and balanced ledger
+transaction first, then added a BullMQ job. SIGKILL could land between those independent
+operations. PostgreSQL retained the payment, but Redis never received an event to
+process or dead-letter. This is the failure window documented in ADR-0003 and
+demonstrated by the before-fix runs.
 
-## Remediation
+## Remediation implemented
 
-Write a transactional outbox row in the same PostgreSQL transaction as the payment and
-ledger entries. A relay can publish unsent rows to BullMQ and mark them sent
-idempotently. Preserve this run as before evidence and repeat it after the fix.
+The payment transaction now writes one `webhook_outbox` row alongside the payment and
+balanced ledger entries. A separate relay polls unsent rows, uses the outbox event UUID
+as the BullMQ job ID, and marks the row published only after `queue.add` succeeds. If the
+relay dies after enqueue but before marking the row, the deterministic job ID makes the
+retry safe while BullMQ retains that job.
+
+The API no longer publishes directly to Redis, so killing it after PostgreSQL commit
+cannot erase the durable intent to publish. Historical payment rows were deliberately
+not backfilled because doing so would replay old events and contaminate the preserved
+before-fix evidence.
+
+## After-fix verification
+
+The original `experiments/kill-api-after-commit.yml` was rerun unchanged with seed 301
+and its two-second injection offset. Run
+`kill-api-after-commit-2026-10-05T04-07-33-206Z-e4ca8f09` passed I1-I6. I5 checked 192
+unique acknowledged payments after its 45-second drain and found no missing delivery or
+dead-letter terminal record.
+
+A run-window database query independently counted 201 committed payments, 201 matching
+outbox rows, and 201 published rows. That query and its result are preserved in the
+run's `outbox-evidence.json`. The original failing artifacts remain untouched as the
+before evidence.
 
 This is a genuine finding. It is separate from synthetic invariant fixtures and the
 earlier leaked integration-test rows, neither of which is counted as a product bug.

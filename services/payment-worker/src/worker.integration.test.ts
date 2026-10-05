@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { createPrismaClient } from "@chaos/database";
 import { createApp } from "@chaos/payment-api";
+import { publishOutboxBatch } from "@chaos/outbox-relay";
 import { Queue, type WebhookJob, redisConnection } from "@chaos/queue";
 import { createSinkApp } from "@chaos/webhook-sink";
 import { Redis } from "ioredis";
@@ -66,17 +67,23 @@ afterAll(async () => {
 
 describe("webhook queue pipeline", () => {
   it("delivers a newly created payment exactly once in the happy path", async () => {
-    const api = createApp({ database, redis, webhookQueue: queue, logger });
+    const api = createApp({ database, redis, logger });
     const created = await request(api)
       .post("/payments")
       .set("Idempotency-Key", `queue-${randomUUID()}`)
       .send({ amount_minor: 1100, currency: "USD" })
       .expect(201);
 
+    await publishOutboxBatch({ database, queue, logger, batchSize: 1000 });
+
     await eventually(
       async () =>
         (await database.webhookDelivery.count({ where: { paymentId: created.body.id } })) === 1
     );
+    const outbox = await database.webhookOutbox.findUniqueOrThrow({
+      where: { paymentId: created.body.id }
+    });
+    expect(outbox.publishedAt).not.toBeNull();
   });
 
   it("retries a failing sink and moves an exhausted job to the dead-letter queue", async () => {

@@ -69,20 +69,23 @@ correctly. Never reverse those responsibilities.
 
 ## 5. Queues, retries, and distributed side effects
 
-| Topic                        | Short description                                                                                                |
-| ---------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| BullMQ                       | A Redis-backed job queue used to separate payment commit from webhook delivery.                                  |
-| At-least-once processing     | A job may run again after a crash. Consumers must tolerate repeated delivery.                                    |
-| Exponential backoff          | Retry delays grow after failures, reducing immediate pressure on a failing dependency.                           |
-| Stalled job                  | A worker that dies before acknowledging can leave work that BullMQ later reclaims and reruns.                    |
-| Dead-letter queue            | Permanently failed jobs move to a separate queue for visibility and later handling.                              |
-| Webhook delivery             | Transporting an event is not the same as applying its business side effect. Event IDs support deduplication.     |
-| Duplicate delivery vs effect | Repeated HTTP delivery can be expected; a repeated charge/email/ledger effect is the actual correctness failure. |
-| Dual-write problem           | A database commit and queue enqueue are two independent writes; crashing between them creates F-001.             |
-| Transactional outbox         | The planned F-001 fix writes an event row in the same transaction, then a relay publishes it reliably.           |
+| Topic                        | Short description                                                                                                 |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| BullMQ                       | A Redis-backed job queue used to separate payment commit from webhook delivery.                                   |
+| At-least-once processing     | A job may run again after a crash. Consumers must tolerate repeated delivery.                                     |
+| Exponential backoff          | Retry delays grow after failures, reducing immediate pressure on a failing dependency.                            |
+| Stalled job                  | A worker that dies before acknowledging can leave work that BullMQ later reclaims and reruns.                     |
+| Dead-letter queue            | Permanently failed jobs move to a separate queue for visibility and later handling.                               |
+| Webhook delivery             | Transporting an event is not the same as applying its business side effect. Event IDs support deduplication.      |
+| Duplicate delivery vs effect | Repeated HTTP delivery can be expected; a repeated charge/email/ledger effect is the actual correctness failure.  |
+| Dual-write problem           | A database commit and queue enqueue are two independent writes; crashing between them created F-001.              |
+| Transactional outbox         | The implemented F-001 fix stores durable event intent in the payment transaction for later publication.           |
+| Outbox relay                 | A separate poller publishes pending rows, records attempts/errors, and marks success only after queue acceptance. |
+| Deterministic queue identity | Using the outbox event UUID as BullMQ job ID makes an enqueue-then-crash retry converge on the same job.          |
 
-The worker/sink boundary is the best place to study why retries require idempotent
-consumers. Read ADR-0003, ADR-0004, F-001, and S-001 together.
+The API/outbox boundary explains durable intent; the worker/sink boundary explains why
+delivery retries still require idempotent consumers. Read ADR-0003, ADR-0012, ADR-0004,
+F-001, and S-001 together.
 
 ## 6. Observability and Prometheus
 
@@ -272,7 +275,8 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 5. **Check the sensor:** call the two port-3003 proxy routes, then open Prometheus targets.
 6. **Check the experiment report and timeline:** determine which phase actually failed.
 7. **Check the client journal:** distinguish timeout, 5xx, retry, and acknowledged result.
-8. **Check invariants:** use violating IDs to query payment, ledger, sink, and queue state.
+8. **Check invariants:** use violating IDs to query payment, outbox, ledger, sink, and
+   queue state.
 9. **Check controller evidence:** inspect `controller.log`, response-event ordering, and
    `controller-restart-assessment.json` when restart orchestration is configured.
 10. **Reproduce with the same experiment and seed:** change only one variable at a time.
@@ -283,7 +287,8 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
 | API container healthy but `/readyz` is 503     | PostgreSQL/Redis health, Toxiproxy proxy state, API logs                                                       |
 | POST timed out but payment may exist           | Reuse the same idempotency key, inspect journal and PostgreSQL; never generate a new key immediately           |
-| Payment exists but webhook is absent           | API enqueue log/window, BullMQ queue/DLQ, worker logs, sink records; suspect F-001 window                      |
+| Payment exists but webhook is absent           | Outbox row/state, relay logs, BullMQ queue/DLQ, worker logs, sink records                                      |
+| Outbox row remains pending                     | Relay readiness/logs, Redis health, publish attempts and `last_error`                                          |
 | Duplicate sink rows                            | Compare `event_id`; check injected fault and I6 policy, then verify I1/I2 for side effects                     |
 | Worker stays stopped                           | Controller running, policy enabled, Docker label/project match, restart budget/cooldown, controller log        |
 | Controller restarted but run failed            | Restart assessment ordering, worker-down observation, child log, post-restart action and recovery timestamps   |

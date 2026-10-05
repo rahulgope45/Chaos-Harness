@@ -10,6 +10,9 @@ successful run preserves the validated config, phase timeline, Prometheus baseli
 load journal and summary, invariant output, response event stream, response timing, and
 final JSON report.
 
+Preflight also requires the outbox relay's port-3004 readiness endpoint so an experiment
+does not begin when durable publication is already unavailable.
+
 `fault: none` and FS-1 through FS-4 are executable. FS-1 supports kill, stop, pause, and
 restart behind the Docker safety layer. FS-2 uses the authenticated metrics-proxy
 control surface for spike, drop, freeze, noise, and counter-reset modes and always
@@ -58,7 +61,8 @@ npm run matrix -- experiments/day18-gap-matrix.yml
 The matrix manifest enforces at least ten repeats per listed experiment, varies seeds
 and deterministic bounded injection offsets, and requires control plus FS-1 through
 FS-4 coverage. A readiness barrier prevents a restarted service from contaminating the
-next repeat. Aggregate JSON and Markdown are written under
+next repeat; it includes the API, outbox relay, metrics proxy, sink, and Prometheus.
+Aggregate JSON and Markdown are written under
 `docs/results/matrices/<matrix-run-id>/`; null timings remain missing rather than zero.
 
 ## Verified control

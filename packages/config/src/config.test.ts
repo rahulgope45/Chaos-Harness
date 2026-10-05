@@ -12,6 +12,9 @@ describe("loadConfig", () => {
     expect(config.NODE_ENV).toBe("test");
     expect(config.PROMETHEUS_URL).toBe("http://localhost:9090");
     expect(config.METRICS_PROXY_CHAOS_TOKEN).toBe("local-chaos-control-token");
+    expect(config.OUTBOX_RELAY_PORT).toBe(3004);
+    expect(config.OUTBOX_RELAY_POLL_MS).toBe(250);
+    expect(config.OUTBOX_RELAY_BATCH_SIZE).toBe(50);
   });
 
   it("rejects a weak metrics-proxy chaos token", () => {

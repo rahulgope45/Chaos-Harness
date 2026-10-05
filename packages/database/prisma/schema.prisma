@@ -28,8 +28,23 @@ model Payment {
   createdAt      DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   ledgerEntries  LedgerEntry[]
   deliveries    WebhookDelivery[]
+  outboxEvent   WebhookOutbox?
 
   @@map("payments")
+}
+
+model WebhookOutbox {
+  eventId         String    @id @default(dbgenerated("gen_random_uuid()")) @map("event_id") @db.Uuid
+  paymentId       String    @unique @map("payment_id") @db.Uuid
+  payment         Payment   @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  occurredAt      DateTime  @default(now()) @map("occurred_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  publishedAt     DateTime? @map("published_at") @db.Timestamptz(6)
+  publishAttempts Int       @default(0) @map("publish_attempts")
+  lastError       String?   @map("last_error")
+
+  @@index([publishedAt, createdAt])
+  @@map("webhook_outbox")
 }
 
 model WebhookDelivery {

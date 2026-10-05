@@ -34,6 +34,7 @@ describe("payment API", () => {
     expect(created.status).toBe(201);
     expect(replayed.status).toBe(200);
     expect(replayed.body).toEqual(created.body);
+    expect(await database.webhookOutbox.count({ where: { paymentId: created.body.id } })).toBe(1);
   });
 
   it("returns 422 when a key is reused with a different body", async () => {
@@ -63,6 +64,8 @@ describe("payment API", () => {
     expect(responses.filter(({ status }) => status === 201)).toHaveLength(1);
     expect(responses.every(({ status }) => [200, 201, 409].includes(status))).toBe(true);
     expect(await database.payment.count({ where: { idempotencyKey: key } })).toBe(1);
+    const payment = await database.payment.findUniqueOrThrow({ where: { idempotencyKey: key } });
+    expect(await database.webhookOutbox.count({ where: { paymentId: payment.id } })).toBe(1);
   });
 
   it("retrieves a payment by id", async () => {
@@ -108,6 +111,7 @@ describe("payment API", () => {
 
       expect(replayed.body.id).toBe(created.body.id);
       expect(await database.payment.count({ where: { idempotencyKey: key } })).toBe(1);
+      expect(await database.webhookOutbox.count({ where: { paymentId: created.body.id } })).toBe(1);
     } finally {
       unavailableRedis.disconnect();
     }

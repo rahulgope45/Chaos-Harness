@@ -39,8 +39,10 @@ flowchart LR
   Client[Client / load generator] --> API[Payment API]
   API --> PgProxy[Toxiproxy: api-postgres]
   PgProxy --> PG[(PostgreSQL)]
-  API --> RedisProxy[Toxiproxy: api-redis]
+  API --> RedisProxy[Toxiproxy: api-redis lock path]
   RedisProxy --> Redis[(Redis / BullMQ)]
+  Relay[Outbox relay] --> PG
+  Relay --> Redis
   Redis --> Worker[Payment worker]
   Worker --> SinkProxy[Toxiproxy: worker-sink]
   SinkProxy --> Sink[Webhook sink]
@@ -71,7 +73,9 @@ flowchart LR
 - The payment API accepts idempotent payment requests.
 - PostgreSQL is the source of truth and enforces ledger rules.
 - Redis is a fast path and the BullMQ backing store, not the financial authority.
-- The API enqueues a webhook job after committing the payment.
+- The payment transaction atomically stores the payment, balanced ledger, and one
+  webhook outbox row.
+- A separate relay publishes pending outbox rows to BullMQ with deterministic job IDs.
 - A separate worker retries delivery to a webhook sink and dead-letters exhausted jobs.
 - Prometheus scrapes API and worker metrics through a sensor proxy with integrity
   canaries and an authenticated local chaos-control surface.
@@ -107,10 +111,10 @@ separate from genuine findings.
 
 ## Current verified state
 
-Plan milestones Day 1 through Day 18 are implemented. The repository currently has:
+Plan milestones Day 1 through Day 19 are implemented. The repository currently has:
 
-- eight healthy Docker Compose services;
-- 89 unit tests and 10 integration tests passing;
+- nine healthy Docker Compose services;
+- 91 unit tests and 10 live integration tests passing, including outbox relay coverage;
 - an idempotent payment API, balanced ledger, queue worker, sink, and Prometheus metrics;
 - reproducible load generation and I1-I6 checks;
 - a safe experiment runner with FS-1 through FS-4;
@@ -132,7 +136,8 @@ caused real client-visible degradation, but no new correctness defect emerged.
 The genuine findings are:
 
 - F-001: a committed payment can lose its webhook event if the API dies between database
-  commit and queue enqueue.
+  commit and queue enqueue. It is resolved by the Day 19 transactional outbox; the
+  unchanged reproducer now passes I1-I6.
 - F-002: stable idempotency keys across repeated seeded runs contaminated later evidence;
   generated keys are now namespaced by run ID.
 
@@ -147,7 +152,7 @@ not a discovered defect.
 - Results are functional development evidence, not production capacity claims.
 - PostgreSQL process loss is not tested: the source-of-truth container remains outside
   the mutation allowlist; ADR-0011 records the blast-radius decision.
-- The transactional outbox fix, final CI smoke runs, and v1 polish are still pending.
+- Final CI smoke runs, extensibility/security documentation, and v1 polish are pending.
 - No LICENSE has been selected yet, by explicit project decision.
 
 Read next:

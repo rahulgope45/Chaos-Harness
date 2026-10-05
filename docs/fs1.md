@@ -30,3 +30,12 @@ additional reproductions of the same dual-write defect, not new findings. Across
 FS-1 runs, MTTR median/p90/min/max was 7,085/8,706/5,885/9,491 ms. Only the ten
 controller-enabled runs emitted application anomaly events; their MTTD was
 632/872/615/1,004 ms.
+
+## Day 19 after-fix evidence
+
+ADR-0012 replaced the API dual write with a transactional outbox and separate relay.
+The unchanged seed-301 API-kill experiment then passed I1-I6 in run
+`kill-api-after-commit-2026-10-05T04-07-33-206Z-e4ca8f09`. I5 found no missing terminal
+event for 192 acknowledged payments; the run window contained 201 payments and 201
+matching published outbox rows. F-001 is resolved, while the failures above remain the
+before-fix evidence.

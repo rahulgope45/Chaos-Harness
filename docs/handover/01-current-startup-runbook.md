@@ -1,7 +1,7 @@
 # Current startup runbook
 
-This runbook covers only components that exist in the repository now. It does not
-describe the planned transactional outbox or any other future component.
+This runbook covers only components that exist in the repository now, including the
+transactional outbox relay added on Day 19.
 
 Commands assume Windows PowerShell from `E:\Projects\chaos-harness`.
 
@@ -10,7 +10,7 @@ Commands assume Windows PowerShell from `E:\Projects\chaos-harness`.
 - Docker Desktop running with the Linux container engine.
 - Node.js 24; the repository pins the major version in `.nvmrc`.
 - npm 12 or a compatible npm version.
-- Ports 3000, 3001, 3002, 3003, 5432, 6380, 8474, 8666-8670, and 19090 available.
+- Ports 3000, 3001, 3002, 3003, 3004, 5432, 6380, 8474, 8666-8670, and 19090 available.
 
 Check the tools:
 
@@ -53,8 +53,8 @@ npm run migrate:deploy --workspace @chaos/database
 ```
 
 `migrate:deploy` is safe to run again; it applies only migrations not already recorded.
-The current migrations create the payment/ledger schema, webhook deliveries, and seeded
-controller policy.
+The current migrations create the payment/ledger schema, webhook deliveries,
+transactional webhook outbox, and seeded controller policy.
 
 ### 4. Build and start the complete managed stack
 
@@ -63,7 +63,7 @@ docker compose up --build -d
 docker compose ps
 ```
 
-The expected result is eight running, healthy services.
+The expected result is nine running, healthy services.
 
 ## Current components
 
@@ -72,6 +72,7 @@ The expected result is eight running, healthy services.
 | PostgreSQL        | Compose `postgres`                         | `127.0.0.1:5432`                          | Source of truth, ledger, sink records, controller policies |
 | Redis             | Compose `redis`                            | `127.0.0.1:6380`                          | API fast path and BullMQ storage                           |
 | Metrics proxy     | Compose `metrics-proxy`                    | `http://127.0.0.1:3003`                   | Prometheus sensor plus FS-2/FS-3 target                    |
+| Outbox relay      | Compose `outbox-relay`                     | `http://127.0.0.1:3004`                   | Publishes durable webhook intent to BullMQ                 |
 | Prometheus        | Compose `prometheus`                       | `http://127.0.0.1:19090`                  | Metrics scraping and recording rules                       |
 | Toxiproxy         | Compose `toxiproxy`                        | API at `http://127.0.0.1:8474`            | FS-4 dependency-path faults                                |
 | Webhook sink      | Compose `webhook-sink`                     | `http://127.0.0.1:3002`                   | Persists attempted webhook deliveries                      |
@@ -85,7 +86,7 @@ The expected result is eight running, healthy services.
 
 ## Start or restart individual Compose components
 
-Compose starts declared dependencies automatically. Use `--build` for the four custom
+Compose starts declared dependencies automatically. Use `--build` for the five custom
 Node service images after source changes.
 
 ```powershell
@@ -96,13 +97,14 @@ docker compose up --build -d webhook-sink
 docker compose up --build -d payment-worker
 docker compose up --build -d payment-api
 docker compose up --build -d metrics-proxy
+docker compose up --build -d outbox-relay
 docker compose up -d prometheus
 ```
 
 To rebuild all custom services after code changes:
 
 ```powershell
-docker compose up --build -d payment-api payment-worker webhook-sink metrics-proxy
+docker compose up --build -d payment-api payment-worker webhook-sink metrics-proxy outbox-relay
 ```
 
 ## Verify the running stack
@@ -114,6 +116,8 @@ Invoke-RestMethod http://127.0.0.1:3000/readyz
 Invoke-RestMethod http://127.0.0.1:3001/healthz
 Invoke-RestMethod http://127.0.0.1:3002/healthz
 Invoke-RestMethod http://127.0.0.1:3003/healthz
+Invoke-RestMethod http://127.0.0.1:3004/healthz
+Invoke-RestMethod http://127.0.0.1:3004/readyz
 curl.exe -sS http://127.0.0.1:3003/metrics/payment-api
 curl.exe -sS http://127.0.0.1:3003/metrics/payment-worker
 $env:METRICS_PROXY_CHAOS_TOKEN='local-chaos-control-token'
@@ -146,7 +150,8 @@ Invoke-RestMethod "http://127.0.0.1:3000/payments/$($payment.id)"
 ```
 
 A new request returns 201. Repeating the same key and body returns the original payment;
-the same key with a different body returns 422.
+the same key with a different body returns 422. Webhook publication is asynchronous:
+the payment transaction first persists an outbox row, then the relay publishes it.
 
 ## Run the current harness components
 
@@ -310,7 +315,8 @@ running. Progress is written after every run to
 On completion, inspect `aggregate.json` and `summary.md` in the same directory. Exit
 code 2 means coverage completed but at least one underlying experiment reported a
 failure; the report is still written. The verified Day 17 matrix exited 2 because two
-API-kill runs reproduced known I5 finding F-001.
+API-kill runs reproduced then-open I5 finding F-001. Day 19 later resolved it; keep
+those artifacts as before-fix evidence.
 
 ### Complete Day 18 gap matrix
 
@@ -334,6 +340,7 @@ docker compose logs --tail 100 payment-api
 docker compose logs --tail 100 payment-worker
 docker compose logs --tail 100 webhook-sink
 docker compose logs --tail 100 metrics-proxy
+docker compose logs --tail 100 outbox-relay
 docker compose logs --tail 100 postgres redis prometheus toxiproxy
 ```
 
@@ -346,6 +353,11 @@ Every experiment creates `docs/results/experiments/<run-id>/`. Start diagnosis w
 5. `invariants.json` for violating IDs and evidence counts.
 6. `controller.log` when the experiment enabled the controller.
 7. `controller-restart-assessment.json` for a configured controller replacement.
+8. `outbox-evidence.json` when a run records payment/outbox publication counts.
+
+For webhook gaps, query `webhook_outbox` and distinguish a missing row, a pending row,
+and a published row before moving on to BullMQ and sink/DLQ evidence. See
+`docs/outbox.md` for the exact command and symptom map.
 
 If an interrupted run leaves `.chaos-experiment.lock` behind, first confirm that no
 runner process is active and all faults have been reverted. Only then remove that one

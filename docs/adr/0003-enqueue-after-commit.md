@@ -1,6 +1,6 @@
 # ADR-0003: Enqueue webhooks after payment commit in v1
 
-- Status: accepted as an intentional v1 limitation
+- Status: superseded by ADR-0012
 - Date: 2026-10-04
 
 ## Context
@@ -21,6 +21,7 @@ candidate defect until a real run artifact reproduces it.
 
 ## Consequences
 
-The initial design stays easy to understand and gives the harness a realistic failure
-hypothesis. If confirmed, the planned correction is a transactional outbox plus relay,
-followed by the identical experiment and seed to produce before/after evidence.
+The initial design stayed easy to understand and gave the harness a realistic failure
+hypothesis. F-001 confirmed the window, and ADR-0012 replaces this decision with a
+transactional outbox plus relay. The original failing run remains preserved as evidence
+of why the decision changed.

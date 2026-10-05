@@ -1,0 +1,24 @@
+{
+  "name": "@chaos/outbox-relay",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/relay.ts"
+  },
+  "scripts": {
+    "start": "tsx src/server.ts"
+  },
+  "dependencies": {
+    "@chaos/config": "0.0.0",
+    "@chaos/database": "0.0.0",
+    "@chaos/queue": "0.0.0",
+    "pino": "10.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.13.6",
+    "tsx": "4.23.15",
+    "typescript": "5.7.3",
+    "vitest": "5.0.1"
+  }
+}

@@ -190,6 +190,41 @@ services:
     networks:
       - chaos-network
 
+  outbox-relay:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["npm", "run", "start", "--workspace", "@chaos/outbox-relay"]
+    restart: "no"
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-chaos}:${POSTGRES_PASSWORD:-chaos}@postgres:5432/${POSTGRES_DB:-chaos_harness}
+      REDIS_URL: redis://redis:6379
+      OUTBOX_RELAY_PORT: 3004
+      OUTBOX_RELAY_POLL_MS: 250
+      OUTBOX_RELAY_BATCH_SIZE: 50
+      LOG_LEVEL: info
+    ports:
+      - "127.0.0.1:${OUTBOX_RELAY_PORT:-3004}:3004"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3004/healthz').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 10s
+    networks:
+      - chaos-network
+
   payment-api:
     build:
       context: .

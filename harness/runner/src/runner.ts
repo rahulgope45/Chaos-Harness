@@ -43,6 +43,7 @@ export interface RunnerOptions {
   sinkUrl: string;
   toxiproxyUrl: string;
   metricsProxyUrl: string;
+  outboxRelayUrl: string;
   metricsProxyChaosToken: string;
   iteration: number;
 }
@@ -389,6 +390,10 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           signal: AbortSignal.timeout(5000)
         });
         if (!health.ok) throw new Error(`Payment API preflight returned ${health.status}`);
+        const relay = await fetch(`${options.outboxRelayUrl}/readyz`, {
+          signal: AbortSignal.timeout(5000)
+        });
+        if (!relay.ok) throw new Error(`Outbox relay preflight returned ${relay.status}`);
         await readSteadyState(options.prometheusUrl);
         await startController();
       },

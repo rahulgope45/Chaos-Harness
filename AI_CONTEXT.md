@@ -14,11 +14,11 @@ and run ID.
 
 | Feature                  | Status   | Evidence                                           |
 | ------------------------ | -------- | -------------------------------------------------- |
-| Workspace/tooling        | Complete | lint, format, typecheck, 89 unit tests pass        |
-| Local infrastructure     | Complete | eight Compose services healthy                     |
+| Workspace/tooling        | Complete | lint, format, typecheck, 91 unit tests pass        |
+| Local infrastructure     | Complete | nine Compose services healthy                      |
 | Database invariants      | Complete | 3 live PostgreSQL rejection tests pass             |
 | Payment API              | Complete | 5 live integration tests, race and Redis fallback  |
-| Queue, worker, sink      | Complete | 2 live tests plus healthy container end-to-end run |
+| Outbox, queue, worker    | Complete | relay tests plus healthy container end-to-end run  |
 | Observability            | Complete | both app jobs scrape through metrics proxy         |
 | Load generator           | Complete | run-isolated keys; all current checks pass         |
 | Invariant checker I1–I6  | Complete | delayed I6 replay evidence plus synthetic proofs   |
@@ -34,7 +34,7 @@ and run ID.
 | Multi-run aggregation    | Complete | Day 17 130/130 plus Day 18 30/30 gap matrix        |
 | Day 18 bug hunt          | Complete | 30/30 added peak scenarios passed I1-I6            |
 | Handover documentation   | Complete | intro, startup, day history, and study guide       |
-| Finding fix phase        | Partial  | F-001 transactional outbox fix still pending       |
+| Finding fix phase        | Complete | F-001/F-002 fixes regression-covered               |
 
 ## Verified local environment
 
@@ -44,6 +44,7 @@ and run ID.
 - Redis: `127.0.0.1:6380`; port 6379 belongs to an unrelated local project.
 - Prometheus: `127.0.0.1:19090`; ports 9090 and 9091 are already occupied locally.
 - Metrics proxy: `127.0.0.1:3003`.
+- Outbox relay: `127.0.0.1:3004`.
 - Toxiproxy API: `127.0.0.1:8474`.
 
 ## Known dependency issue
@@ -59,10 +60,13 @@ silently force the downgrade.
 - Only local containers labeled `chaos-target=true` may be attacked.
 - I6 duplicate delivery is report-only after a real injected fault and fails a
   no-fault control run. I1 and I2 always fail on duplicate financial effects.
-- Genuine finding F-001 confirms commit-before-enqueue event loss under API SIGKILL.
-  Genuine finding F-002 confirms cross-run evidence contamination in the harness and
-  is fixed. Worker crash-after-side-effect produced expected transport duplicates but
-  no duplicate financial effects.
+- Genuine finding F-001 confirmed commit-before-enqueue event loss under API SIGKILL and
+  is fixed by ADR-0012's transactional outbox. Genuine finding F-002 confirmed cross-run
+  evidence contamination in the harness and is fixed. Worker crash-after-side-effect
+  produced expected transport duplicates but no duplicate financial effects.
+- Every new payment transaction creates exactly one outbox row. A separate relay uses
+  the event UUID as the BullMQ job ID and marks publication only after queue acceptance.
+  Historical payments are not backfilled.
 - Deliberately corrupted data is labeled synthetic and never reported as a genuine
   discovered defect.
 - S-001 is the single requested fabricated scenario: an explicitly planted
@@ -86,9 +90,9 @@ silently force the downgrade.
 
 ## Database layer
 
-`packages/database` uses Prisma 7.10.0 with `@prisma/adapter-pg`. The initial migration
-adds positive-amount checks, an append-only ledger trigger, and a deferred balance
-constraint trigger. Run live checks with:
+`packages/database` uses Prisma 7.10.0 with `@prisma/adapter-pg`. Migrations add
+positive-amount checks, an append-only ledger trigger, a deferred balance constraint
+trigger, and the one-to-one `webhook_outbox` table. Run live checks with:
 
 ```powershell
 $env:DATABASE_URL='postgresql://chaos:chaos@127.0.0.1:5432/chaos_harness'
@@ -99,19 +103,21 @@ npm run test:integration
 
 `services/payment-api` provides POST `/payments`, GET `/payments/:id`, `/healthz`, and
 `/readyz`. It validates input, treats PostgreSQL as authoritative, uses Redis only for
-cache/short in-flight locking, handles the unique-key race, writes payment plus balanced
-ledger entries in one transaction, logs structured requests, and handles graceful
-shutdown.
+cache/short in-flight locking, handles the unique-key race, writes payment, balanced
+ledger entries, and one webhook outbox row in a transaction, logs structured requests,
+and handles graceful shutdown.
 
-## Queue, worker, and sink
+## Outbox relay, queue, worker, and sink
 
-The API enqueues `payment-created` only after its database transaction commits. This is
-the intentional ADR-0003 failure window. BullMQ attempts delivery three times with
-exponential backoff. The worker posts to the sink, gracefully closes in-flight work,
-logs stalled jobs, and copies exhausted events to a dedicated dead-letter queue. The
-sink persists every accepted delivery and supports controlled failure and latency.
+`services/outbox-relay` polls pending PostgreSQL rows, enqueues `payment-created` with
+the outbox event UUID as deterministic BullMQ job ID, and records publish success or
+retry error. This replaces ADR-0003's API dual-write per ADR-0012. BullMQ attempts
+delivery three times with exponential backoff. The worker posts to the sink, gracefully
+closes in-flight work, logs stalled jobs, and copies exhausted events to a dedicated
+dead-letter queue. The sink persists every accepted delivery and supports controlled
+failure and latency.
 
-All eight Compose services are healthy. A real request through `127.0.0.1:3000` was
+All nine Compose services are healthy. A real request through `127.0.0.1:3000` was
 delivered to the containerized sink on `127.0.0.1:3002`.
 
 ## Observability
@@ -171,16 +177,19 @@ dry-run approved `payment-api`, and safety-wrapped control run
 `no-fault-control-2026-10-04T03-33-27-280Z-adf0733d` passed 56/56 operations and I1–I6;
 all seven services remained healthy.
 
-## FS-1 and genuine finding F-001
+## FS-1 and resolved genuine finding F-001
 
 FS-1 implements kill, stop, pause, and restart behind the allowlist and pre-registered
 cleanup. Worker-kill run `kill-worker-mid-batch-2026-10-04T03-41-27-310Z-2d81a6eb`
 passed 394/394 operations and I1–I6. API-kill run
 `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` failed I5: four payments
 committed during timed-out requests had no sink delivery or DLQ record after 45 seconds.
-This confirms the ADR-0003 commit-before-enqueue window as genuine finding F-001. Both
-services were automatically restored healthy. The planned fix is a transactional outbox
-with before/after replay evidence.
+This confirmed the ADR-0003 commit-before-enqueue window as genuine finding F-001. Day
+19 implemented ADR-0012's transactional outbox and relay. The unchanged seed-301,
+two-second-injection config then passed I1-I6 in run
+`kill-api-after-commit-2026-10-05T04-07-33-206Z-e4ca8f09`: I5 checked 192 acknowledged
+payments, and run-window evidence records 201 payments, 201 matching outbox rows, and
+201 published rows. F-001 is resolved; all before artifacts remain preserved.
 
 ## Worker crash evidence and genuine finding F-002
 
@@ -277,7 +286,8 @@ revert.
 Manifest `experiments/day17-matrix.yml` covers all 13 implemented experiment configs at
 ten repeats each: 130 runs with ten controls, incremented seeds, and deterministic
 pseudorandom injection offsets. The matrix runner serializes through the existing safety
-lock and waits for API, metrics proxy, sink, and Prometheus readiness between repeats.
+lock and now waits for API, outbox relay, metrics proxy, sink, and Prometheus readiness
+between repeats.
 
 Matrix run `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed 130/130
 planned runs: 128 passed and two failed I5. Both failed run IDs are API-kill repetitions
@@ -311,10 +321,17 @@ PostgreSQL is intentionally not labeled `chaos-target=true`. ADR-0011 keeps dire
 source-of-truth container mutation outside this portfolio's blast radius and uses the
 API-to-PostgreSQL Toxiproxy boundary for database-path disruption.
 
+## Day 19 fix and proof
+
+The payment transaction, schema migration, separate relay, deterministic queue identity,
+health/readiness, Compose wiring, runner preflight, tests, ADR-0012, and outbox runbook
+are implemented. The exact F-001 reproducer passed as described above.
+
 ## Next implementation
 
-Implement Day 19's remaining work: fix F-001 with a transactional outbox and relay, then
-rerun the exact reproducer and preserve before/after evidence. F-002 is already fixed.
+Complete Day 20: CI integration/smoke coverage with artifact upload, one-command demo,
+extension runbook/adapter example, dependency review automation, and consolidated Docker
+socket security documentation.
 
 ## Handover documents
 

@@ -1,6 +1,5 @@
 import { randomUUID } from "node:crypto";
 import type { DatabaseClient } from "@chaos/database";
-import type { WebhookJob } from "@chaos/queue";
 import express, { type NextFunction, type Request, type Response } from "express";
 import type { Redis } from "ioredis";
 import pino, { type Logger } from "pino";
@@ -14,15 +13,13 @@ interface AppDependencies {
   redis: Redis;
   lockTtlMs?: number;
   logger?: Logger;
-  webhookQueue?: { add(name: string, data: WebhookJob, options: object): Promise<unknown> };
 }
 
 export function createApp({
   database,
   redis,
   lockTtlMs = 5000,
-  logger = pino({ level: "info" }),
-  webhookQueue
+  logger = pino({ level: "info" })
 }: AppDependencies) {
   const app = express();
   const payments = createPaymentService({ database, redis, lockTtlMs });
@@ -80,20 +77,6 @@ export function createApp({
 
       switch (result.kind) {
         case "created":
-          if (webhookQueue) {
-            const event: WebhookJob = {
-              event_id: randomUUID(),
-              payment_id: result.payment.id,
-              occurred_at: new Date().toISOString()
-            };
-            await webhookQueue.add("payment-created", event, {
-              jobId: event.event_id,
-              attempts: 3,
-              backoff: { type: "exponential", delay: 1000 },
-              removeOnComplete: 1000,
-              removeOnFail: false
-            });
-          }
           response.status(201).json(result.payment);
           return;
         case "replayed":

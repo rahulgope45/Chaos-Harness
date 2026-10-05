@@ -276,3 +276,22 @@
 - Post-run state had eight healthy services, no experiment lock, and the suite remained
   ready for the next milestone.
 - Next: Day 19 transactional-outbox fix and before/after proof for F-001.
+
+## 2026-10-05 — Day 19 transactional outbox and F-001 regression proof
+
+- Added `webhook_outbox` with a unique payment relation and created its row inside the
+  payment/ledger transaction. The API no longer performs the Redis enqueue dual write.
+- Added a separate outbox relay with deterministic BullMQ job IDs, persisted publish
+  attempts/errors, health/readiness endpoints, and graceful polling lifecycle.
+- Added the ninth Compose service, relay configuration, runner/matrix readiness checks,
+  relay unit coverage, and live API/worker integration assertions.
+- Reran the unchanged `kill-api-after-commit.yml` with seed 301 and the original
+  two-second injection offset. Run
+  `kill-api-after-commit-2026-10-05T04-07-33-206Z-e4ca8f09` passed I1-I6; I5 checked 192
+  acknowledged payments and found no missing terminal event.
+- The preserved run-window query counted 201 committed payments, 201 matching outbox
+  rows, and 201 published rows. F-001 is resolved; the original failing artifacts remain
+  the before evidence.
+- Final verification passed lint, formatting, typecheck, Compose validation, 91 unit
+  tests, and 10 live PostgreSQL/Redis integration tests. All nine services were healthy.
+- Next: Day 20 CI smoke coverage, extensibility documentation, and security consolidation.
