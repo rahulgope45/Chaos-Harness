@@ -14,10 +14,16 @@ network faults. A/A controls pass; only implemented injectors are enabled behind
 safety boundary. Defect claims are added only after reproducible fault runs produce
 evidence artifacts and run IDs.
 
+Day 17 matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed all 130
+planned runs: ten repeats of every one of the 13 implemented experiment configurations,
+with varied deterministic fault offsets. It produced aggregate JSON and Markdown with
+median, nearest-rank p90, min, max, missing timing counts, invariant rates, and all
+source run IDs. See `docs/matrix.md`.
+
 Controller run `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd`
 detected a killed worker in 733 ms, selected and verified a restart, completed 281/281
-operations, and passed I1–I6. This is one functional run, not an aggregate performance
-claim.
+operations, and passed I1–I6. Across the ten Day 17 controller repeats, MTTD was 632 ms
+median and 872 ms p90; controller-run MTTR was 8,649 ms median and 9,021 ms p90.
 
 FS-1 is now implemented. Run
 `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` confirmed the first genuine
@@ -44,7 +50,8 @@ I1-I6 passed. See `docs/fs3.md`.
 FS-2 runs exercised spike, dropped-series, frozen/stale, non-finite noise, and
 counter-reset modes. All five were detected, every worker stayed healthy, every
 scheduled operation and I1-I6 passed, and each measured false-action count was zero.
-See `docs/fs2.md` for the five run IDs and exact evidence.
+The Day 17 matrix repeated every mode ten times; all 50 assessments passed with zero
+controller actions and zero false actions. See `docs/fs2.md` and `docs/matrix.md`.
 
 ## Handover
 

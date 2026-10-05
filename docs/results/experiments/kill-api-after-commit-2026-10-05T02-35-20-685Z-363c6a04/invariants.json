@@ -1,0 +1,84 @@
+[
+  {
+    "invariant": "I1",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+      "journal_entries": 1272,
+      "successful_entries": 292,
+      "unique_acknowledged_payments": 275
+    }
+  },
+  {
+    "invariant": "I2",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+      "journal_entries": 1272,
+      "successful_entries": 292,
+      "unique_acknowledged_payments": 275
+    }
+  },
+  {
+    "invariant": "I3",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+      "journal_entries": 1272,
+      "successful_entries": 292,
+      "unique_acknowledged_payments": 275
+    }
+  },
+  {
+    "invariant": "I4",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+      "journal_entries": 1272,
+      "successful_entries": 292,
+      "unique_acknowledged_payments": 275
+    }
+  },
+  {
+    "invariant": "I5",
+    "status": "fail",
+    "violations": [
+      {
+        "payment_id": "b9943023-57f3-47a4-a29f-3381e397072d",
+        "delivered": false,
+        "dead_lettered": false
+      },
+      {
+        "payment_id": "4a40e6f4-7b4f-4a53-a5c8-ea51b9232885",
+        "delivered": false,
+        "dead_lettered": false
+      }
+    ],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+      "journal_entries": 1272,
+      "successful_entries": 292,
+      "unique_acknowledged_payments": 275,
+      "drain_timeout_ms": 45000
+    }
+  },
+  {
+    "invariant": "I6",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+      "journal_entries": 1272,
+      "successful_entries": 292,
+      "unique_acknowledged_payments": 275,
+      "fault_injected": true,
+      "configured_policy": "report",
+      "observation_ms": 0,
+      "effective_policy": "report"
+    }
+  }
+]

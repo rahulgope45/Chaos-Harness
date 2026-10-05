@@ -1,0 +1,39 @@
+{
+  "name": "kill-worker-mid-batch",
+  "hypothesis": "Killing the webhook worker loses no acknowledged payment events after recovery.",
+  "target": "payment-worker",
+  "fault": "FS_1",
+  "fs1": {
+    "action": "kill",
+    "inject_after_s": 2.033
+  },
+  "controller": {
+    "enabled": false,
+    "port": 3100
+  },
+  "seed": 204,
+  "repeat": 1,
+  "duration_s": 8,
+  "rate_per_second": 50,
+  "invariant_drain_timeout_s": 45,
+  "duplicate_observation_s": 0,
+  "max_duration_s": 90,
+  "recovery": {
+    "timeout_s": 10,
+    "consecutive_healthy": 2
+  },
+  "steady_state": {
+    "max_error_rate": 0.02
+  },
+  "abort_if": {
+    "error_rate_above": 0.1
+  },
+  "invariants": [
+    "I1",
+    "I2",
+    "I3",
+    "I4",
+    "I5",
+    "I6"
+  ]
+}

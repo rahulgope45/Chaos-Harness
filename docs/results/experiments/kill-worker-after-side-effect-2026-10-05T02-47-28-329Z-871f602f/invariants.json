@@ -1,0 +1,94 @@
+[
+  {
+    "invariant": "I1",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-47-28-444Z-s408-23bd679f",
+      "journal_entries": 178,
+      "successful_entries": 178,
+      "unique_acknowledged_payments": 173
+    }
+  },
+  {
+    "invariant": "I2",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-47-28-444Z-s408-23bd679f",
+      "journal_entries": 178,
+      "successful_entries": 178,
+      "unique_acknowledged_payments": 173
+    }
+  },
+  {
+    "invariant": "I3",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-47-28-444Z-s408-23bd679f",
+      "journal_entries": 178,
+      "successful_entries": 178,
+      "unique_acknowledged_payments": 173
+    }
+  },
+  {
+    "invariant": "I4",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-47-28-444Z-s408-23bd679f",
+      "journal_entries": 178,
+      "successful_entries": 178,
+      "unique_acknowledged_payments": 173
+    }
+  },
+  {
+    "invariant": "I5",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-47-28-444Z-s408-23bd679f",
+      "journal_entries": 178,
+      "successful_entries": 178,
+      "unique_acknowledged_payments": 173,
+      "drain_timeout_ms": 60000
+    }
+  },
+  {
+    "invariant": "I6",
+    "status": "report",
+    "violations": [
+      {
+        "event_id": "1053c95a-d922-4353-9af1-6c0d90dc93e8",
+        "payment_id": "75b1182f-6f83-48b8-9511-bc4e00ede6d0",
+        "count": 2
+      },
+      {
+        "event_id": "645e41d0-0318-4c08-917f-0c3dbe8e3b4d",
+        "payment_id": "78f56caa-cba6-42c3-9dc2-df51e83ccf45",
+        "count": 2
+      },
+      {
+        "event_id": "41bc9bdf-cce4-459f-8e10-6210ba6b2677",
+        "payment_id": "ed5ee0a0-55c4-4b83-94f4-74a67cab7256",
+        "count": 2
+      },
+      {
+        "event_id": "3f56dc3b-f837-40b7-ad4a-a2377409255a",
+        "payment_id": "471a6d64-347e-4642-bb74-07b1c1dfac18",
+        "count": 2
+      }
+    ],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-47-28-444Z-s408-23bd679f",
+      "journal_entries": 178,
+      "successful_entries": 178,
+      "unique_acknowledged_payments": 173,
+      "fault_injected": true,
+      "configured_policy": "report",
+      "observation_ms": 90000,
+      "effective_policy": "report"
+    }
+  }
+]

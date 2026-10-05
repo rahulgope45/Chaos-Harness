@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "run_id": "kill-worker-with-controller-2026-10-05T02-33-08-981Z-9ce84a09",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T02:33:12.155Z",
+    "anomaly_detected_at": "2026-10-05T02:33:13.027Z",
+    "plan_selected_at": "2026-10-05T02:33:13.031Z",
+    "action_executed_at": "2026-10-05T02:33:13.449Z",
+    "recovered_at": "2026-10-05T02:33:20.983Z"
+  },
+  "durations_ms": {
+    "mttd": 872,
+    "mttr": 8828,
+    "detection_to_plan": 4,
+    "plan_to_action": 418,
+    "action_to_recovery": 7534
+  },
+  "events": [
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-33-08-981Z-9ce84a09",
+      "at": "2026-10-05T02:33:12.155Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_1",
+      "action": "kill",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-33-08-981Z-9ce84a09",
+      "at": "2026-10-05T02:33:13.027Z",
+      "source": "controller",
+      "event": "anomaly_detected",
+      "signal": "container_running",
+      "observed": 0,
+      "threshold": 1
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-33-08-981Z-9ce84a09",
+      "at": "2026-10-05T02:33:13.031Z",
+      "source": "controller",
+      "event": "plan_selected",
+      "policy_id": "restart-payment-worker-v1",
+      "action": "restart",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-33-08-981Z-9ce84a09",
+      "at": "2026-10-05T02:33:13.449Z",
+      "source": "controller",
+      "event": "action_executed",
+      "action": "restart",
+      "target": "payment-worker",
+      "success": true
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-33-08-981Z-9ce84a09",
+      "at": "2026-10-05T02:33:15.213Z",
+      "source": "controller",
+      "event": "telemetry_invalid",
+      "mode": "guarded",
+      "fallback": "docker",
+      "issues": [
+        {
+          "reason": "counter_reset",
+          "metric": "payment_worker_jobs_completed_total"
+        }
+      ]
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-33-08-981Z-9ce84a09",
+      "at": "2026-10-05T02:33:20.983Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

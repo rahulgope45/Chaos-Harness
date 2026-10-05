@@ -1,0 +1,9 @@
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","phase":"preflight","at":"2026-10-05T03:22:41.155Z"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","phase":"baseline","at":"2026-10-05T03:22:41.194Z"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","phase":"inject","at":"2026-10-05T03:22:41.210Z"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","phase":"observe","at":"2026-10-05T03:22:41.210Z"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","event":"fault_injected","fault":"FS_4","action":"timeout","target":"worker-sink","at":"2026-10-05T03:22:44.142Z"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","phase":"revert","at":"2026-10-05T03:22:49.235Z"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","phase":"recovery_wait","at":"2026-10-05T03:22:49.237Z"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","phase":"verify","at":"2026-10-05T03:22:50.268Z"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796","phase":"report","at":"2026-10-05T03:22:50.430Z"}

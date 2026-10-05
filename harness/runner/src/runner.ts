@@ -33,7 +33,7 @@ import {
   type TargetIdentity
 } from "./safety.js";
 
-interface RunnerOptions {
+export interface RunnerOptions {
   experiment: Experiment;
   repositoryRoot: string;
   paymentApiUrl: string;
@@ -45,6 +45,17 @@ interface RunnerOptions {
   metricsProxyUrl: string;
   metricsProxyChaosToken: string;
   iteration: number;
+}
+
+export class ExperimentRunError extends Error {
+  constructor(
+    readonly runId: string,
+    message: string,
+    options?: ErrorOptions
+  ) {
+    super(message, options);
+    this.name = "ExperimentRunError";
+  }
 }
 
 interface Fs2Assessment {
@@ -607,7 +618,9 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     ).catch((writeError: NodeJS.ErrnoException) => {
       if (writeError.code !== "EEXIST") throw writeError;
     });
-    throw new Error(`Experiment ${runId} failed: ${failure.message}`, { cause: error });
+    throw new ExperimentRunError(runId, `Experiment ${runId} failed: ${failure.message}`, {
+      cause: error
+    });
   } finally {
     try {
       await stopController();

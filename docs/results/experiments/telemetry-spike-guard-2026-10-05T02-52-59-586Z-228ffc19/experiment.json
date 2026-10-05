@@ -1,0 +1,39 @@
+{
+  "name": "telemetry-spike-guard",
+  "hypothesis": "An extreme telemetry spike is rejected without restarting a healthy application service.",
+  "target": "metrics-proxy",
+  "fault": "FS_2",
+  "fs2": {
+    "mode": "spike",
+    "inject_after_s": 2.946
+  },
+  "controller": {
+    "enabled": true,
+    "port": 3100
+  },
+  "seed": 803,
+  "repeat": 1,
+  "duration_s": 24,
+  "rate_per_second": 10,
+  "invariant_drain_timeout_s": 45,
+  "duplicate_observation_s": 0,
+  "max_duration_s": 120,
+  "recovery": {
+    "timeout_s": 30,
+    "consecutive_healthy": 2
+  },
+  "steady_state": {
+    "max_error_rate": 0.02
+  },
+  "abort_if": {
+    "error_rate_above": 0.1
+  },
+  "invariants": [
+    "I1",
+    "I2",
+    "I3",
+    "I4",
+    "I5",
+    "I6"
+  ]
+}

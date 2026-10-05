@@ -1,0 +1,39 @@
+{
+  "name": "kill-worker-with-controller",
+  "hypothesis": "The controller detects and restarts a killed worker without violating payment invariants.",
+  "target": "payment-worker",
+  "fault": "FS_1",
+  "fs1": {
+    "action": "kill",
+    "inject_after_s": 1.846
+  },
+  "controller": {
+    "enabled": true,
+    "port": 3100
+  },
+  "seed": 510,
+  "repeat": 1,
+  "duration_s": 10,
+  "rate_per_second": 30,
+  "invariant_drain_timeout_s": 45,
+  "duplicate_observation_s": 0,
+  "max_duration_s": 90,
+  "recovery": {
+    "timeout_s": 15,
+    "consecutive_healthy": 2
+  },
+  "steady_state": {
+    "max_error_rate": 0.02
+  },
+  "abort_if": {
+    "error_rate_above": 0.1
+  },
+  "invariants": [
+    "I1",
+    "I2",
+    "I3",
+    "I4",
+    "I5",
+    "I6"
+  ]
+}

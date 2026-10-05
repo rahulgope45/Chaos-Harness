@@ -1,0 +1,139 @@
+{
+  "run_id": "no-fault-control-2026-10-05T02-30-46-181Z-c2bcc248",
+  "experiment": "no-fault-control",
+  "hypothesis": "The harness introduces no failures when no fault is injected.",
+  "fault": "none",
+  "target": "payment-api",
+  "seed": 105,
+  "started_at": "2026-10-05T02:30:46.182Z",
+  "completed_at": "2026-10-05T02:30:52.400Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.024012573552237758,
+    "throughput_per_second": 1.1471501157333739,
+    "measured_at": "2026-10-05T02:30:46.299Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.023993176997838848,
+    "throughput_per_second": 1.2776286551425022,
+    "measured_at": "2026-10-05T02:30:52.324Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "no-fault-control-2026-10-05T02-30-46-181Z-c2bcc248",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": null,
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": null
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": null,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": []
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T02-30-46-300Z-s105-93f6e36b",
+    "seed": 105,
+    "configured_duration_seconds": 5,
+    "configured_rate_per_second": 10,
+    "scheduled_operations": 54,
+    "successful_operations": 54,
+    "failed_operations": 0,
+    "replay_operations": 3,
+    "client_p95_ms": 31,
+    "achieved_throughput_per_second": 10.808646917534027,
+    "elapsed_seconds": 4.996,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-30-46-300Z-s105-93f6e36b",
+        "journal_entries": 54,
+        "successful_entries": 54,
+        "unique_acknowledged_payments": 51
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-30-46-300Z-s105-93f6e36b",
+        "journal_entries": 54,
+        "successful_entries": 54,
+        "unique_acknowledged_payments": 51
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-30-46-300Z-s105-93f6e36b",
+        "journal_entries": 54,
+        "successful_entries": 54,
+        "unique_acknowledged_payments": 51
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-30-46-300Z-s105-93f6e36b",
+        "journal_entries": 54,
+        "successful_entries": 54,
+        "unique_acknowledged_payments": 51
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-30-46-300Z-s105-93f6e36b",
+        "journal_entries": 54,
+        "successful_entries": 54,
+        "unique_acknowledged_payments": 51,
+        "drain_timeout_ms": 30000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-30-46-300Z-s105-93f6e36b",
+        "journal_entries": 54,
+        "successful_entries": 54,
+        "unique_acknowledged_payments": 51,
+        "fault_injected": false,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "fail"
+      }
+    }
+  ],
+  "status": "passed"
+}

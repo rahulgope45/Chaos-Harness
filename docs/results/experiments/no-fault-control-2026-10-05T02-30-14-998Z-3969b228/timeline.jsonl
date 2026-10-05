@@ -1,0 +1,8 @@
+{"run_id":"no-fault-control-2026-10-05T02-30-14-998Z-3969b228","phase":"preflight","at":"2026-10-05T02:30:15.001Z"}
+{"run_id":"no-fault-control-2026-10-05T02-30-14-998Z-3969b228","phase":"baseline","at":"2026-10-05T02:30:15.116Z"}
+{"run_id":"no-fault-control-2026-10-05T02-30-14-998Z-3969b228","phase":"inject","at":"2026-10-05T02:30:15.124Z"}
+{"run_id":"no-fault-control-2026-10-05T02-30-14-998Z-3969b228","phase":"observe","at":"2026-10-05T02:30:15.124Z"}
+{"run_id":"no-fault-control-2026-10-05T02-30-14-998Z-3969b228","phase":"revert","at":"2026-10-05T02:30:20.139Z"}
+{"run_id":"no-fault-control-2026-10-05T02-30-14-998Z-3969b228","phase":"recovery_wait","at":"2026-10-05T02:30:20.139Z"}
+{"run_id":"no-fault-control-2026-10-05T02-30-14-998Z-3969b228","phase":"verify","at":"2026-10-05T02:30:21.184Z"}
+{"run_id":"no-fault-control-2026-10-05T02-30-14-998Z-3969b228","phase":"report","at":"2026-10-05T02:30:21.439Z"}

@@ -1,0 +1,9 @@
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","phase":"preflight","at":"2026-10-05T03:17:39.201Z"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","phase":"baseline","at":"2026-10-05T03:17:40.142Z"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","phase":"inject","at":"2026-10-05T03:17:40.150Z"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","phase":"observe","at":"2026-10-05T03:17:40.150Z"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","event":"fault_injected","fault":"FS_3","action":"stop_sensor","target":"metrics-proxy","at":"2026-10-05T03:17:43.234Z"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","phase":"revert","at":"2026-10-05T03:17:54.078Z"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","phase":"recovery_wait","at":"2026-10-05T03:17:54.375Z"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","phase":"verify","at":"2026-10-05T03:17:59.538Z"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-39-199Z-72c77f26","phase":"report","at":"2026-10-05T03:17:59.738Z"}

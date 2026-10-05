@@ -1,0 +1,2 @@
+{"run_id":"sink-timeout-retry-2026-10-05T03-23-27-233Z-c3a9d6a4","at":"2026-10-05T03:23:29.907Z","source":"runner","event":"fault_injected","fault":"FS_4","action":"timeout","target":"worker-sink"}
+{"run_id":"sink-timeout-retry-2026-10-05T03-23-27-233Z-c3a9d6a4","at":"2026-10-05T03:23:36.363Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

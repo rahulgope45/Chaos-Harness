@@ -1,0 +1,179 @@
+{
+  "run_id": "kill-worker-after-side-effect-2026-10-05T02-41-40-246Z-3a41bd8c",
+  "experiment": "kill-worker-after-side-effect",
+  "hypothesis": "A worker killed while webhook acknowledgements are delayed causes no duplicate downstream processing.",
+  "fault": "FS_1",
+  "target": "payment-worker",
+  "seed": 403,
+  "started_at": "2026-10-05T02:41:40.247Z",
+  "completed_at": "2026-10-05T02:42:49.896Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.08986809633026976,
+    "throughput_per_second": 2.136724837508556,
+    "measured_at": "2026-10-05T02:41:40.346Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.09083583027559952,
+    "throughput_per_second": 1.5501084700852075,
+    "measured_at": "2026-10-05T02:41:49.702Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "kill-worker-after-side-effect-2026-10-05T02-41-40-246Z-3a41bd8c",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T02:41:43.618Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T02:41:49.702Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 6084,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "kill-worker-after-side-effect-2026-10-05T02-41-40-246Z-3a41bd8c",
+        "at": "2026-10-05T02:41:43.618Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_1",
+        "action": "kill",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "kill-worker-after-side-effect-2026-10-05T02-41-40-246Z-3a41bd8c",
+        "at": "2026-10-05T02:41:49.702Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T02-41-40-361Z-s403-6a00ffb1",
+    "seed": 403,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 20,
+    "scheduled_operations": 176,
+    "successful_operations": 176,
+    "failed_operations": 0,
+    "replay_operations": 11,
+    "client_p95_ms": 42,
+    "achieved_throughput_per_second": 21.92326856003986,
+    "elapsed_seconds": 8.028,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-41-40-361Z-s403-6a00ffb1",
+        "journal_entries": 176,
+        "successful_entries": 176,
+        "unique_acknowledged_payments": 165
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-41-40-361Z-s403-6a00ffb1",
+        "journal_entries": 176,
+        "successful_entries": 176,
+        "unique_acknowledged_payments": 165
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-41-40-361Z-s403-6a00ffb1",
+        "journal_entries": 176,
+        "successful_entries": 176,
+        "unique_acknowledged_payments": 165
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-41-40-361Z-s403-6a00ffb1",
+        "journal_entries": 176,
+        "successful_entries": 176,
+        "unique_acknowledged_payments": 165
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-41-40-361Z-s403-6a00ffb1",
+        "journal_entries": 176,
+        "successful_entries": 176,
+        "unique_acknowledged_payments": 165,
+        "drain_timeout_ms": 60000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "report",
+      "violations": [
+        {
+          "event_id": "e1068cfe-0153-4ea5-bf8d-7c8257aea5a7",
+          "payment_id": "912fbd15-1931-498f-bf60-be68306e9605",
+          "count": 2
+        },
+        {
+          "event_id": "51eba206-308b-47ab-a3e2-22c7d9d9caae",
+          "payment_id": "5dc80226-0b39-4b4d-b439-30391f435abe",
+          "count": 2
+        },
+        {
+          "event_id": "3bc0cd47-5e8b-4c75-9c7b-f5b6961a5343",
+          "payment_id": "c2d6371b-e35d-403e-bc62-83e051f99500",
+          "count": 2
+        },
+        {
+          "event_id": "4cdae8e0-bef2-46fc-b710-6fdded1763cc",
+          "payment_id": "651b245b-e873-4f82-8d6b-8df0ac3e59a9",
+          "count": 2
+        }
+      ],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-41-40-361Z-s403-6a00ffb1",
+        "journal_entries": 176,
+        "successful_entries": 176,
+        "unique_acknowledged_payments": 165,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 90000,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

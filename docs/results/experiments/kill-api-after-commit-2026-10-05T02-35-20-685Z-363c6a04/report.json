@@ -1,0 +1,170 @@
+{
+  "run_id": "kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04",
+  "experiment": "kill-api-after-commit",
+  "hypothesis": "Killing the API during load leaves no committed payment without a terminal event.",
+  "fault": "FS_1",
+  "target": "payment-api",
+  "seed": 302,
+  "started_at": "2026-10-05T02:35:20.686Z",
+  "completed_at": "2026-10-05T02:36:15.254Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.04507393589219883,
+    "throughput_per_second": 25.562537323821722,
+    "measured_at": "2026-10-05T02:35:20.796Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.04482333333333332,
+    "throughput_per_second": 26.09958888618694,
+    "measured_at": "2026-10-05T02:35:30.070Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T02:35:24.118Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T02:35:30.070Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 5952,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04",
+        "at": "2026-10-05T02:35:24.118Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_1",
+        "action": "kill",
+        "target": "payment-api"
+      },
+      {
+        "run_id": "kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04",
+        "at": "2026-10-05T02:35:30.070Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+    "seed": 302,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 100,
+    "scheduled_operations": 782,
+    "successful_operations": 292,
+    "failed_operations": 490,
+    "replay_operations": 34,
+    "client_p95_ms": 171,
+    "achieved_throughput_per_second": 97.7622202775347,
+    "elapsed_seconds": 7.999,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+        "journal_entries": 1272,
+        "successful_entries": 292,
+        "unique_acknowledged_payments": 275
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+        "journal_entries": 1272,
+        "successful_entries": 292,
+        "unique_acknowledged_payments": 275
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+        "journal_entries": 1272,
+        "successful_entries": 292,
+        "unique_acknowledged_payments": 275
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+        "journal_entries": 1272,
+        "successful_entries": 292,
+        "unique_acknowledged_payments": 275
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "fail",
+      "violations": [
+        {
+          "payment_id": "b9943023-57f3-47a4-a29f-3381e397072d",
+          "delivered": false,
+          "dead_lettered": false
+        },
+        {
+          "payment_id": "4a40e6f4-7b4f-4a53-a5c8-ea51b9232885",
+          "delivered": false,
+          "dead_lettered": false
+        }
+      ],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+        "journal_entries": 1272,
+        "successful_entries": 292,
+        "unique_acknowledged_payments": 275,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-20-797Z-s302-6f143b29",
+        "journal_entries": 1272,
+        "successful_entries": 292,
+        "unique_acknowledged_payments": 275,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "failed",
+  "error": "One or more invariants failed"
+}

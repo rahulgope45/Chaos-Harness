@@ -14,7 +14,7 @@ and run ID.
 
 | Feature                  | Status   | Evidence                                           |
 | ------------------------ | -------- | -------------------------------------------------- |
-| Workspace/tooling        | Complete | lint, format, typecheck, 80 unit tests pass        |
+| Workspace/tooling        | Complete | lint, format, typecheck, 85 unit tests pass        |
 | Local infrastructure     | Complete | eight Compose services healthy                     |
 | Database invariants      | Complete | 3 live PostgreSQL rejection tests pass             |
 | Payment API              | Complete | 5 live integration tests, race and Redis fallback  |
@@ -31,8 +31,9 @@ and run ID.
 | FS-4 network faults      | Complete | two live runs; automatic toxic cleanup             |
 | FS-3 sensor disruption   | Complete | blind/restored events; zero controller actions     |
 | FS-2 telemetry faults    | Complete | five modes detected; zero false actions            |
+| Multi-run aggregation    | Complete | 130/130 runs; aggregate JSON and Markdown          |
 | Handover documentation   | Complete | intro, startup, day history, and study guide       |
-| Aggregate/fix phase      | Partial  | run evidence exists; F-001 and N>=10 work pending  |
+| Finding fix phase        | Partial  | F-001 transactional outbox fix still pending       |
 
 ## Verified local environment
 
@@ -198,8 +199,9 @@ hot-reloaded PostgreSQL policies, and executes verified restarts only against lo
 labeled project containers. It exposes health and Prometheus metrics and emits the three
 controller response events through the shared file protocol. Run
 `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd` recorded MTTD 733 ms,
-MTTR 8,581 ms, 281/281 successful operations, and I1–I6 passing. These are single-run
-functional measurements, not Day 17 aggregate statistics.
+MTTR 8,581 ms, 281/281 successful operations, and I1–I6 passing. Day 17 repeated that
+experiment ten times: MTTD median/p90/min/max was 632/872/615/1,004 ms and MTTR was
+8,649/9,021/7,777/9,491 ms.
 
 ## FS-2 telemetry corruption
 
@@ -220,8 +222,9 @@ Runs `telemetry-spike-guard-2026-10-05T01-49-39-559Z-2497ff69`,
 `telemetry-noise-guard-2026-10-05T01-51-46-889Z-87bc668b`, and
 `telemetry-counter-reset-guard-2026-10-05T01-52-15-989Z-1011ae07` all detected their
 intended issue, kept the worker healthy, measured zero false actions, completed every
-scheduled operation, and passed I1-I6. These are deliberate fault injections and five
-single-run functional proofs, not genuine findings or aggregate performance claims.
+scheduled operation, and passed I1-I6. Day 17 then repeated every mode ten times. All 50
+`fs2-assessment.json` files passed, with zero controller actions and zero false actions.
+These are deliberate fault injections, not genuine findings.
 
 ## FS-3 sensor disruption
 
@@ -259,11 +262,33 @@ duplicates are expected at-least-once transport behavior; no duplicate financial
 was observed. Both evidence directories are preserved and both proxies were clean after
 revert.
 
+## Day 17 multi-run aggregation
+
+Manifest `experiments/day17-matrix.yml` covers all 13 implemented experiment configs at
+ten repeats each: 130 runs with ten controls, incremented seeds, and deterministic
+pseudorandom injection offsets. The matrix runner serializes through the existing safety
+lock and waits for API, metrics proxy, sink, and Prometheus readiness between repeats.
+
+Matrix run `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed 130/130
+planned runs: 128 passed and two failed I5. Both failed run IDs are API-kill repetitions
+of known F-001, each with two committed payments lacking delivery or dead letter:
+`kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04` and
+`kill-api-after-commit-2026-10-05T02-37-15-648Z-ee48b428`. They are repeat evidence,
+not new findings.
+
+Per-fault median/p90 MTTR was FS-1 7,085/8,706 ms, FS-2 26,107/27,638 ms, FS-3
+16,081/16,785 ms, and FS-4 8,829/11,143 ms. Only the ten controller-enabled FS-1 runs
+emitted application anomaly events; their MTTD was 632 ms median and 872 ms p90. Missing
+MTTD samples remain null and are counted, never replaced by zero or telemetry-state
+events. All ten controls passed I1-I6; I1-I4 passed in all 130 runs; I5 passed 128/130;
+I6 report-only outcomes retained 100% non-failure rates. See `docs/matrix.md` and the
+matrix `aggregate.json` for min/max values, exact invariant rates, and all run IDs.
+
 ## Next implementation
 
-Implement Day 17 multi-run orchestration and aggregate median/p90/min/max response
-statistics. Do not publish aggregate claims until at least ten runs per selected
-experiment are preserved.
+Implement the remaining Day 18 peak bug-hunt scenarios: Redis down, controller restart
+during an outage, and the explicitly scoped PostgreSQL-target experiment if retained.
+Treat the two Day 17 I5 failures as additional F-001 evidence, not separate bugs.
 
 ## Handover documents
 

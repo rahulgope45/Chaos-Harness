@@ -1,0 +1,14 @@
+{
+  "run_id": "baseline-2026-10-05T03-18-40-655Z-s706-b9f31ccb",
+  "seed": 706,
+  "configured_duration_seconds": 14,
+  "configured_rate_per_second": 15,
+  "scheduled_operations": 188,
+  "successful_operations": 188,
+  "failed_operations": 0,
+  "replay_operations": 8,
+  "client_p95_ms": 34,
+  "achieved_throughput_per_second": 13.412285082399944,
+  "elapsed_seconds": 14.017,
+  "aborted": false
+}

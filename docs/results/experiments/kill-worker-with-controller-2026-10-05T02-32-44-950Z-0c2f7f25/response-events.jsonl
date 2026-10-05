@@ -1,0 +1,6 @@
+{"run_id":"kill-worker-with-controller-2026-10-05T02-32-44-950Z-0c2f7f25","at":"2026-10-05T02:32:48.646Z","source":"runner","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-32-44-950Z-0c2f7f25","at":"2026-10-05T02:32:49.291Z","source":"controller","event":"anomaly_detected","signal":"container_running","observed":0,"threshold":1}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-32-44-950Z-0c2f7f25","at":"2026-10-05T02:32:49.295Z","source":"controller","event":"plan_selected","policy_id":"restart-payment-worker-v1","action":"restart","target":"payment-worker"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-32-44-950Z-0c2f7f25","at":"2026-10-05T02:32:49.714Z","source":"controller","event":"action_executed","action":"restart","target":"payment-worker","success":true}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-32-44-950Z-0c2f7f25","at":"2026-10-05T02:32:52.690Z","source":"controller","event":"telemetry_invalid","mode":"guarded","fallback":"docker","issues":[{"reason":"counter_reset","metric":"payment_worker_jobs_completed_total"}]}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-32-44-950Z-0c2f7f25","at":"2026-10-05T02:32:56.900Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

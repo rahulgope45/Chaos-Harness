@@ -15,3 +15,18 @@ LIFO cleanup for normal completion, errors, deadlines, and process signals.
 
 Both experiments preserve their config, timeline, load journal, invariant output, and
 report under `docs/results/experiments/<run-id>/`.
+
+## Day 17 repeated evidence
+
+Matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` ran all four implemented
+FS-1 configurations ten times each. Thirty-eight reports passed; two
+`kill-api-after-commit` reports failed only I5 and reproduced known F-001:
+
+- `kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04`;
+- `kill-api-after-commit-2026-10-05T02-37-15-648Z-ee48b428`.
+
+Each failing run left two committed payments without delivery or dead letter. These are
+additional reproductions of the same dual-write defect, not new findings. Across all 40
+FS-1 runs, MTTR median/p90/min/max was 7,085/8,706/5,885/9,491 ms. Only the ten
+controller-enabled runs emitted application anomaly events; their MTTD was
+632/872/615/1,004 ms.

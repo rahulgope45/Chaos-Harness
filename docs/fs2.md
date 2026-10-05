@@ -54,6 +54,12 @@ assessment passed, and I1-I6 passed in all five runs. These are five single-run
 functional proofs, not aggregate performance statistics. The corruptions are deliberate
 FS-2 fault injections and are not reported as genuine bug findings.
 
+Day 17 matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` repeated each mode
+ten times. All 50 reports and all 50 `fs2-assessment.json` files passed; the aggregate
+evidence recorded zero controller actions and zero false actions. FS-2 MTTR median/p90/min/max was
+26,107/27,638/24,213/28,822 ms. MTTD remains null because guarded telemetry events are
+not misclassified as application anomaly detection.
+
 Run any mode first with `--dry-run`, for example:
 
 ```powershell

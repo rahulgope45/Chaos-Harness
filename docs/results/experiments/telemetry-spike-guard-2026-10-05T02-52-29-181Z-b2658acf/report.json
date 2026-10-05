@@ -1,0 +1,208 @@
+{
+  "run_id": "telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf",
+  "experiment": "telemetry-spike-guard",
+  "hypothesis": "An extreme telemetry spike is rejected without restarting a healthy application service.",
+  "fault": "FS_2",
+  "target": "metrics-proxy",
+  "seed": 802,
+  "started_at": "2026-10-05T02:52:29.183Z",
+  "completed_at": "2026-10-05T02:52:59.562Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.024171052631578947,
+    "throughput_per_second": 2.6645332320855903,
+    "measured_at": "2026-10-05T02:52:30.283Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.024228780137849272,
+    "throughput_per_second": 2.7967334153708467,
+    "measured_at": "2026-10-05T02:52:59.422Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T02:52:33.930Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T02:52:59.422Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 25492,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf",
+        "at": "2026-10-05T02:52:33.930Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_2",
+        "action": "spike",
+        "target": "metrics-proxy"
+      },
+      {
+        "run_id": "telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf",
+        "at": "2026-10-05T02:52:37.702Z",
+        "source": "controller",
+        "event": "telemetry_invalid",
+        "mode": "guarded",
+        "fallback": "docker",
+        "issues": [
+          {
+            "reason": "out_of_bounds",
+            "metric": "chaos_metrics_proxy_scrapes_total"
+          },
+          {
+            "reason": "out_of_bounds",
+            "metric": "payment_worker_queue_depth"
+          }
+        ]
+      },
+      {
+        "run_id": "telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf",
+        "at": "2026-10-05T02:52:57.953Z",
+        "source": "controller",
+        "event": "telemetry_validated",
+        "monitored_metrics": [
+          "chaos_metrics_proxy_source_timestamp_seconds",
+          "chaos_metrics_proxy_scrapes_total",
+          "chaos_metrics_proxy_integrity_value",
+          "payment_worker_queue_depth",
+          "payment_worker_jobs_completed_total"
+        ]
+      },
+      {
+        "run_id": "telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf",
+        "at": "2026-10-05T02:52:59.422Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": {
+    "mode": "spike",
+    "telemetry_invalid_detected": true,
+    "telemetry_validated_after_revert": true,
+    "detected_issues": [
+      {
+        "reason": "out_of_bounds",
+        "metric": "chaos_metrics_proxy_scrapes_total"
+      },
+      {
+        "reason": "out_of_bounds",
+        "metric": "payment_worker_queue_depth"
+      }
+    ],
+    "controller_target": "payment-worker",
+    "controller_target_healthy_throughout": true,
+    "action_count": 0,
+    "false_action_count": 0,
+    "passed": true
+  },
+  "load": {
+    "run_id": "baseline-2026-10-05T02-52-30-283Z-s802-034b94ec",
+    "seed": 802,
+    "configured_duration_seconds": 24,
+    "configured_rate_per_second": 10,
+    "scheduled_operations": 220,
+    "successful_operations": 220,
+    "failed_operations": 0,
+    "replay_operations": 3,
+    "client_p95_ms": 35,
+    "achieved_throughput_per_second": 9.18273645546373,
+    "elapsed_seconds": 23.958,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-52-30-283Z-s802-034b94ec",
+        "journal_entries": 220,
+        "successful_entries": 220,
+        "unique_acknowledged_payments": 217
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-52-30-283Z-s802-034b94ec",
+        "journal_entries": 220,
+        "successful_entries": 220,
+        "unique_acknowledged_payments": 217
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-52-30-283Z-s802-034b94ec",
+        "journal_entries": 220,
+        "successful_entries": 220,
+        "unique_acknowledged_payments": 217
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-52-30-283Z-s802-034b94ec",
+        "journal_entries": 220,
+        "successful_entries": 220,
+        "unique_acknowledged_payments": 217
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-52-30-283Z-s802-034b94ec",
+        "journal_entries": 220,
+        "successful_entries": 220,
+        "unique_acknowledged_payments": 217,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-52-30-283Z-s802-034b94ec",
+        "journal_entries": 220,
+        "successful_entries": 220,
+        "unique_acknowledged_payments": 217,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

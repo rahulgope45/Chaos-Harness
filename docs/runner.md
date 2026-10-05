@@ -34,6 +34,19 @@ Run the control experiment:
 npm run start --workspace @chaos/runner -- experiments/control.yml
 ```
 
+Run the complete repeated matrix:
+
+```powershell
+npm run matrix -- --dry-run experiments/day17-matrix.yml
+npm run matrix -- experiments/day17-matrix.yml
+```
+
+The matrix manifest enforces at least ten repeats per listed experiment, varies seeds
+and deterministic bounded injection offsets, and requires control plus FS-1 through
+FS-4 coverage. A readiness barrier prevents a restarted service from contaminating the
+next repeat. Aggregate JSON and Markdown are written under
+`docs/results/matrices/<matrix-run-id>/`; null timings remain missing rather than zero.
+
 ## Verified control
 
 Run `no-fault-control-2026-10-04T03-24-48-758Z-3b023a1f` completed every lifecycle
@@ -74,3 +87,11 @@ and unexplained counter resets. Each run preserved `fs2-assessment.json`, detect
 intended corruption after its own fault timestamp, observed the worker healthy
 throughout, measured zero false actions, restored valid telemetry, completed every load
 operation, and passed I1-I6. Exact run IDs are in `docs/fs2.md`.
+
+## Verified multi-run matrix
+
+Matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed all 130 planned
+runs across the 13 implemented configurations. It preserved 128 passing reports and two
+I5 failures that reproduce known F-001. The aggregate contains median, nearest-rank p90,
+min, max, missing timing counts, invariant pass/non-failure rates, and every source run
+ID. See `docs/matrix.md` for the measured results and interpretation.

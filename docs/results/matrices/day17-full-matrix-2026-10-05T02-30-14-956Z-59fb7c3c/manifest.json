@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "name": "day17-full-matrix",
+  "minimum_repeats": 10,
+  "required_faults": [
+    "none",
+    "FS_1",
+    "FS_2",
+    "FS_3",
+    "FS_4"
+  ],
+  "experiments": [
+    {
+      "config": "experiments/control.yml",
+      "repeats": 10
+    },
+    {
+      "config": "experiments/kill-worker-with-controller.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    {
+      "config": "experiments/kill-worker-mid-batch.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    {
+      "config": "experiments/kill-api-after-commit.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    {
+      "config": "experiments/kill-worker-after-side-effect.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    {
+      "config": "experiments/telemetry-spike-guard.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 4
+      }
+    },
+    {
+      "config": "experiments/telemetry-drop-guard.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 4
+      }
+    },
+    {
+      "config": "experiments/telemetry-freeze-guard.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 4
+      }
+    },
+    {
+      "config": "experiments/telemetry-noise-guard.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 4
+      }
+    },
+    {
+      "config": "experiments/telemetry-counter-reset-guard.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 4
+      }
+    },
+    {
+      "config": "experiments/sensor-outage-blind-mode.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    {
+      "config": "experiments/postgres-latency-retry.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 3
+      }
+    },
+    {
+      "config": "experiments/sink-timeout-retry.yml",
+      "repeats": 10,
+      "injection_offset_s": {
+        "min": 1,
+        "max": 3
+      }
+    }
+  ]
+}

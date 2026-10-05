@@ -1,0 +1,3 @@
+{"level":30,"time":1791167507402,"pid":26356,"hostname":"Rahul","policy":"restart-payment-worker-v1","target":"payment-worker","msg":"controller action"}
+{"level":40,"time":1791167507930,"pid":26356,"hostname":"Rahul","reason":"missing_or_down_targets","missingJobs":["payment-worker"],"msg":"controller entered telemetry blind mode; using Docker state only"}
+{"level":40,"time":1791167513114,"pid":26356,"hostname":"Rahul","issues":[{"reason":"counter_reset","metric":"payment_worker_jobs_completed_total"}],"msg":"controller rejected invalid telemetry; using Docker state only"}

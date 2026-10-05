@@ -194,9 +194,30 @@ Related concepts:
 
 Recovery means the error-rate bound is satisfied for K consecutive samples. A missing
 event produces `null`; the tracker never substitutes another timestamp. One run is a
-functional result, while median/p90 claims require Day 17's N>=10 aggregation.
+functional result. Day 17 now publishes distribution claims only from N>=10 preserved
+runs per experiment.
 
-## 12. Network fault injection
+## 12. Multi-run statistics and evidence
+
+| Topic                         | Short description                                                                                      |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------ |
+| Repetition                    | Repeating a scenario reveals timing and outcome variance that one lucky run cannot show.               |
+| Deterministic randomization   | Seeds and bounded injection offsets vary each repeat but remain reproducible from the manifest.        |
+| Median                        | The middle sorted value; for an even sample count, average the two middle values.                      |
+| Nearest-rank p90              | Sort values and take rank `ceil(0.90 * N)`; 90% of samples are at or below it.                         |
+| Min/max                       | Show observed extremes; they are not guaranteed future bounds.                                         |
+| Missing sample                | A null MTTD/MTTR is counted as missing and excluded, never converted to a fast zero-duration response. |
+| Strict pass rate              | `pass / observed`; report-only invariant results are not silently renamed pass.                        |
+| Non-failure rate              | `(pass + report-only) / observed`; useful for soft policies such as I6 under an injected fault.        |
+| Coverage vs outcome           | A complete matrix may still contain failed experiments; completion and correctness are separate.       |
+| Between-run readiness barrier | Wait for the restored suite to be ready so one fault cannot contaminate the next repeat.               |
+
+The Day 17 aggregate is grouped by fault class, but every row remains traceable to exact
+run IDs. Only controller-enabled FS-1 repeats emitted `anomaly_detected`, so their MTTD
+is aggregated from ten values while 30 other FS-1 MTTD samples are explicitly missing.
+Do not compare p90 values without checking sample count and missing count first.
+
+## 13. Network fault injection
 
 | Topic                  | Short description                                                                               |
 | ---------------------- | ----------------------------------------------------------------------------------------------- |
@@ -211,7 +232,7 @@ functional result, while median/p90 claims require Day 17's N>=10 aggregation.
 When API calls suddenly time out, check the Toxiproxy API before debugging application
 code. Outside an active experiment, all three proxy `toxics` arrays must be empty.
 
-## 13. Testing and evidence discipline
+## 14. Testing and evidence discipline
 
 | Test type             | Purpose                                                                                        |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
@@ -231,7 +252,7 @@ Bug classification used here:
 - **Degradation:** poor availability or latency without a violated correctness contract,
   such as the Day 14 PostgreSQL latency run.
 
-## 14. Practical debugging sequence
+## 15. Practical debugging sequence
 
 Use this order so symptoms are narrowed from infrastructure to business state.
 
@@ -272,7 +293,8 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 7. Open-loop load testing, seeded randomness, and client journals.
 8. Chaos hypotheses, controls, blast radius, and guaranteed cleanup.
 9. MAPE-K, hysteresis, cooldown, and policy-as-data.
-10. Distributed dual writes and the transactional outbox pattern.
+10. Median, nearest-rank percentiles, missing-data handling, and pass-rate semantics.
+11. Distributed dual writes and the transactional outbox pattern.
 
 After each topic, reproduce one current test or experiment and explain its artifact chain
 without looking at the implementation. That is the fastest way to become able to debug

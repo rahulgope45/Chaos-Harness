@@ -1,0 +1,4 @@
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-19-743Z-c041e7db","at":"2026-10-05T03:17:22.740Z","source":"controller","event":"telemetry_unavailable","mode":"blind","fallback":"docker","reason":"missing_or_down_targets","missing_jobs":["payment-api"]}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-19-743Z-c041e7db","at":"2026-10-05T03:17:22.864Z","source":"runner","event":"fault_injected","fault":"FS_3","action":"stop_sensor","target":"metrics-proxy"}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-19-743Z-c041e7db","at":"2026-10-05T03:17:37.606Z","source":"controller","event":"telemetry_restored","monitored_jobs":["payment-api","payment-worker"]}
+{"run_id":"sensor-outage-blind-mode-2026-10-05T03-17-19-743Z-c041e7db","at":"2026-10-05T03:17:39.025Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

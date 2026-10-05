@@ -1,0 +1,184 @@
+{
+  "run_id": "sensor-outage-blind-mode-2026-10-05T03-18-39-532Z-34e9934f",
+  "experiment": "sensor-outage-blind-mode",
+  "hypothesis": "Stopping the metrics sensor makes the controller enter blind mode without restarting healthy services or violating payment invariants.",
+  "fault": "FS_3",
+  "target": "metrics-proxy",
+  "seed": 706,
+  "started_at": "2026-10-05T03:18:39.533Z",
+  "completed_at": "2026-10-05T03:18:59.304Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.02388268927444795,
+    "throughput_per_second": 9.096865526182665,
+    "measured_at": "2026-10-05T03:18:40.654Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.023884259259259258,
+    "throughput_per_second": 9.232186787317001,
+    "measured_at": "2026-10-05T03:18:59.106Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "sensor-outage-blind-mode-2026-10-05T03-18-39-532Z-34e9934f",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T03:18:43.105Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T03:18:59.106Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 16001,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "sensor-outage-blind-mode-2026-10-05T03-18-39-532Z-34e9934f",
+        "at": "2026-10-05T03:18:43.105Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_3",
+        "action": "stop_sensor",
+        "target": "metrics-proxy"
+      },
+      {
+        "run_id": "sensor-outage-blind-mode-2026-10-05T03-18-39-532Z-34e9934f",
+        "at": "2026-10-05T03:18:52.425Z",
+        "source": "controller",
+        "event": "telemetry_unavailable",
+        "mode": "blind",
+        "fallback": "docker",
+        "reason": "missing_or_down_targets",
+        "missing_jobs": [
+          "payment-worker"
+        ]
+      },
+      {
+        "run_id": "sensor-outage-blind-mode-2026-10-05T03-18-39-532Z-34e9934f",
+        "at": "2026-10-05T03:18:57.864Z",
+        "source": "controller",
+        "event": "telemetry_invalid",
+        "mode": "guarded",
+        "fallback": "docker",
+        "issues": [
+          {
+            "reason": "counter_reset",
+            "metric": "chaos_metrics_proxy_scrapes_total"
+          }
+        ]
+      },
+      {
+        "run_id": "sensor-outage-blind-mode-2026-10-05T03-18-39-532Z-34e9934f",
+        "at": "2026-10-05T03:18:59.106Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T03-18-40-655Z-s706-b9f31ccb",
+    "seed": 706,
+    "configured_duration_seconds": 14,
+    "configured_rate_per_second": 15,
+    "scheduled_operations": 188,
+    "successful_operations": 188,
+    "failed_operations": 0,
+    "replay_operations": 8,
+    "client_p95_ms": 34,
+    "achieved_throughput_per_second": 13.412285082399944,
+    "elapsed_seconds": 14.017,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-18-40-655Z-s706-b9f31ccb",
+        "journal_entries": 188,
+        "successful_entries": 188,
+        "unique_acknowledged_payments": 180
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-18-40-655Z-s706-b9f31ccb",
+        "journal_entries": 188,
+        "successful_entries": 188,
+        "unique_acknowledged_payments": 180
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-18-40-655Z-s706-b9f31ccb",
+        "journal_entries": 188,
+        "successful_entries": 188,
+        "unique_acknowledged_payments": 180
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-18-40-655Z-s706-b9f31ccb",
+        "journal_entries": 188,
+        "successful_entries": 188,
+        "unique_acknowledged_payments": 180
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-18-40-655Z-s706-b9f31ccb",
+        "journal_entries": 188,
+        "successful_entries": 188,
+        "unique_acknowledged_payments": 180,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-18-40-655Z-s706-b9f31ccb",
+        "journal_entries": 188,
+        "successful_entries": 188,
+        "unique_acknowledged_payments": 180,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

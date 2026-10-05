@@ -1,0 +1,2 @@
+{"level":40,"time":1791170242764,"pid":4760,"hostname":"Rahul","reason":"missing_or_down_targets","missingJobs":["payment-api"],"msg":"controller entered telemetry blind mode; using Docker state only"}
+{"level":30,"time":1791170257642,"pid":4760,"hostname":"Rahul","monitoredJobs":["payment-api","payment-worker"],"msg":"controller telemetry restored"}

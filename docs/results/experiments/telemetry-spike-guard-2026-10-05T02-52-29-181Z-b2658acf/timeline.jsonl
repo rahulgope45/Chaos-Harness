@@ -1,0 +1,9 @@
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","phase":"preflight","at":"2026-10-05T02:52:29.183Z"}
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","phase":"baseline","at":"2026-10-05T02:52:30.272Z"}
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","phase":"inject","at":"2026-10-05T02:52:30.283Z"}
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","phase":"observe","at":"2026-10-05T02:52:30.283Z"}
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","event":"fault_injected","fault":"FS_2","action":"spike","target":"metrics-proxy","at":"2026-10-05T02:52:33.930Z"}
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","phase":"revert","at":"2026-10-05T02:52:54.244Z"}
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","phase":"recovery_wait","at":"2026-10-05T02:52:54.248Z"}
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","phase":"verify","at":"2026-10-05T02:52:59.422Z"}
+{"run_id":"telemetry-spike-guard-2026-10-05T02-52-29-181Z-b2658acf","phase":"report","at":"2026-10-05T02:52:59.562Z"}

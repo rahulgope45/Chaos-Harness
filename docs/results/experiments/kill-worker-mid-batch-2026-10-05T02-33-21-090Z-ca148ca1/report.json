@@ -1,0 +1,158 @@
+{
+  "run_id": "kill-worker-mid-batch-2026-10-05T02-33-21-090Z-ca148ca1",
+  "experiment": "kill-worker-mid-batch",
+  "hypothesis": "Killing the webhook worker loses no acknowledged payment events after recovery.",
+  "fault": "FS_1",
+  "target": "payment-worker",
+  "seed": 201,
+  "started_at": "2026-10-05T02:33:21.091Z",
+  "completed_at": "2026-10-05T02:33:31.168Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.03812701962447568,
+    "throughput_per_second": 11.889510538922801,
+    "measured_at": "2026-10-05T02:33:21.197Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.03730579307572953,
+    "throughput_per_second": 12.386423165604883,
+    "measured_at": "2026-10-05T02:33:30.517Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "kill-worker-mid-batch-2026-10-05T02-33-21-090Z-ca148ca1",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T02:33:22.904Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T02:33:30.517Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 7613,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "kill-worker-mid-batch-2026-10-05T02-33-21-090Z-ca148ca1",
+        "at": "2026-10-05T02:33:22.904Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_1",
+        "action": "kill",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "kill-worker-mid-batch-2026-10-05T02-33-21-090Z-ca148ca1",
+        "at": "2026-10-05T02:33:30.517Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T02-33-21-198Z-s201-18202fbd",
+    "seed": 201,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 50,
+    "scheduled_operations": 394,
+    "successful_operations": 394,
+    "failed_operations": 0,
+    "replay_operations": 17,
+    "client_p95_ms": 34,
+    "achieved_throughput_per_second": 49.182374235426295,
+    "elapsed_seconds": 8.011,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-33-21-198Z-s201-18202fbd",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-33-21-198Z-s201-18202fbd",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-33-21-198Z-s201-18202fbd",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-33-21-198Z-s201-18202fbd",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-33-21-198Z-s201-18202fbd",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-33-21-198Z-s201-18202fbd",
+        "journal_entries": 394,
+        "successful_entries": 394,
+        "unique_acknowledged_payments": 377,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

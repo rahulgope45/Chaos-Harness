@@ -1,0 +1,9 @@
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","phase":"preflight","at":"2026-10-05T03:09:59.298Z"}
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","phase":"baseline","at":"2026-10-05T03:10:00.279Z"}
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","phase":"inject","at":"2026-10-05T03:10:00.289Z"}
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","phase":"observe","at":"2026-10-05T03:10:00.289Z"}
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","event":"fault_injected","fault":"FS_2","action":"noise","target":"metrics-proxy","at":"2026-10-05T03:10:03.483Z"}
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","phase":"revert","at":"2026-10-05T03:10:24.197Z"}
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","phase":"recovery_wait","at":"2026-10-05T03:10:24.200Z"}
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","phase":"verify","at":"2026-10-05T03:10:29.366Z"}
+{"run_id":"telemetry-noise-guard-2026-10-05T03-09-59-297Z-a2dfa1d4","phase":"report","at":"2026-10-05T03:10:29.516Z"}

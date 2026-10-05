@@ -25,7 +25,7 @@ remaining Day 1 work and implemented Days 2-14 were intentionally accelerated on
 |       14 | FS-4 network faults                      | Complete                                         |
 |       15 | Metrics proxy and FS-3                   | Complete                                         |
 |       16 | FS-2 telemetry corruption                | Complete                                         |
-|       17 | Multi-run aggregation                    | Not started                                      |
+|       17 | Multi-run aggregation                    | Complete                                         |
 |       18 | Full bug-hunt matrix                     | Partially pre-satisfied; full matrix pending     |
 |       19 | Fix and prove                            | Partially pre-satisfied; F-001 fix pending       |
 |       20 | CI, docs, extensibility                  | Partially complete                               |
@@ -320,14 +320,33 @@ Every scheduled operation succeeded, each worker stayed healthy, every false-act
 count was zero, and I1-I6 passed. These are deliberate fault injections, not genuine
 defect findings.
 
-## Day 17: Multi-run orchestration and reports — pending, next
+## Day 17: Multi-run orchestration and reports
 
-**Planned:** Run each experiment at least ten times with seeds and varied injection
-offsets. Aggregate MTTD/MTTR median, p90, min, max, and invariant pass rates into JSON and
-Markdown.
+**What:** Added a versioned matrix manifest, deterministic seed and bounded fault-offset
+variation, serial orchestration through the safety lock, a between-run readiness barrier,
+and aggregate JSON/Markdown reporting. Statistics include median, nearest-rank p90, min,
+max, missing timing counts, strict invariant pass rates, and non-failure rates.
 
-**Why:** One functional run proves wiring, not performance or reliability distribution.
-No median or p90 claim should be made until this milestone exists.
+**Why:** One functional run proves wiring, not a distribution. Missing response events
+must stay missing rather than becoming zero, and an application that is merely running
+after a kill must not contaminate the next repeat before readiness returns.
+
+**How:** `experiments/day17-matrix.yml` lists all 13 implemented configurations at ten
+repeats each. Seeds increment per repeat and injection offsets are deterministic
+pseudorandom samples from each entry's declared range. The matrix writes progress after
+every run and links every aggregate value back to exact run IDs.
+
+**Evidence:** matrix
+`day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed 130/130 runs: 128 passed
+and two failed I5. Both failures were API-kill repetitions of known F-001, each leaving
+two committed payments without delivery or dead letter. All ten controls passed I1-I6,
+I1-I4 passed across all 130 runs, and all 50 FS-2 assessments measured zero actions and
+zero false actions.
+
+Aggregate median/p90 MTTR was FS-1 7,085/8,706 ms, FS-2 26,107/27,638 ms, FS-3
+16,081/16,785 ms, and FS-4 8,829/11,143 ms. Only ten controller-enabled FS-1 runs had
+MTTD samples; their median/p90 was 632/872 ms. The report explicitly counts the other
+MTTD values as missing.
 
 ## Day 18: Full bug-hunt matrix — partially pre-satisfied
 

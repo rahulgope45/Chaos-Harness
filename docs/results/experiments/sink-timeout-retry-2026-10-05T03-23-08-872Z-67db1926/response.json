@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "run_id": "sink-timeout-retry-2026-10-05T03-23-08-872Z-67db1926",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T03:23:10.299Z",
+    "anomaly_detected_at": null,
+    "plan_selected_at": null,
+    "action_executed_at": null,
+    "recovered_at": "2026-10-05T03:23:17.786Z"
+  },
+  "durations_ms": {
+    "mttd": null,
+    "mttr": 7487,
+    "detection_to_plan": null,
+    "plan_to_action": null,
+    "action_to_recovery": null
+  },
+  "events": [
+    {
+      "run_id": "sink-timeout-retry-2026-10-05T03-23-08-872Z-67db1926",
+      "at": "2026-10-05T03:23:10.299Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_4",
+      "action": "timeout",
+      "target": "worker-sink"
+    },
+    {
+      "run_id": "sink-timeout-retry-2026-10-05T03-23-08-872Z-67db1926",
+      "at": "2026-10-05T03:23:17.786Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

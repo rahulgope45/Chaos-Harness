@@ -12,6 +12,7 @@
     "packages/*"
   ],
   "scripts": {
+    "matrix": "npm run matrix --workspace @chaos/runner --",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

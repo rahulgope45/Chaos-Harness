@@ -1,0 +1,158 @@
+{
+  "run_id": "postgres-latency-retry-2026-10-05T03-20-59-279Z-2d72cf1f",
+  "experiment": "postgres-latency-retry",
+  "hypothesis": "PostgreSQL response latency causes slower requests but no duplicate or lost acknowledged payments.",
+  "fault": "FS_4",
+  "target": "api-postgres",
+  "seed": 604,
+  "started_at": "2026-10-05T03:20:59.280Z",
+  "completed_at": "2026-10-05T03:21:12.500Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.02403677510608203,
+    "throughput_per_second": 9.614015580400425,
+    "measured_at": "2026-10-05T03:20:59.331Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.024035638673253354,
+    "throughput_per_second": 9.56655570094852,
+    "measured_at": "2026-10-05T03:21:12.341Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "postgres-latency-retry-2026-10-05T03-20-59-279Z-2d72cf1f",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T03:21:02.170Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T03:21:12.341Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 10171,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "postgres-latency-retry-2026-10-05T03-20-59-279Z-2d72cf1f",
+        "at": "2026-10-05T03:21:02.170Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_4",
+        "action": "latency",
+        "target": "api-postgres"
+      },
+      {
+        "run_id": "postgres-latency-retry-2026-10-05T03-20-59-279Z-2d72cf1f",
+        "at": "2026-10-05T03:21:12.341Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T03-20-59-332Z-s604-0d5f11b8",
+    "seed": 604,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 15,
+    "scheduled_operations": 127,
+    "successful_operations": 52,
+    "failed_operations": 75,
+    "replay_operations": 6,
+    "client_p95_ms": 2011,
+    "achieved_throughput_per_second": 10.618729096989966,
+    "elapsed_seconds": 11.96,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-20-59-332Z-s604-0d5f11b8",
+        "journal_entries": 202,
+        "successful_entries": 52,
+        "unique_acknowledged_payments": 50
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-20-59-332Z-s604-0d5f11b8",
+        "journal_entries": 202,
+        "successful_entries": 52,
+        "unique_acknowledged_payments": 50
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-20-59-332Z-s604-0d5f11b8",
+        "journal_entries": 202,
+        "successful_entries": 52,
+        "unique_acknowledged_payments": 50
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-20-59-332Z-s604-0d5f11b8",
+        "journal_entries": 202,
+        "successful_entries": 52,
+        "unique_acknowledged_payments": 50
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-20-59-332Z-s604-0d5f11b8",
+        "journal_entries": 202,
+        "successful_entries": 52,
+        "unique_acknowledged_payments": 50,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-20-59-332Z-s604-0d5f11b8",
+        "journal_entries": 202,
+        "successful_entries": 52,
+        "unique_acknowledged_payments": 50,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

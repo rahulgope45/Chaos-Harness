@@ -1,0 +1,2 @@
+{"level":30,"time":1791167482728,"pid":22968,"hostname":"Rahul","policy":"restart-payment-worker-v1","target":"payment-worker","msg":"controller action"}
+{"level":40,"time":1791167485198,"pid":22968,"hostname":"Rahul","issues":[{"reason":"counter_reset","metric":"payment_worker_jobs_completed_total"}],"msg":"controller rejected invalid telemetry; using Docker state only"}

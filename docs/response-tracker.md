@@ -28,8 +28,8 @@ FS-1 run `kill-worker-mid-batch-2026-10-04T04-19-35-332Z-791c2def` recorded:
 - recovery bound: error rate at most 0.02 for two consecutive one-second samples
 - load result: 394/394 operations succeeded; I1–I6 passed
 
-This is one integration proof, not an aggregate performance claim. Day 17 requires at
-least ten repeats before publishing median or p90 response statistics.
+This run remains a useful single integration proof. Day 17 now provides the aggregate
+distribution described below.
 
 FS-3 telemetry events are preserved in the same event list but are not substituted for
 application anomaly detection. Therefore the verified sensor-outage run correctly has
@@ -39,3 +39,14 @@ FS-2 invalid/validated events are likewise not substituted for application anoma
 detection. The separate `fs2-assessment.json` counts controller actions only after the
 run's own fault event and reports a false-action count only while the Docker-observed
 controller target remained healthy.
+
+## Verified aggregate response statistics
+
+Matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` preserved 130 reports.
+Median/p90 MTTR was FS-1 7,085/8,706 ms, FS-2 26,107/27,638 ms, FS-3 16,081/16,785 ms,
+and FS-4 8,829/11,143 ms. Only the ten controller-enabled FS-1 runs emitted
+`anomaly_detected`; MTTD for those samples was 632 ms median and 872 ms p90. The other
+120 MTTD values remain null and are counted as missing rather than zero.
+
+The aggregate uses arithmetic-middle median and nearest-rank p90 and preserves min/max,
+sample count, missing count, and exact run IDs. See `docs/matrix.md` and ADR-0010.

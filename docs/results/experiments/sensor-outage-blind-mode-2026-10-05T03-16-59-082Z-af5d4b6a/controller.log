@@ -1,0 +1,2 @@
+{"level":40,"time":1791170232393,"pid":14784,"hostname":"Rahul","reason":"missing_or_down_targets","missingJobs":["payment-worker"],"msg":"controller entered telemetry blind mode; using Docker state only"}
+{"level":40,"time":1791170237775,"pid":14784,"hostname":"Rahul","issues":[{"reason":"counter_reset","metric":"chaos_metrics_proxy_scrapes_total"}],"msg":"controller rejected invalid telemetry; using Docker state only"}

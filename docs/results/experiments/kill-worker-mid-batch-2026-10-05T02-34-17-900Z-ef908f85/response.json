@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "run_id": "kill-worker-mid-batch-2026-10-05T02-34-17-900Z-ef908f85",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T02:34:20.386Z",
+    "anomaly_detected_at": null,
+    "plan_selected_at": null,
+    "action_executed_at": null,
+    "recovered_at": "2026-10-05T02:34:27.753Z"
+  },
+  "durations_ms": {
+    "mttd": null,
+    "mttr": 7367,
+    "detection_to_plan": null,
+    "plan_to_action": null,
+    "action_to_recovery": null
+  },
+  "events": [
+    {
+      "run_id": "kill-worker-mid-batch-2026-10-05T02-34-17-900Z-ef908f85",
+      "at": "2026-10-05T02:34:20.386Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_1",
+      "action": "kill",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "kill-worker-mid-batch-2026-10-05T02-34-17-900Z-ef908f85",
+      "at": "2026-10-05T02:34:27.753Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

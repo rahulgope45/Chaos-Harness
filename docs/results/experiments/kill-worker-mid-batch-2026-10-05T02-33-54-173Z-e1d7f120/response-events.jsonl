@@ -1,0 +1,2 @@
+{"run_id":"kill-worker-mid-batch-2026-10-05T02-33-54-173Z-e1d7f120","at":"2026-10-05T02:33:57.281Z","source":"runner","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker"}
+{"run_id":"kill-worker-mid-batch-2026-10-05T02-33-54-173Z-e1d7f120","at":"2026-10-05T02:34:03.891Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

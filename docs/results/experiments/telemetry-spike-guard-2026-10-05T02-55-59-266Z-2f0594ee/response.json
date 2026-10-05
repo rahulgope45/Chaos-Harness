@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "run_id": "telemetry-spike-guard-2026-10-05T02-55-59-266Z-2f0594ee",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T02:56:02.838Z",
+    "anomaly_detected_at": null,
+    "plan_selected_at": null,
+    "action_executed_at": null,
+    "recovered_at": "2026-10-05T02:56:29.237Z"
+  },
+  "durations_ms": {
+    "mttd": null,
+    "mttr": 26399,
+    "detection_to_plan": null,
+    "plan_to_action": null,
+    "action_to_recovery": null
+  },
+  "events": [
+    {
+      "run_id": "telemetry-spike-guard-2026-10-05T02-55-59-266Z-2f0594ee",
+      "at": "2026-10-05T02:56:02.838Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_2",
+      "action": "spike",
+      "target": "metrics-proxy"
+    },
+    {
+      "run_id": "telemetry-spike-guard-2026-10-05T02-55-59-266Z-2f0594ee",
+      "at": "2026-10-05T02:56:07.761Z",
+      "source": "controller",
+      "event": "telemetry_invalid",
+      "mode": "guarded",
+      "fallback": "docker",
+      "issues": [
+        {
+          "reason": "out_of_bounds",
+          "metric": "chaos_metrics_proxy_scrapes_total"
+        },
+        {
+          "reason": "out_of_bounds",
+          "metric": "payment_worker_queue_depth"
+        }
+      ]
+    },
+    {
+      "run_id": "telemetry-spike-guard-2026-10-05T02-55-59-266Z-2f0594ee",
+      "at": "2026-10-05T02:56:27.913Z",
+      "source": "controller",
+      "event": "telemetry_validated",
+      "monitored_metrics": [
+        "chaos_metrics_proxy_source_timestamp_seconds",
+        "chaos_metrics_proxy_scrapes_total",
+        "chaos_metrics_proxy_integrity_value",
+        "payment_worker_queue_depth",
+        "payment_worker_jobs_completed_total"
+      ]
+    },
+    {
+      "run_id": "telemetry-spike-guard-2026-10-05T02-55-59-266Z-2f0594ee",
+      "at": "2026-10-05T02:56:29.237Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

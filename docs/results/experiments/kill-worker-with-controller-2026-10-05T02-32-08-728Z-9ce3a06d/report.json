@@ -1,0 +1,199 @@
+{
+  "run_id": "kill-worker-with-controller-2026-10-05T02-32-08-728Z-9ce3a06d",
+  "experiment": "kill-worker-with-controller",
+  "hypothesis": "The controller detects and restarts a killed worker without violating payment invariants.",
+  "fault": "FS_1",
+  "target": "payment-worker",
+  "seed": 505,
+  "started_at": "2026-10-05T02:32:08.729Z",
+  "completed_at": "2026-10-05T02:32:20.817Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.04951839353209696,
+    "throughput_per_second": 5.339421487344814,
+    "measured_at": "2026-10-05T02:32:09.641Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.04787909768608958,
+    "throughput_per_second": 6.330397213314985,
+    "measured_at": "2026-10-05T02:32:20.732Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "kill-worker-with-controller-2026-10-05T02-32-08-728Z-9ce3a06d",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T02:32:12.423Z",
+      "anomaly_detected_at": "2026-10-05T02:32:13.048Z",
+      "plan_selected_at": "2026-10-05T02:32:13.052Z",
+      "action_executed_at": "2026-10-05T02:32:13.473Z",
+      "recovered_at": "2026-10-05T02:32:20.732Z"
+    },
+    "durations_ms": {
+      "mttd": 625,
+      "mttr": 8309,
+      "detection_to_plan": 4,
+      "plan_to_action": 421,
+      "action_to_recovery": 7259
+    },
+    "events": [
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-32-08-728Z-9ce3a06d",
+        "at": "2026-10-05T02:32:12.423Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_1",
+        "action": "kill",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-32-08-728Z-9ce3a06d",
+        "at": "2026-10-05T02:32:13.048Z",
+        "source": "controller",
+        "event": "anomaly_detected",
+        "signal": "container_running",
+        "observed": 0,
+        "threshold": 1
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-32-08-728Z-9ce3a06d",
+        "at": "2026-10-05T02:32:13.052Z",
+        "source": "controller",
+        "event": "plan_selected",
+        "policy_id": "restart-payment-worker-v1",
+        "action": "restart",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-32-08-728Z-9ce3a06d",
+        "at": "2026-10-05T02:32:13.473Z",
+        "source": "controller",
+        "event": "action_executed",
+        "action": "restart",
+        "target": "payment-worker",
+        "success": true
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-32-08-728Z-9ce3a06d",
+        "at": "2026-10-05T02:32:15.255Z",
+        "source": "controller",
+        "event": "telemetry_invalid",
+        "mode": "guarded",
+        "fallback": "docker",
+        "issues": [
+          {
+            "reason": "counter_reset",
+            "metric": "payment_worker_jobs_completed_total"
+          }
+        ]
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-32-08-728Z-9ce3a06d",
+        "at": "2026-10-05T02:32:20.732Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T02-32-09-642Z-s505-56aee189",
+    "seed": 505,
+    "configured_duration_seconds": 10,
+    "configured_rate_per_second": 30,
+    "scheduled_operations": 303,
+    "successful_operations": 303,
+    "failed_operations": 0,
+    "replay_operations": 11,
+    "client_p95_ms": 34,
+    "achieved_throughput_per_second": 30.182289072616797,
+    "elapsed_seconds": 10.039,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-32-09-642Z-s505-56aee189",
+        "journal_entries": 303,
+        "successful_entries": 303,
+        "unique_acknowledged_payments": 292
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-32-09-642Z-s505-56aee189",
+        "journal_entries": 303,
+        "successful_entries": 303,
+        "unique_acknowledged_payments": 292
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-32-09-642Z-s505-56aee189",
+        "journal_entries": 303,
+        "successful_entries": 303,
+        "unique_acknowledged_payments": 292
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-32-09-642Z-s505-56aee189",
+        "journal_entries": 303,
+        "successful_entries": 303,
+        "unique_acknowledged_payments": 292
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-32-09-642Z-s505-56aee189",
+        "journal_entries": 303,
+        "successful_entries": 303,
+        "unique_acknowledged_payments": 292,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-32-09-642Z-s505-56aee189",
+        "journal_entries": 303,
+        "successful_entries": 303,
+        "unique_acknowledged_payments": 292,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

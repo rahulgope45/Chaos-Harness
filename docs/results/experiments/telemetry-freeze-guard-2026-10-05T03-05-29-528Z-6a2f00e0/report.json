@@ -1,0 +1,200 @@
+{
+  "run_id": "telemetry-freeze-guard-2026-10-05T03-05-29-528Z-6a2f00e0",
+  "experiment": "telemetry-freeze-guard",
+  "hypothesis": "Frozen stale telemetry is rejected without restarting a healthy application service.",
+  "fault": "FS_2",
+  "target": "metrics-proxy",
+  "seed": 810,
+  "started_at": "2026-10-05T03:05:29.531Z",
+  "completed_at": "2026-10-05T03:05:59.801Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.023879357087529047,
+    "throughput_per_second": 8.302173345582627,
+    "measured_at": "2026-10-05T03:05:30.617Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.023859436178543462,
+    "throughput_per_second": 8.346243681839292,
+    "measured_at": "2026-10-05T03:05:59.659Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "telemetry-freeze-guard-2026-10-05T03-05-29-528Z-6a2f00e0",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T03:05:34.506Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T03:05:59.659Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 25153,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "telemetry-freeze-guard-2026-10-05T03-05-29-528Z-6a2f00e0",
+        "at": "2026-10-05T03:05:34.506Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_2",
+        "action": "freeze",
+        "target": "metrics-proxy"
+      },
+      {
+        "run_id": "telemetry-freeze-guard-2026-10-05T03-05-29-528Z-6a2f00e0",
+        "at": "2026-10-05T03:05:52.744Z",
+        "source": "controller",
+        "event": "telemetry_invalid",
+        "mode": "guarded",
+        "fallback": "docker",
+        "issues": [
+          {
+            "reason": "stale_sample",
+            "metric": "chaos_metrics_proxy_source_timestamp_seconds"
+          }
+        ]
+      },
+      {
+        "run_id": "telemetry-freeze-guard-2026-10-05T03-05-29-528Z-6a2f00e0",
+        "at": "2026-10-05T03:05:57.608Z",
+        "source": "controller",
+        "event": "telemetry_validated",
+        "monitored_metrics": [
+          "chaos_metrics_proxy_source_timestamp_seconds",
+          "chaos_metrics_proxy_scrapes_total",
+          "chaos_metrics_proxy_integrity_value",
+          "payment_worker_queue_depth",
+          "payment_worker_jobs_completed_total"
+        ]
+      },
+      {
+        "run_id": "telemetry-freeze-guard-2026-10-05T03-05-29-528Z-6a2f00e0",
+        "at": "2026-10-05T03:05:59.659Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": {
+    "mode": "freeze",
+    "telemetry_invalid_detected": true,
+    "telemetry_validated_after_revert": true,
+    "detected_issues": [
+      {
+        "reason": "stale_sample",
+        "metric": "chaos_metrics_proxy_source_timestamp_seconds"
+      }
+    ],
+    "controller_target": "payment-worker",
+    "controller_target_healthy_throughout": true,
+    "action_count": 0,
+    "false_action_count": 0,
+    "passed": true
+  },
+  "load": {
+    "run_id": "baseline-2026-10-05T03-05-30-618Z-s810-79985c25",
+    "seed": 810,
+    "configured_duration_seconds": 24,
+    "configured_rate_per_second": 10,
+    "scheduled_operations": 265,
+    "successful_operations": 265,
+    "failed_operations": 0,
+    "replay_operations": 11,
+    "client_p95_ms": 31,
+    "achieved_throughput_per_second": 11.085083242700577,
+    "elapsed_seconds": 23.906,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-05-30-618Z-s810-79985c25",
+        "journal_entries": 265,
+        "successful_entries": 265,
+        "unique_acknowledged_payments": 254
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-05-30-618Z-s810-79985c25",
+        "journal_entries": 265,
+        "successful_entries": 265,
+        "unique_acknowledged_payments": 254
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-05-30-618Z-s810-79985c25",
+        "journal_entries": 265,
+        "successful_entries": 265,
+        "unique_acknowledged_payments": 254
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-05-30-618Z-s810-79985c25",
+        "journal_entries": 265,
+        "successful_entries": 265,
+        "unique_acknowledged_payments": 254
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-05-30-618Z-s810-79985c25",
+        "journal_entries": 265,
+        "successful_entries": 265,
+        "unique_acknowledged_payments": 254,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-05-30-618Z-s810-79985c25",
+        "journal_entries": 265,
+        "successful_entries": 265,
+        "unique_acknowledged_payments": 254,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

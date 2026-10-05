@@ -1,0 +1,9 @@
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","phase":"preflight","at":"2026-10-05T02:31:41.791Z"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","phase":"baseline","at":"2026-10-05T02:31:43.389Z"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","phase":"inject","at":"2026-10-05T02:31:43.412Z"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","phase":"observe","at":"2026-10-05T02:31:43.412Z"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker","at":"2026-10-05T02:31:45.944Z"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","phase":"revert","at":"2026-10-05T02:31:53.464Z"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","phase":"recovery_wait","at":"2026-10-05T02:31:53.504Z"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","phase":"verify","at":"2026-10-05T02:31:54.538Z"}
+{"run_id":"kill-worker-with-controller-2026-10-05T02-31-41-789Z-35635046","phase":"report","at":"2026-10-05T02:31:54.865Z"}

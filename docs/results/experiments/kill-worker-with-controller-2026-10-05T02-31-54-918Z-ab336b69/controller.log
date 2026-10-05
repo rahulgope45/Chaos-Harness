@@ -1,0 +1,3 @@
+{"level":30,"time":1791167520617,"pid":29196,"hostname":"Rahul","policy":"restart-payment-worker-v1","target":"payment-worker","msg":"controller action"}
+{"level":40,"time":1791167523066,"pid":29196,"hostname":"Rahul","issues":[{"reason":"counter_reset","metric":"payment_worker_jobs_completed_total"}],"msg":"controller rejected invalid telemetry; using Docker state only"}
+{"level":30,"time":1791167528037,"pid":29196,"hostname":"Rahul","monitoredMetrics":["chaos_metrics_proxy_source_timestamp_seconds","chaos_metrics_proxy_scrapes_total","chaos_metrics_proxy_integrity_value","payment_worker_queue_depth","payment_worker_jobs_completed_total"],"msg":"controller telemetry validated"}

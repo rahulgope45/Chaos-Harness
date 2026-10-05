@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "run_id": "kill-worker-with-controller-2026-10-05T02-32-57-003Z-d7638709",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T02:33:01.060Z",
+    "anomaly_detected_at": "2026-10-05T02:33:01.692Z",
+    "plan_selected_at": "2026-10-05T02:33:01.698Z",
+    "action_executed_at": "2026-10-05T02:33:02.118Z",
+    "recovered_at": "2026-10-05T02:33:08.875Z"
+  },
+  "durations_ms": {
+    "mttd": 632,
+    "mttr": 7815,
+    "detection_to_plan": 6,
+    "plan_to_action": 420,
+    "action_to_recovery": 6757
+  },
+  "events": [
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-32-57-003Z-d7638709",
+      "at": "2026-10-05T02:33:01.060Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_1",
+      "action": "kill",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-32-57-003Z-d7638709",
+      "at": "2026-10-05T02:33:01.692Z",
+      "source": "controller",
+      "event": "anomaly_detected",
+      "signal": "container_running",
+      "observed": 0,
+      "threshold": 1
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-32-57-003Z-d7638709",
+      "at": "2026-10-05T02:33:01.698Z",
+      "source": "controller",
+      "event": "plan_selected",
+      "policy_id": "restart-payment-worker-v1",
+      "action": "restart",
+      "target": "payment-worker"
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-32-57-003Z-d7638709",
+      "at": "2026-10-05T02:33:02.118Z",
+      "source": "controller",
+      "event": "action_executed",
+      "action": "restart",
+      "target": "payment-worker",
+      "success": true
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-32-57-003Z-d7638709",
+      "at": "2026-10-05T02:33:02.624Z",
+      "source": "controller",
+      "event": "telemetry_unavailable",
+      "mode": "blind",
+      "fallback": "docker",
+      "reason": "missing_or_down_targets",
+      "missing_jobs": [
+        "payment-worker"
+      ]
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-32-57-003Z-d7638709",
+      "at": "2026-10-05T02:33:08.094Z",
+      "source": "controller",
+      "event": "telemetry_invalid",
+      "mode": "guarded",
+      "fallback": "docker",
+      "issues": [
+        {
+          "reason": "counter_reset",
+          "metric": "payment_worker_jobs_completed_total"
+        }
+      ]
+    },
+    {
+      "run_id": "kill-worker-with-controller-2026-10-05T02-32-57-003Z-d7638709",
+      "at": "2026-10-05T02:33:08.875Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

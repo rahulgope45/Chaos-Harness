@@ -1,0 +1,43 @@
+{
+  "name": "sink-timeout-retry",
+  "hypothesis": "Worker-to-sink timeouts are retried and every committed event is eventually delivered or dead-lettered.",
+  "target": "worker-sink",
+  "fault": "FS_4",
+  "fs4": {
+    "proxy": "worker-sink",
+    "toxic": "timeout",
+    "stream": "downstream",
+    "inject_after_s": 1.668,
+    "jitter_ms": 0,
+    "timeout_ms": 1000
+  },
+  "controller": {
+    "enabled": false,
+    "port": 3100
+  },
+  "seed": 609,
+  "repeat": 1,
+  "duration_s": 8,
+  "rate_per_second": 15,
+  "invariant_drain_timeout_s": 60,
+  "duplicate_observation_s": 0,
+  "max_duration_s": 120,
+  "recovery": {
+    "timeout_s": 15,
+    "consecutive_healthy": 2
+  },
+  "steady_state": {
+    "max_error_rate": 0.02
+  },
+  "abort_if": {
+    "error_rate_above": 0.1
+  },
+  "invariants": [
+    "I1",
+    "I2",
+    "I3",
+    "I4",
+    "I5",
+    "I6"
+  ]
+}

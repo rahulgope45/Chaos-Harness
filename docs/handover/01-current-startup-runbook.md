@@ -1,8 +1,7 @@
 # Current startup runbook
 
 This runbook covers only components that exist in the repository now. It does not
-describe the planned aggregate report generator, transactional outbox, or any other
-future component.
+describe the planned transactional outbox or any other future component.
 
 Commands assume Windows PowerShell from `E:\Projects\chaos-harness`.
 
@@ -82,6 +81,7 @@ The expected result is eight running, healthy services.
 | Load generator    | Host CLI                                   | no server                                 | Seeded open-loop payment traffic                           |
 | Invariant checker | Host CLI                                   | no server                                 | I1-I6 verification                                         |
 | Experiment runner | Host CLI                                   | no server                                 | Orchestrates complete experiments                          |
+| Matrix reporter   | Host CLI                                   | no server                                 | N>=10 orchestration and aggregate JSON/Markdown            |
 
 ## Start or restart individual Compose components
 
@@ -280,6 +280,31 @@ Afterward, confirm all `toxics` arrays are empty:
 ```powershell
 curl.exe -sS http://127.0.0.1:8474/proxies
 ```
+
+### Complete Day 17 multi-run matrix
+
+Validate all 130 planned runs, seeds, fault classes, and injection offsets without
+changing the stack:
+
+```powershell
+npm run matrix -- --dry-run experiments/day17-matrix.yml
+```
+
+Run the complete matrix:
+
+```powershell
+npm run matrix -- experiments/day17-matrix.yml
+```
+
+This runs all 13 implemented configurations ten times each and is intentionally serial.
+The verified local run took about 54 minutes. Keep Docker Desktop and this terminal
+running. Progress is written after every run to
+`docs/results/matrices/<matrix-run-id>/progress.json`.
+
+On completion, inspect `aggregate.json` and `summary.md` in the same directory. Exit
+code 2 means coverage completed but at least one underlying experiment reported a
+failure; the report is still written. The verified Day 17 matrix exited 2 because two
+API-kill runs reproduced known I5 finding F-001.
 
 ## Logs and fast diagnosis
 

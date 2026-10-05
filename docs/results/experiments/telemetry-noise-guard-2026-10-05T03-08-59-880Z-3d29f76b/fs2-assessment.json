@@ -1,0 +1,20 @@
+{
+  "mode": "noise",
+  "telemetry_invalid_detected": true,
+  "telemetry_validated_after_revert": true,
+  "detected_issues": [
+    {
+      "reason": "invalid_sample",
+      "metric": "payment_worker_queue_depth"
+    },
+    {
+      "reason": "invalid_sample",
+      "metric": "chaos_metrics_proxy_integrity_value"
+    }
+  ],
+  "controller_target": "payment-worker",
+  "controller_target_healthy_throughout": true,
+  "action_count": 0,
+  "false_action_count": 0,
+  "passed": true
+}

@@ -47,8 +47,10 @@ its second observation and restarted the worker.
 | Load operations         | 281/281 successful |
 | Invariants              |       I1–I6 passed |
 
-This is a single functional proof, not an aggregate latency claim. Day 17 will require
-N≥10 runs before reporting median or p90 controller performance.
+This remains the first functional proof. Day 17 matrix
+`day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` repeated the same
+controller-enabled scenario ten times. MTTD median/p90/min/max was
+632/872/615/1,004 ms; MTTR was 8,649/9,021/7,777/9,491 ms. All ten reports passed I1-I6.
 
 ## Verified blind mode
 

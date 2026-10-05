@@ -1,0 +1,9 @@
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","phase":"preflight","at":"2026-10-05T03:14:29.504Z"}
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","phase":"baseline","at":"2026-10-05T03:14:30.472Z"}
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","phase":"inject","at":"2026-10-05T03:14:30.492Z"}
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","phase":"observe","at":"2026-10-05T03:14:30.492Z"}
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","event":"fault_injected","fault":"FS_2","action":"counter_reset","target":"metrics-proxy","at":"2026-10-05T03:14:33.088Z"}
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","phase":"revert","at":"2026-10-05T03:14:54.407Z"}
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","phase":"recovery_wait","at":"2026-10-05T03:14:54.409Z"}
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","phase":"verify","at":"2026-10-05T03:14:58.569Z"}
+{"run_id":"telemetry-counter-reset-guard-2026-10-05T03-14-29-503Z-ca86b738","phase":"report","at":"2026-10-05T03:14:58.765Z"}

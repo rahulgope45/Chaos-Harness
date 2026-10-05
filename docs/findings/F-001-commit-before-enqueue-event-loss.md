@@ -3,7 +3,10 @@
 - Status: confirmed, open
 - Severity: high in the sample system
 - Fault: FS-1 SIGKILL of `payment-api`
-- Evidence run: `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248`
+- Evidence runs:
+  - `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248`
+  - `kill-api-after-commit-2026-10-05T02-35-20-685Z-363c6a04`
+  - `kill-api-after-commit-2026-10-05T02-37-15-648Z-ee48b428`
 - Violated invariant: I5
 
 ## Observation
@@ -21,6 +24,12 @@ but had neither a webhook delivery nor a dead-letter record:
 PostgreSQL independently returned zero delivery rows for all four. The client journal
 shows each original request timed out and its same-key retry failed while the API was
 down. The rows were committed even though the clients did not receive acknowledgements.
+
+Day 17 independently reproduced the same I5 failure in two of ten varied-seed,
+varied-offset repetitions. Each failing repeat left two committed payments without a
+delivery or dead-letter terminal record. The other eight repeats passed, demonstrating
+that the crash-window defect is timing-dependent rather than guaranteed on every kill.
+These repetitions strengthen this finding; they are not counted as new defects.
 
 ## Root cause
 

@@ -231,3 +231,29 @@
 - The final suite has 80 passing unit tests and 10 passing integration tests. No new
   genuine defect was found; these were deliberate FS-2 injections.
 - Next: implement Day 17 repeated-run aggregation and statistics.
+
+## 2026-10-05 — Day 17 multi-run orchestration and aggregate reports
+
+- Added a versioned matrix manifest and one-command dry-run/execute workflow covering
+  all 13 implemented experiment configs at ten repeats each.
+- Added deterministic seed and bounded injection-offset variation, serial safety-lock
+  execution, progress checkpoints, and a readiness barrier between repeats. The barrier
+  was added after an interrupted development attempt showed that `running` did not yet
+  mean the restarted API was ready; those invalid attempt artifacts were removed before
+  the verified matrix.
+- Added aggregate JSON and Markdown with median, nearest-rank p90, min, max, missing
+  timing counts, invariant pass/non-failure rates, and exact run IDs. ADR-0010 records
+  the statistical and failure semantics.
+- Matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed 130/130 runs:
+  128 passed and two API-kill repetitions failed I5. Both reproduce known F-001 and are
+  not new findings.
+- All ten controls passed I1-I6. I1-I4 passed in all 130 runs. All 50 FS-2 assessments
+  passed with zero controller actions and zero false actions. Post-run state had eight
+  healthy services, metrics corruption mode `none`, no experiment lock, and zero toxics
+  on all three network proxies.
+- Aggregate median/p90 MTTR: FS-1 7,085/8,706 ms, FS-2 26,107/27,638 ms, FS-3
+  16,081/16,785 ms, and FS-4 8,829/11,143 ms. Ten controller-enabled FS-1 runs produced
+  MTTD median/p90 632/872 ms; all absent MTTD values remain explicitly missing.
+- The final suite has 85 passing unit tests and 10 passing integration tests.
+- Next: complete the remaining Day 18 peak bug-hunt scenarios without counting repeated
+  F-001 evidence as additional defects.

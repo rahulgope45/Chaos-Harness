@@ -1,0 +1,43 @@
+{
+  "name": "postgres-latency-retry",
+  "hypothesis": "PostgreSQL response latency causes slower requests but no duplicate or lost acknowledged payments.",
+  "target": "api-postgres",
+  "fault": "FS_4",
+  "fs4": {
+    "proxy": "api-postgres",
+    "toxic": "latency",
+    "stream": "downstream",
+    "inject_after_s": 2.461,
+    "latency_ms": 750,
+    "jitter_ms": 100
+  },
+  "controller": {
+    "enabled": false,
+    "port": 3100
+  },
+  "seed": 601,
+  "repeat": 1,
+  "duration_s": 8,
+  "rate_per_second": 15,
+  "invariant_drain_timeout_s": 45,
+  "duplicate_observation_s": 0,
+  "max_duration_s": 90,
+  "recovery": {
+    "timeout_s": 15,
+    "consecutive_healthy": 2
+  },
+  "steady_state": {
+    "max_error_rate": 0.02
+  },
+  "abort_if": {
+    "error_rate_above": 0.5
+  },
+  "invariants": [
+    "I1",
+    "I2",
+    "I3",
+    "I4",
+    "I5",
+    "I6"
+  ]
+}

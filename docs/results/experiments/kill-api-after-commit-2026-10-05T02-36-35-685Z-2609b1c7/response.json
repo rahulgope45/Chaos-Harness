@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "run_id": "kill-api-after-commit-2026-10-05T02-36-35-685Z-2609b1c7",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T02:36:38.343Z",
+    "anomaly_detected_at": null,
+    "plan_selected_at": null,
+    "action_executed_at": null,
+    "recovered_at": "2026-10-05T02:36:45.106Z"
+  },
+  "durations_ms": {
+    "mttd": null,
+    "mttr": 6763,
+    "detection_to_plan": null,
+    "plan_to_action": null,
+    "action_to_recovery": null
+  },
+  "events": [
+    {
+      "run_id": "kill-api-after-commit-2026-10-05T02-36-35-685Z-2609b1c7",
+      "at": "2026-10-05T02:36:38.343Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_1",
+      "action": "kill",
+      "target": "payment-api"
+    },
+    {
+      "run_id": "kill-api-after-commit-2026-10-05T02-36-35-685Z-2609b1c7",
+      "at": "2026-10-05T02:36:45.106Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "run_id": "kill-api-after-commit-2026-10-05T02-35-10-283Z-01f04171",
+  "experiment": "kill-api-after-commit",
+  "hypothesis": "Killing the API during load leaves no committed payment without a terminal event.",
+  "fault": "FS_1",
+  "target": "payment-api",
+  "seed": 301,
+  "started_at": "2026-10-05T02:35:10.285Z",
+  "completed_at": "2026-10-05T02:35:20.013Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.04573901418419611,
+    "throughput_per_second": 24.222911607325628,
+    "measured_at": "2026-10-05T02:35:10.423Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.04507393589219883,
+    "throughput_per_second": 25.562537323821722,
+    "measured_at": "2026-10-05T02:35:19.842Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "kill-api-after-commit-2026-10-05T02-35-10-283Z-01f04171",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T02:35:13.782Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T02:35:19.842Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 6060,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "kill-api-after-commit-2026-10-05T02-35-10-283Z-01f04171",
+        "at": "2026-10-05T02:35:13.782Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_1",
+        "action": "kill",
+        "target": "payment-api"
+      },
+      {
+        "run_id": "kill-api-after-commit-2026-10-05T02-35-10-283Z-01f04171",
+        "at": "2026-10-05T02:35:19.842Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T02-35-10-424Z-s301-3d520cd2",
+    "seed": 301,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 100,
+    "scheduled_operations": 783,
+    "successful_operations": 281,
+    "failed_operations": 502,
+    "replay_operations": 32,
+    "client_p95_ms": 38,
+    "achieved_throughput_per_second": 97.65527562983287,
+    "elapsed_seconds": 8.018,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-10-424Z-s301-3d520cd2",
+        "journal_entries": 1285,
+        "successful_entries": 281,
+        "unique_acknowledged_payments": 269
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-10-424Z-s301-3d520cd2",
+        "journal_entries": 1285,
+        "successful_entries": 281,
+        "unique_acknowledged_payments": 269
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-10-424Z-s301-3d520cd2",
+        "journal_entries": 1285,
+        "successful_entries": 281,
+        "unique_acknowledged_payments": 269
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-10-424Z-s301-3d520cd2",
+        "journal_entries": 1285,
+        "successful_entries": 281,
+        "unique_acknowledged_payments": 269
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-10-424Z-s301-3d520cd2",
+        "journal_entries": 1285,
+        "successful_entries": 281,
+        "unique_acknowledged_payments": 269,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-35-10-424Z-s301-3d520cd2",
+        "journal_entries": 1285,
+        "successful_entries": 281,
+        "unique_acknowledged_payments": 269,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

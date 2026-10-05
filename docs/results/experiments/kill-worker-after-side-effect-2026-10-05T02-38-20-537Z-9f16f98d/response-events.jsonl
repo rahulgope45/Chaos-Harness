@@ -1,0 +1,2 @@
+{"run_id":"kill-worker-after-side-effect-2026-10-05T02-38-20-537Z-9f16f98d","at":"2026-10-05T02:38:22.446Z","source":"runner","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker"}
+{"run_id":"kill-worker-after-side-effect-2026-10-05T02-38-20-537Z-9f16f98d","at":"2026-10-05T02:38:30.043Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

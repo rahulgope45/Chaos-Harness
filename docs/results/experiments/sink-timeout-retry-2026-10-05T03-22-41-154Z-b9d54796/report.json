@@ -1,0 +1,274 @@
+{
+  "run_id": "sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796",
+  "experiment": "sink-timeout-retry",
+  "hypothesis": "Worker-to-sink timeouts are retried and every committed event is eventually delivered or dead-lettered.",
+  "fault": "FS_4",
+  "target": "worker-sink",
+  "seed": 603,
+  "started_at": "2026-10-05T03:22:41.155Z",
+  "completed_at": "2026-10-05T03:22:50.430Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.024097675837131204,
+    "throughput_per_second": 7.340393128791251,
+    "measured_at": "2026-10-05T03:22:41.209Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.024085834034089048,
+    "throughput_per_second": 7.489457996023748,
+    "measured_at": "2026-10-05T03:22:50.268Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T03:22:44.142Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T03:22:50.268Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 6126,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796",
+        "at": "2026-10-05T03:22:44.142Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_4",
+        "action": "timeout",
+        "target": "worker-sink"
+      },
+      {
+        "run_id": "sink-timeout-retry-2026-10-05T03-22-41-154Z-b9d54796",
+        "at": "2026-10-05T03:22:50.268Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T03-22-41-210Z-s603-43c69062",
+    "seed": 603,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 15,
+    "scheduled_operations": 119,
+    "successful_operations": 119,
+    "failed_operations": 0,
+    "replay_operations": 3,
+    "client_p95_ms": 30,
+    "achieved_throughput_per_second": 14.83235697370061,
+    "elapsed_seconds": 8.023,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-41-210Z-s603-43c69062",
+        "journal_entries": 119,
+        "successful_entries": 119,
+        "unique_acknowledged_payments": 116
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-41-210Z-s603-43c69062",
+        "journal_entries": 119,
+        "successful_entries": 119,
+        "unique_acknowledged_payments": 116
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-41-210Z-s603-43c69062",
+        "journal_entries": 119,
+        "successful_entries": 119,
+        "unique_acknowledged_payments": 116
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-41-210Z-s603-43c69062",
+        "journal_entries": 119,
+        "successful_entries": 119,
+        "unique_acknowledged_payments": 116
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-41-210Z-s603-43c69062",
+        "journal_entries": 119,
+        "successful_entries": 119,
+        "unique_acknowledged_payments": 116,
+        "drain_timeout_ms": 60000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "report",
+      "violations": [
+        {
+          "event_id": "c46e002a-2d34-46b9-bc03-68426acbe6eb",
+          "payment_id": "eef09f45-7b2e-4d59-81f5-eb790000cea9",
+          "count": 2
+        },
+        {
+          "event_id": "35bb6e07-90ea-4dca-a086-48f7b8a3f4d6",
+          "payment_id": "691b85a5-43bf-4cd3-b970-b312cd316639",
+          "count": 2
+        },
+        {
+          "event_id": "38ddfdad-eb6a-40b8-8a2a-43eb7eb44192",
+          "payment_id": "044aba7b-1757-4596-98f2-6f59a3efbf8a",
+          "count": 2
+        },
+        {
+          "event_id": "3f677825-f214-4cb2-be77-50c0d5b9e86f",
+          "payment_id": "bfbe5bc1-da1a-41a1-ac24-84fe3b527348",
+          "count": 2
+        },
+        {
+          "event_id": "92463030-9e28-43c1-bc43-7768c0b37d8e",
+          "payment_id": "1ea0f564-6673-46f2-a17f-dbe958e21ce7",
+          "count": 2
+        },
+        {
+          "event_id": "5ba3abff-2047-4536-9a9e-086981a86c67",
+          "payment_id": "76bc7a1a-eec5-4885-bcc7-0613a47513cb",
+          "count": 2
+        },
+        {
+          "event_id": "0d076992-82e3-447d-a3b3-a7bf7cbc5466",
+          "payment_id": "220d3f1f-c860-4cee-b14b-6351f1bba359",
+          "count": 2
+        },
+        {
+          "event_id": "36e90342-b617-462e-82ce-3f2ee1ec78be",
+          "payment_id": "2389a2ed-8a0a-4bfb-bcad-15fed6d69592",
+          "count": 2
+        },
+        {
+          "event_id": "0ff83d4a-df10-4289-adc1-71bbbd20c3fa",
+          "payment_id": "2c6d3ee2-14fe-4d41-8ed5-a31cb87add70",
+          "count": 2
+        },
+        {
+          "event_id": "14f747af-508c-4ad4-9dae-94c6e8d9589c",
+          "payment_id": "a6a349df-b0f2-48bd-857d-ee56a067d0a1",
+          "count": 2
+        },
+        {
+          "event_id": "6aec6fdb-9ded-4204-8dc9-d40ae8bc9c28",
+          "payment_id": "ba9fb3f7-0f79-4e47-88f5-d4ac06f77126",
+          "count": 2
+        },
+        {
+          "event_id": "dbba8b27-da77-4c64-8220-773a7d99884f",
+          "payment_id": "46920a2e-dff9-4637-8b2b-e527ffea86c7",
+          "count": 2
+        },
+        {
+          "event_id": "943790cd-6ef3-4f5c-8b68-a555a1df000f",
+          "payment_id": "c15b797c-a07d-4709-aa24-c4e43f6343e8",
+          "count": 2
+        },
+        {
+          "event_id": "54a50a63-a601-4c86-a5a4-ce44454b0b59",
+          "payment_id": "f02d3f2f-c878-450d-a2f4-0ab9a25ff5cd",
+          "count": 2
+        },
+        {
+          "event_id": "7c05882e-78c7-4143-ba2b-a55e278290c1",
+          "payment_id": "6ee58aff-e560-4993-a451-bed411c9a368",
+          "count": 2
+        },
+        {
+          "event_id": "91188ca8-e908-422d-87f7-501e81eb17d7",
+          "payment_id": "9043fb08-f1fe-4c49-9651-a12726dcf3ca",
+          "count": 2
+        },
+        {
+          "event_id": "a89b1e67-2c3e-4ead-8df7-53c6dce98d02",
+          "payment_id": "4395d771-d200-4b92-9600-8465bf5362fc",
+          "count": 2
+        },
+        {
+          "event_id": "585c5c03-d6d3-422f-9b8f-35b2f47f5248",
+          "payment_id": "a9c7752d-449e-4cd0-968a-2265c2997451",
+          "count": 2
+        },
+        {
+          "event_id": "31e2575e-a26e-4c40-b64c-4bd44bc9cb5d",
+          "payment_id": "4f57598b-198a-471a-8312-ec96d5f6baec",
+          "count": 2
+        },
+        {
+          "event_id": "2b937630-0c2b-4ed5-9a0e-a16f58622d5f",
+          "payment_id": "a13dbdea-ad34-4387-b4f6-6be2fd9e8d3f",
+          "count": 2
+        },
+        {
+          "event_id": "51c3e16f-7e51-428e-b44f-61dd18ac151f",
+          "payment_id": "05a23c25-0b1b-4d0e-8e98-baecfafd8f45",
+          "count": 2
+        },
+        {
+          "event_id": "9100bd68-6904-46b0-ac5b-1010a83dc7e7",
+          "payment_id": "4b66f6ec-6104-4200-8b3a-a65f35fd330a",
+          "count": 2
+        },
+        {
+          "event_id": "38d9b496-eefb-470a-a3bb-3ea9b7962976",
+          "payment_id": "b0d8b79a-219b-41ac-a652-3d3297e7865f",
+          "count": 2
+        }
+      ],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-41-210Z-s603-43c69062",
+        "journal_entries": 119,
+        "successful_entries": 119,
+        "unique_acknowledged_payments": 116,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

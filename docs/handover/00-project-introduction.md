@@ -55,6 +55,7 @@ flowchart LR
   Runner --> ToxiAPI[Toxiproxy API]
   Runner -->|FS-2 control / FS-3 stop| Sensor
   Runner --> Checks[I1-I6 invariant checker]
+  Runner --> Matrix[Multi-run aggregate reporter]
   Checks --> PG
   Checks --> Redis
   Checks --> Sink
@@ -106,15 +107,21 @@ separate from genuine findings.
 
 ## Current verified state
 
-Plan milestones Day 1 through Day 16 are implemented. The repository currently has:
+Plan milestones Day 1 through Day 17 are implemented. The repository currently has:
 
 - eight healthy Docker Compose services;
-- 80 unit tests and 10 integration tests passing;
+- 85 unit tests and 10 integration tests passing;
 - an idempotent payment API, balanced ledger, queue worker, sink, and Prometheus metrics;
 - reproducible load generation and I1-I6 checks;
 - a safe experiment runner with FS-1 through FS-4;
 - a response tracker and rule-based MAPE-K worker-restart controller;
+- a manifest-driven N>=10 matrix runner with JSON and Markdown aggregate reports;
 - two genuine findings and one explicitly synthetic scenario.
+
+Day 17 matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed all 130
+planned runs. All ten controls passed I1-I6. The only two failed reports were I5 failures
+from `kill-api-after-commit`, reproducing existing F-001; all other 128 reports passed.
+All 50 telemetry-corruption assessments recorded zero false actions.
 
 The genuine findings are:
 
@@ -132,8 +139,8 @@ not a discovered defect.
 - Rule-based controller only; no ML in the critical path.
 - Toxiproxy provides TCP-stream faults, not true packet loss.
 - Results are functional development evidence, not production capacity claims.
-- Aggregate N>=10 statistics, the transactional outbox fix, final CI smoke runs, and v1
-  polish are still pending.
+- The transactional outbox fix, remaining Day 18 peak scenarios, final CI smoke runs,
+  and v1 polish are still pending.
 - No LICENSE has been selected yet, by explicit project decision.
 
 Read next:

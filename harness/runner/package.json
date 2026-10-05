@@ -7,7 +7,8 @@
     "./response-tracker": "./src/response-tracker.ts"
   },
   "scripts": {
-    "start": "tsx src/cli.ts"
+    "start": "tsx src/cli.ts",
+    "matrix": "tsx src/matrix-cli.ts"
   },
   "dependencies": {
     "@chaos/invariants": "0.0.0",

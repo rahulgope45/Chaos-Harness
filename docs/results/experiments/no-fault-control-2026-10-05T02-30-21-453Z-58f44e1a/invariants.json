@@ -1,0 +1,73 @@
+[
+  {
+    "invariant": "I1",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-30-21-548Z-s101-3daf5707",
+      "journal_entries": 44,
+      "successful_entries": 44,
+      "unique_acknowledged_payments": 42
+    }
+  },
+  {
+    "invariant": "I2",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-30-21-548Z-s101-3daf5707",
+      "journal_entries": 44,
+      "successful_entries": 44,
+      "unique_acknowledged_payments": 42
+    }
+  },
+  {
+    "invariant": "I3",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-30-21-548Z-s101-3daf5707",
+      "journal_entries": 44,
+      "successful_entries": 44,
+      "unique_acknowledged_payments": 42
+    }
+  },
+  {
+    "invariant": "I4",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-30-21-548Z-s101-3daf5707",
+      "journal_entries": 44,
+      "successful_entries": 44,
+      "unique_acknowledged_payments": 42
+    }
+  },
+  {
+    "invariant": "I5",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-30-21-548Z-s101-3daf5707",
+      "journal_entries": 44,
+      "successful_entries": 44,
+      "unique_acknowledged_payments": 42,
+      "drain_timeout_ms": 30000
+    }
+  },
+  {
+    "invariant": "I6",
+    "status": "pass",
+    "violations": [],
+    "evidence": {
+      "run_id": "baseline-2026-10-05T02-30-21-548Z-s101-3daf5707",
+      "journal_entries": 44,
+      "successful_entries": 44,
+      "unique_acknowledged_payments": 42,
+      "fault_injected": false,
+      "configured_policy": "report",
+      "observation_ms": 0,
+      "effective_policy": "fail"
+    }
+  }
+]

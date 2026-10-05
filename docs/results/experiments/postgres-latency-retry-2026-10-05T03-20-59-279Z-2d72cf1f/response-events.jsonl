@@ -1,0 +1,2 @@
+{"run_id":"postgres-latency-retry-2026-10-05T03-20-59-279Z-2d72cf1f","at":"2026-10-05T03:21:02.170Z","source":"runner","event":"fault_injected","fault":"FS_4","action":"latency","target":"api-postgres"}
+{"run_id":"postgres-latency-retry-2026-10-05T03-20-59-279Z-2d72cf1f","at":"2026-10-05T03:21:12.341Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

@@ -1,0 +1,211 @@
+{
+  "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+  "experiment": "kill-worker-with-controller",
+  "hypothesis": "The controller detects and restarts a killed worker without violating payment invariants.",
+  "fault": "FS_1",
+  "target": "payment-worker",
+  "seed": 502,
+  "started_at": "2026-10-05T02:31:29.550Z",
+  "completed_at": "2026-10-05T02:31:41.738Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.023995742457537515,
+    "throughput_per_second": 2.2972279686354273,
+    "measured_at": "2026-10-05T02:31:30.528Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.024597379066685826,
+    "throughput_per_second": 3.4663407639448494,
+    "measured_at": "2026-10-05T02:31:41.539Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T02:31:32.833Z",
+      "anomaly_detected_at": "2026-10-05T02:31:33.448Z",
+      "plan_selected_at": "2026-10-05T02:31:33.450Z",
+      "action_executed_at": "2026-10-05T02:31:33.879Z",
+      "recovered_at": "2026-10-05T02:31:41.539Z"
+    },
+    "durations_ms": {
+      "mttd": 615,
+      "mttr": 8706,
+      "detection_to_plan": 2,
+      "plan_to_action": 429,
+      "action_to_recovery": 7660
+    },
+    "events": [
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+        "at": "2026-10-05T02:31:32.720Z",
+        "source": "controller",
+        "event": "telemetry_unavailable",
+        "mode": "blind",
+        "fallback": "docker",
+        "reason": "missing_or_down_targets",
+        "missing_jobs": [
+          "payment-worker"
+        ]
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+        "at": "2026-10-05T02:31:32.833Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_1",
+        "action": "kill",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+        "at": "2026-10-05T02:31:33.448Z",
+        "source": "controller",
+        "event": "anomaly_detected",
+        "signal": "container_running",
+        "observed": 0,
+        "threshold": 1
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+        "at": "2026-10-05T02:31:33.450Z",
+        "source": "controller",
+        "event": "plan_selected",
+        "policy_id": "restart-payment-worker-v1",
+        "action": "restart",
+        "target": "payment-worker"
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+        "at": "2026-10-05T02:31:33.879Z",
+        "source": "controller",
+        "event": "action_executed",
+        "action": "restart",
+        "target": "payment-worker",
+        "success": true
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+        "at": "2026-10-05T02:31:38.154Z",
+        "source": "controller",
+        "event": "telemetry_invalid",
+        "mode": "guarded",
+        "fallback": "docker",
+        "issues": [
+          {
+            "reason": "counter_reset",
+            "metric": "payment_worker_jobs_completed_total"
+          }
+        ]
+      },
+      {
+        "run_id": "kill-worker-with-controller-2026-10-05T02-31-29-548Z-a7c38305",
+        "at": "2026-10-05T02:31:41.539Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T02-31-30-529Z-s502-e0f6eb1e",
+    "seed": 502,
+    "configured_duration_seconds": 10,
+    "configured_rate_per_second": 30,
+    "scheduled_operations": 282,
+    "successful_operations": 282,
+    "failed_operations": 0,
+    "replay_operations": 14,
+    "client_p95_ms": 113,
+    "achieved_throughput_per_second": 28.307568761292913,
+    "elapsed_seconds": 9.962,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-31-30-529Z-s502-e0f6eb1e",
+        "journal_entries": 282,
+        "successful_entries": 282,
+        "unique_acknowledged_payments": 268
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-31-30-529Z-s502-e0f6eb1e",
+        "journal_entries": 282,
+        "successful_entries": 282,
+        "unique_acknowledged_payments": 268
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-31-30-529Z-s502-e0f6eb1e",
+        "journal_entries": 282,
+        "successful_entries": 282,
+        "unique_acknowledged_payments": 268
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-31-30-529Z-s502-e0f6eb1e",
+        "journal_entries": 282,
+        "successful_entries": 282,
+        "unique_acknowledged_payments": 268
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-31-30-529Z-s502-e0f6eb1e",
+        "journal_entries": 282,
+        "successful_entries": 282,
+        "unique_acknowledged_payments": 268,
+        "drain_timeout_ms": 45000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T02-31-30-529Z-s502-e0f6eb1e",
+        "journal_entries": 282,
+        "successful_entries": 282,
+        "unique_acknowledged_payments": 268,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

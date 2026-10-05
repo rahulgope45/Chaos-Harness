@@ -1,0 +1,279 @@
+{
+  "run_id": "sink-timeout-retry-2026-10-05T03-22-50-440Z-c153dfca",
+  "experiment": "sink-timeout-retry",
+  "hypothesis": "Worker-to-sink timeouts are retried and every committed event is eventually delivered or dead-lettered.",
+  "fault": "FS_4",
+  "target": "worker-sink",
+  "seed": 604,
+  "started_at": "2026-10-05T03:22:50.441Z",
+  "completed_at": "2026-10-05T03:22:59.653Z",
+  "baseline": {
+    "error_rate": 0,
+    "p95_seconds": 0.024085834034089048,
+    "throughput_per_second": 7.489457996023748,
+    "measured_at": "2026-10-05T03:22:50.502Z"
+  },
+  "recovery": {
+    "error_rate": 0,
+    "p95_seconds": 0.02408635430990303,
+    "throughput_per_second": 7.397371621331298,
+    "measured_at": "2026-10-05T03:22:59.506Z"
+  },
+  "response": {
+    "schema_version": 1,
+    "run_id": "sink-timeout-retry-2026-10-05T03-22-50-440Z-c153dfca",
+    "definitions": {
+      "mttd": "anomaly_detected.at - fault_injected.at",
+      "mttr": "recovered.at - fault_injected.at"
+    },
+    "recovery_bound": {
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2,
+      "sample_interval_ms": 1000
+    },
+    "timestamps": {
+      "fault_injected_at": "2026-10-05T03:22:52.792Z",
+      "anomaly_detected_at": null,
+      "plan_selected_at": null,
+      "action_executed_at": null,
+      "recovered_at": "2026-10-05T03:22:59.506Z"
+    },
+    "durations_ms": {
+      "mttd": null,
+      "mttr": 6714,
+      "detection_to_plan": null,
+      "plan_to_action": null,
+      "action_to_recovery": null
+    },
+    "events": [
+      {
+        "run_id": "sink-timeout-retry-2026-10-05T03-22-50-440Z-c153dfca",
+        "at": "2026-10-05T03:22:52.792Z",
+        "source": "runner",
+        "event": "fault_injected",
+        "fault": "FS_4",
+        "action": "timeout",
+        "target": "worker-sink"
+      },
+      {
+        "run_id": "sink-timeout-retry-2026-10-05T03-22-50-440Z-c153dfca",
+        "at": "2026-10-05T03:22:59.506Z",
+        "source": "runner",
+        "event": "recovered",
+        "observed_error_rate": 0,
+        "max_error_rate": 0.02,
+        "consecutive_healthy": 2
+      }
+    ]
+  },
+  "fs2_assessment": null,
+  "load": {
+    "run_id": "baseline-2026-10-05T03-22-50-503Z-s604-cea47a05",
+    "seed": 604,
+    "configured_duration_seconds": 8,
+    "configured_rate_per_second": 15,
+    "scheduled_operations": 127,
+    "successful_operations": 127,
+    "failed_operations": 0,
+    "replay_operations": 6,
+    "client_p95_ms": 30,
+    "achieved_throughput_per_second": 15.940755616919795,
+    "elapsed_seconds": 7.967,
+    "aborted": false
+  },
+  "invariants": [
+    {
+      "invariant": "I1",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-50-503Z-s604-cea47a05",
+        "journal_entries": 127,
+        "successful_entries": 127,
+        "unique_acknowledged_payments": 121
+      }
+    },
+    {
+      "invariant": "I2",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-50-503Z-s604-cea47a05",
+        "journal_entries": 127,
+        "successful_entries": 127,
+        "unique_acknowledged_payments": 121
+      }
+    },
+    {
+      "invariant": "I3",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-50-503Z-s604-cea47a05",
+        "journal_entries": 127,
+        "successful_entries": 127,
+        "unique_acknowledged_payments": 121
+      }
+    },
+    {
+      "invariant": "I4",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-50-503Z-s604-cea47a05",
+        "journal_entries": 127,
+        "successful_entries": 127,
+        "unique_acknowledged_payments": 121
+      }
+    },
+    {
+      "invariant": "I5",
+      "status": "pass",
+      "violations": [],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-50-503Z-s604-cea47a05",
+        "journal_entries": 127,
+        "successful_entries": 127,
+        "unique_acknowledged_payments": 121,
+        "drain_timeout_ms": 60000
+      }
+    },
+    {
+      "invariant": "I6",
+      "status": "report",
+      "violations": [
+        {
+          "event_id": "6737aff1-f865-4567-8443-6ae78f410c5a",
+          "payment_id": "dc41dc5d-e7d1-4548-9d31-0837f94eb4f1",
+          "count": 2
+        },
+        {
+          "event_id": "59ab6117-b931-47ef-a82c-fb1061c18114",
+          "payment_id": "dd6c7b4b-f865-454f-8266-ad61b436ebce",
+          "count": 2
+        },
+        {
+          "event_id": "26bbd9e5-3be3-41c1-ae1b-4b67e05148c5",
+          "payment_id": "f3a0bddb-70f0-40fa-bc84-0fb2503dabd9",
+          "count": 2
+        },
+        {
+          "event_id": "38250dfe-67de-484b-8d19-947bea59fc5d",
+          "payment_id": "1ac62ae6-3e19-49dd-af21-8da269b8d49b",
+          "count": 2
+        },
+        {
+          "event_id": "4e68ec7a-4b82-43bf-917b-6a38d0345188",
+          "payment_id": "99d30241-8abe-4384-9d39-b26e44938f51",
+          "count": 2
+        },
+        {
+          "event_id": "8db212af-e613-4fe0-a08c-36073365d06b",
+          "payment_id": "7f97057d-879c-4247-9744-2a9c2531fb99",
+          "count": 2
+        },
+        {
+          "event_id": "c9e6ad19-5161-41c1-b779-35b1a1617201",
+          "payment_id": "fff51f09-b1c7-4833-b2e0-55e2d16a2790",
+          "count": 2
+        },
+        {
+          "event_id": "ec692c1f-f487-424a-87c3-db1a848c3995",
+          "payment_id": "995a5fd1-6ae5-480d-9ef0-37c3de643b59",
+          "count": 2
+        },
+        {
+          "event_id": "fd85b80e-9a5f-4351-a4af-aa724bdbb581",
+          "payment_id": "ee46b39e-6363-47ae-ba0c-6d5a0c67d405",
+          "count": 2
+        },
+        {
+          "event_id": "81fa0126-cddf-48c8-9003-98403333b9f6",
+          "payment_id": "a50171ec-7e23-4fc0-8a14-ec6d318cd33d",
+          "count": 2
+        },
+        {
+          "event_id": "25d1edea-f2cb-4139-8809-ce9983f7f1ee",
+          "payment_id": "e72afdee-aedc-4096-a3bf-716264824fd3",
+          "count": 2
+        },
+        {
+          "event_id": "63dfb6a0-21f2-4139-990f-a0962967a5b6",
+          "payment_id": "241656c0-72b5-4c9c-b328-b3dc5941f3fc",
+          "count": 2
+        },
+        {
+          "event_id": "ebc0159d-2b5e-4ee1-bc81-fd7044ad70c9",
+          "payment_id": "37d31bfa-03e6-46a3-8ee2-de7f14a0edd4",
+          "count": 2
+        },
+        {
+          "event_id": "1b580bd6-4fb7-4dcd-b5ac-8070774d3bea",
+          "payment_id": "6ac51c73-56aa-47f1-9ed3-91e660474edf",
+          "count": 2
+        },
+        {
+          "event_id": "9e66af37-3ba2-44ef-bf9c-3d61d5a7b138",
+          "payment_id": "c0654328-115b-4be1-ac28-9e07764ddbfa",
+          "count": 2
+        },
+        {
+          "event_id": "23a1b7c0-b516-4708-a6c3-095feb429b3d",
+          "payment_id": "ce2ce1ef-b3ee-4d3f-a7fe-770a1bb4eb00",
+          "count": 2
+        },
+        {
+          "event_id": "6ed79425-4f47-49a8-999a-90e68751134b",
+          "payment_id": "629e6181-ce6b-437c-9d45-812a3ab7ab9e",
+          "count": 2
+        },
+        {
+          "event_id": "60b12078-3087-438b-8733-fe440ab67fc3",
+          "payment_id": "6182eeb2-3f5e-4e7a-8d61-31688e059ba9",
+          "count": 2
+        },
+        {
+          "event_id": "3a8d6a1e-e224-454a-89f5-a73fb34a1fb4",
+          "payment_id": "ae903870-c8d0-44a6-ba3f-731ed87a930d",
+          "count": 2
+        },
+        {
+          "event_id": "2799ec33-a91a-4780-9e86-74afe609462e",
+          "payment_id": "5bea0f68-397c-480c-bb59-1ab6ab9fc0f4",
+          "count": 2
+        },
+        {
+          "event_id": "e41546f9-c186-4e37-903c-806e6b6a5da9",
+          "payment_id": "8b993af6-d8fc-477e-8a11-b546bd5268bb",
+          "count": 2
+        },
+        {
+          "event_id": "94f2d664-5671-4cb7-9537-18bd5e9ebce4",
+          "payment_id": "73748e1e-3f98-4fcd-b95c-aa4645d6a268",
+          "count": 2
+        },
+        {
+          "event_id": "d010a22f-1e06-4195-b6f0-c41b933ef40b",
+          "payment_id": "f5f35910-9060-4b9b-a4a3-1e4964aacc4f",
+          "count": 2
+        },
+        {
+          "event_id": "e1387f33-4f8f-45ac-aa73-215b3003187c",
+          "payment_id": "542b708c-8adc-4494-abf8-987c0654d5b5",
+          "count": 2
+        }
+      ],
+      "evidence": {
+        "run_id": "baseline-2026-10-05T03-22-50-503Z-s604-cea47a05",
+        "journal_entries": 127,
+        "successful_entries": 127,
+        "unique_acknowledged_payments": 121,
+        "fault_injected": true,
+        "configured_policy": "report",
+        "observation_ms": 0,
+        "effective_policy": "report"
+      }
+    }
+  ],
+  "status": "passed"
+}

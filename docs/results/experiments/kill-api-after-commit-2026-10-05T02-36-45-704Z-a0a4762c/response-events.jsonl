@@ -1,0 +1,2 @@
+{"run_id":"kill-api-after-commit-2026-10-05T02-36-45-704Z-a0a4762c","at":"2026-10-05T02:36:48.939Z","source":"runner","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-api"}
+{"run_id":"kill-api-after-commit-2026-10-05T02-36-45-704Z-a0a4762c","at":"2026-10-05T02:36:55.144Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "run_id": "sensor-outage-blind-mode-2026-10-05T03-19-39-216Z-86b31687",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T03:19:42.834Z",
+    "anomaly_detected_at": null,
+    "plan_selected_at": null,
+    "action_executed_at": null,
+    "recovered_at": "2026-10-05T03:19:59.619Z"
+  },
+  "durations_ms": {
+    "mttd": null,
+    "mttr": 16785,
+    "detection_to_plan": null,
+    "plan_to_action": null,
+    "action_to_recovery": null
+  },
+  "events": [
+    {
+      "run_id": "sensor-outage-blind-mode-2026-10-05T03-19-39-216Z-86b31687",
+      "at": "2026-10-05T03:19:42.747Z",
+      "source": "controller",
+      "event": "telemetry_unavailable",
+      "mode": "blind",
+      "fallback": "docker",
+      "reason": "missing_or_down_targets",
+      "missing_jobs": [
+        "payment-api"
+      ]
+    },
+    {
+      "run_id": "sensor-outage-blind-mode-2026-10-05T03-19-39-216Z-86b31687",
+      "at": "2026-10-05T03:19:42.834Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_3",
+      "action": "stop_sensor",
+      "target": "metrics-proxy"
+    },
+    {
+      "run_id": "sensor-outage-blind-mode-2026-10-05T03-19-39-216Z-86b31687",
+      "at": "2026-10-05T03:19:57.836Z",
+      "source": "controller",
+      "event": "telemetry_restored",
+      "monitored_jobs": [
+        "payment-api",
+        "payment-worker"
+      ]
+    },
+    {
+      "run_id": "sensor-outage-blind-mode-2026-10-05T03-19-39-216Z-86b31687",
+      "at": "2026-10-05T03:19:59.619Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}
