@@ -350,3 +350,14 @@
   study path, and a final ownership exam.
 - Linked the curriculum from the README and all relevant handover documents. This is a
   post-release documentation milestone; the existing `v1.0.0` tag remains unchanged.
+
+## 2026-10-05 — Fresh-checkout typecheck fix
+
+- Reproduced the quality-job failure: `packages/database/generated/` is intentionally
+  ignored, while the root typecheck previously invoked TypeScript before Prisma client
+  generation.
+- Added a root database-generation command and wired it into npm's `pretypecheck`
+  lifecycle. It loads `.env.example` only to satisfy Prisma config evaluation; client
+  generation does not require or contact a running database.
+- This resolves the missing generated-client errors and their downstream implicit-`any`
+  cascade in fresh local and GitHub Actions checkouts.

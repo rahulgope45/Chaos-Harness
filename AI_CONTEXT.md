@@ -54,6 +54,12 @@ commit/tag are pushed and GitHub reports them.
 - Outbox relay: `127.0.0.1:3004`.
 - Toxiproxy API: `127.0.0.1:8474`.
 
+`npm run typecheck` is self-bootstrapping: its `pretypecheck` lifecycle generates the
+ignored Prisma client with `.env.example` before invoking TypeScript. Prisma generation
+does not connect to that example database. Keep this ordering because a fresh checkout
+has no `packages/database/generated/` directory; without generation, missing Prisma
+types cascade into misleading implicit-`any` errors.
+
 ## Known dependency issue
 
 `npm audit` currently reports four high-severity transitive advisories through the

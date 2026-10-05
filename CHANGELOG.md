@@ -8,6 +8,11 @@
   deep interview and debugging questions, progressive rebuild labs, incident drills, and
   an evidence-based ownership checklist.
 
+### Fixed
+
+- Made the root typecheck generate the ignored Prisma client first using the non-secret
+  example environment, so the quality job works in a fresh GitHub Actions checkout.
+
 ## 1.0.0 — 2026-10-05
 
 First feature-complete local release.
