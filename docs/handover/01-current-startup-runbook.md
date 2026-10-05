@@ -155,6 +155,23 @@ the payment transaction first persists an outbox row, then the relay publishes i
 
 ## Run the current harness components
 
+### One-command smoke demo
+
+After `npm ci`, this provisions the current stack, applies migrations, and runs the
+bounded worker-kill smoke experiment:
+
+```powershell
+npm run demo
+```
+
+The command leaves the stack running so its report, services, and logs can be inspected.
+It does not remove volumes. Stop it with `docker compose down` when finished. To use the
+same launcher with a different existing configuration:
+
+```powershell
+npm run demo -- experiments/control.yml
+```
+
 ### Quality and test suites
 
 ```powershell

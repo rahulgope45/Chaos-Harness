@@ -21,6 +21,16 @@ failed I5 now passes I1-I6 in run
 the run window had matching published outbox rows. F-001 is resolved, with both before
 and after artifacts preserved.
 
+Day 20 adds live integration and bounded worker-kill smoke jobs to GitHub Actions, uploads
+their diagnostic/evidence artifacts, schedules dependency updates, reviews dependency
+changes on pull requests, and provides a one-command local demo plus a tested future
+adapter scaffold. Run `npm run demo` after `npm ci`; the stack remains available for
+inspection afterward.
+
+Local demo proof run `ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893` completed
+49/49 operations and passed I1-I6 after a real worker SIGKILL. This is a functional CI
+smoke result, not a capacity claim.
+
 Day 17 matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed all 130
 planned runs: ten repeats of every one of the 13 implemented experiment configurations,
 with varied deterministic fault offsets. It produced aggregate JSON and Markdown with
@@ -74,6 +84,9 @@ controller actions and zero false actions. See `docs/fs2.md` and `docs/matrix.md
 - [Current startup runbook](docs/handover/01-current-startup-runbook.md)
 - [Day-by-day implementation](docs/handover/02-day-by-day-implementation.md)
 - [Study guide and debugging map](docs/handover/03-study-guide.md)
+- [Transactional outbox operations](docs/outbox.md)
+- [Safe extension runbook](docs/extending.md)
+- [Docker and fault-injection safety](docs/safety.md)
 
 One intentionally fabricated case is kept separately as synthetic scenario S-001. It
 models a non-idempotent webhook consumer duplicating an email side effect and is never
@@ -97,7 +110,20 @@ npm run lint
 npm run format:check
 npm run typecheck
 npm test
+npm run test:integration
 ```
+
+## One-command demo
+
+With Docker Desktop running and dependencies installed:
+
+```sh
+npm run demo
+```
+
+The command starts local infrastructure, applies migrations, builds the nine-service
+stack, runs `experiments/ci-smoke.yml`, and preserves the run artifact. It intentionally
+leaves the stack running for inspection; stop it with `docker compose down`.
 
 ## Scope
 

@@ -12,29 +12,30 @@ and run ID.
 
 ## Feature status
 
-| Feature                  | Status   | Evidence                                           |
-| ------------------------ | -------- | -------------------------------------------------- |
-| Workspace/tooling        | Complete | lint, format, typecheck, 91 unit tests pass        |
-| Local infrastructure     | Complete | nine Compose services healthy                      |
-| Database invariants      | Complete | 3 live PostgreSQL rejection tests pass             |
-| Payment API              | Complete | 5 live integration tests, race and Redis fallback  |
-| Outbox, queue, worker    | Complete | relay tests plus healthy container end-to-end run  |
-| Observability            | Complete | both app jobs scrape through metrics proxy         |
-| Load generator           | Complete | run-isolated keys; all current checks pass         |
-| Invariant checker I1–I6  | Complete | delayed I6 replay evidence plus synthetic proofs   |
-| Experiment runner        | Complete | A/A control report with I1–I6 passing              |
-| Safety layer             | Complete | refusal/abort tests, live dry-run, safe control    |
-| FS-1 injector            | Complete | findings F-001 and F-002; delayed duplicate report |
-| Synthetic scenario S-001 | Complete | planted non-idempotent consumer; never a finding   |
-| Response tracker         | Complete | live MTTR 6,939 ms; honest null MTTD               |
-| MAPE-K controller        | Complete | live MTTD 733 ms; 281/281 and I1–I6 pass           |
-| FS-4 network faults      | Complete | two live runs; automatic toxic cleanup             |
-| FS-3 sensor disruption   | Complete | blind/restored events; zero controller actions     |
-| FS-2 telemetry faults    | Complete | five modes detected; zero false actions            |
-| Multi-run aggregation    | Complete | Day 17 130/130 plus Day 18 30/30 gap matrix        |
-| Day 18 bug hunt          | Complete | 30/30 added peak scenarios passed I1-I6            |
-| Handover documentation   | Complete | intro, startup, day history, and study guide       |
-| Finding fix phase        | Complete | F-001/F-002 fixes regression-covered               |
+| Feature                  | Status   | Evidence                                            |
+| ------------------------ | -------- | --------------------------------------------------- |
+| Workspace/tooling        | Complete | lint, format, typecheck, 94 unit tests pass         |
+| Local infrastructure     | Complete | nine Compose services healthy                       |
+| Database invariants      | Complete | 3 live PostgreSQL rejection tests pass              |
+| Payment API              | Complete | 5 live integration tests, race and Redis fallback   |
+| Outbox, queue, worker    | Complete | relay tests plus healthy container end-to-end run   |
+| Observability            | Complete | both app jobs scrape through metrics proxy          |
+| Load generator           | Complete | run-isolated keys; all current checks pass          |
+| Invariant checker I1–I6  | Complete | delayed I6 replay evidence plus synthetic proofs    |
+| Experiment runner        | Complete | A/A control report with I1–I6 passing               |
+| Safety layer             | Complete | refusal/abort tests, live dry-run, safe control     |
+| FS-1 injector            | Complete | findings F-001 and F-002; delayed duplicate report  |
+| Synthetic scenario S-001 | Complete | planted non-idempotent consumer; never a finding    |
+| Response tracker         | Complete | live MTTR 6,939 ms; honest null MTTD                |
+| MAPE-K controller        | Complete | live MTTD 733 ms; 281/281 and I1–I6 pass            |
+| FS-4 network faults      | Complete | two live runs; automatic toxic cleanup              |
+| FS-3 sensor disruption   | Complete | blind/restored events; zero controller actions      |
+| FS-2 telemetry faults    | Complete | five modes detected; zero false actions             |
+| Multi-run aggregation    | Complete | Day 17 130/130 plus Day 18 30/30 gap matrix         |
+| Day 18 bug hunt          | Complete | 30/30 added peak scenarios passed I1-I6             |
+| Handover documentation   | Complete | intro, startup, day history, and study guide        |
+| Finding fix phase        | Complete | F-001/F-002 fixes regression-covered                |
+| Day 20 delivery          | Complete | CI integration/smoke, demo, extension/security docs |
 
 ## Verified local environment
 
@@ -87,6 +88,11 @@ silently force the downgrade.
   authenticated proxy control endpoint, registers cleanup first, and measures false
   actions only while Docker confirms the worker stayed healthy.
 - No LICENSE is required yet.
+- CI uses read-only permissions, an ephemeral hosted runner, live integration tests, and
+  a bounded FS-1 smoke whose run evidence and Compose diagnostics are uploaded.
+- `npm run demo` provisions/migrates/builds the local stack and runs
+  `experiments/ci-smoke.yml`; it leaves services running for inspection.
+- The example HTTP adapter is compile-tested documentation, not an enabled fault class.
 
 ## Database layer
 
@@ -327,11 +333,26 @@ The payment transaction, schema migration, separate relay, deterministic queue i
 health/readiness, Compose wiring, runner preflight, tests, ADR-0012, and outbox runbook
 are implemented. The exact F-001 reproducer passed as described above.
 
+## Day 20 CI and extensibility
+
+`.github/workflows/ci.yml` now has quality, live integration, and bounded chaos-smoke
+jobs. Smoke and integration diagnostics are uploaded even on failure, and cleanup always
+runs. Dependabot covers npm and Actions; dependency review rejects newly introduced high
+severity changes. `npm run demo` runs the same smoke path locally. `docs/extending.md`
+and the tested `ExampleHttpFaultAdapter` define the required allowlist, preflight,
+revert-before-mutation, timeout, testing, and evidence boundaries. `docs/safety.md`
+consolidates the Docker-socket threat model and CI/operator rules.
+
+Local one-command proof run
+`ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893` injected worker SIGKILL,
+completed 49/49 operations, passed I1-I6 for 47 unique acknowledged payments, and
+recorded 4,852 ms unhealed MTTR. Afterward all nine services were healthy, telemetry mode
+was `none`, every proxy had zero toxics, and no experiment lock remained.
+
 ## Next implementation
 
-Complete Day 20: CI integration/smoke coverage with artifact upload, one-command demo,
-extension runbook/adapter example, dependency review automation, and consolidated Docker
-socket security documentation.
+Complete Day 21: final README/results polish, limitations and finding/fix summary, demo
+recording, verified resume bullets, and the v1.0.0 tag.
 
 ## Handover documents
 

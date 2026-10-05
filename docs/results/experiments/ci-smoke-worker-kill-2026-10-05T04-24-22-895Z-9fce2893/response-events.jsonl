@@ -1,0 +1,2 @@
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","at":"2026-10-05T04:24:24.461Z","source":"runner","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","at":"2026-10-05T04:24:29.313Z","source":"runner","event":"recovered","observed_error_rate":0,"max_error_rate":0.02,"consecutive_healthy":2}

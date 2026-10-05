@@ -295,3 +295,26 @@
 - Final verification passed lint, formatting, typecheck, Compose validation, 91 unit
   tests, and 10 live PostgreSQL/Redis integration tests. All nine services were healthy.
 - Next: Day 20 CI smoke coverage, extensibility documentation, and security consolidation.
+
+## 2026-10-05 — Day 20 CI, demo, and extension boundary
+
+- Expanded GitHub Actions with live PostgreSQL/Redis integration tests and a bounded
+  worker-kill chaos-smoke job. Both preserve diagnostics; the smoke job uploads its full
+  run directory and always tears down Compose.
+- Added weekly grouped Dependabot updates and pull-request dependency review with a high
+  severity failure threshold.
+- Added `npm run demo`, which starts dependencies, generates Prisma, applies migrations,
+  builds the nine-service stack, and runs the short FS-1 smoke configuration.
+- Added a compile-tested future HTTP fault-adapter scaffold with loopback and target/mode
+  allowlists plus revert-before-mutation ordering. It is not an enabled fault class.
+- Added the extension runbook and consolidated Docker-socket threat model, operator rules,
+  and ephemeral-versus-self-hosted CI guidance.
+- Local one-command run `ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893`
+  injected worker SIGKILL, completed 49/49 operations, passed I1-I6 for 47 unique
+  acknowledged payments, and recorded 4,852 ms unhealed MTTR.
+- Final local gates passed with 94 unit tests, ten live integration tests, lint,
+  formatting, typecheck, and Compose validation. All nine services were healthy after
+  the smoke, with no experiment lock, telemetry mode `none`, and zero active toxics.
+- `npm audit` still reports the four documented high Prisma CLI transitive advisories;
+  its only offered fix is the incompatible forced downgrade to Prisma 6.19.3.
+- Next: Day 21 final polish and v1 release preparation.

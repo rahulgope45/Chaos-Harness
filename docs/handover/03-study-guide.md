@@ -30,6 +30,8 @@ silencing another.
 | Named volumes         | Preserve PostgreSQL, Redis, and Prometheus state across `docker compose down`.                                          |
 | Project labels        | Compose labels identify ownership; `chaos-target=true` is the explicit mutation allowlist.                              |
 | Docker socket risk    | Docker API access is effectively host-root capability. The harness permits only local Docker and known labeled targets. |
+| Label limitation      | `chaos-target=true` prevents accidental selection but is not an OS security boundary against compromised runner code.   |
+| Ephemeral CI runner   | Disposable hosted workers reduce persistence risk; self-hosted runners with Docker must not execute untrusted PR code.  |
 
 Study the difference between `docker compose stop`, `down`, and `down -v`. The last one
 deletes volumes and should not be part of routine debugging.
@@ -311,6 +313,7 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 9. MAPE-K, hysteresis, cooldown, and policy-as-data.
 10. Median, nearest-rank percentiles, missing-data handling, and pass-rate semantics.
 11. Distributed dual writes and the transactional outbox pattern.
+12. Docker-socket threat modeling and safe fault-adapter extension contracts.
 
 After each topic, reproduce one current test or experiment and explain its artifact chain
 without looking at the implementation. That is the fastest way to become able to debug

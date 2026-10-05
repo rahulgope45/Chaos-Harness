@@ -111,15 +111,17 @@ separate from genuine findings.
 
 ## Current verified state
 
-Plan milestones Day 1 through Day 19 are implemented. The repository currently has:
+Plan milestones Day 1 through Day 20 are implemented. The repository currently has:
 
 - nine healthy Docker Compose services;
-- 91 unit tests and 10 live integration tests passing, including outbox relay coverage;
+- 94 unit tests and 10 live integration tests passing, including outbox relay coverage;
 - an idempotent payment API, balanced ledger, queue worker, sink, and Prometheus metrics;
 - reproducible load generation and I1-I6 checks;
 - a safe experiment runner with FS-1 through FS-4;
 - a response tracker and rule-based MAPE-K worker-restart controller;
 - a manifest-driven N>=10 matrix runner with JSON and Markdown aggregate reports;
+- CI quality, live integration, and bounded chaos-smoke jobs with uploaded evidence;
+- a one-command local demo and compile-tested fault-adapter extension scaffold;
 - two genuine findings and one explicitly synthetic scenario.
 
 Day 17 matrix `day17-full-matrix-2026-10-05T02-30-14-956Z-59fb7c3c` completed all 130
@@ -132,6 +134,10 @@ added peak-load runs: ten Redis outages, ten controller replacements during obse
 worker outages, and ten PostgreSQL-latency runs. All reports and every I1-I6 result
 passed. All ten controller restart assessments passed. Redis and PostgreSQL disruption
 caused real client-visible degradation, but no new correctness defect emerged.
+
+Day 20 one-command run `ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893`
+injected worker SIGKILL, completed 49/49 operations, passed I1-I6 for 47 unique payments,
+and left all nine services healthy with every fault surface clean.
 
 The genuine findings are:
 
@@ -152,7 +158,7 @@ not a discovered defect.
 - Results are functional development evidence, not production capacity claims.
 - PostgreSQL process loss is not tested: the source-of-truth container remains outside
   the mutation allowlist; ADR-0011 records the blast-radius decision.
-- Final CI smoke runs, extensibility/security documentation, and v1 polish are pending.
+- Final README/results polish, demo recording, and the v1 tag remain pending.
 - No LICENSE has been selected yet, by explicit project decision.
 
 Read next:

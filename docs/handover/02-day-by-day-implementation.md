@@ -28,7 +28,7 @@ remaining Day 1 work and implemented Days 2-14 were intentionally accelerated on
 |       17 | Multi-run aggregation                    | Complete                                         |
 |       18 | Full bug-hunt matrix                     | Complete                                         |
 |       19 | Fix and prove                            | Complete                                         |
-|       20 | CI, docs, extensibility                  | Partially complete                               |
+|       20 | CI, docs, extensibility                  | Complete                                         |
 |       21 | Final polish and v1 tag                  | Not started                                      |
 
 ## Day 1: Foundation
@@ -401,14 +401,33 @@ payments with no missing terminal event. Its run-window evidence records 201 com
 payments, 201 matching outbox rows, and 201 published rows. The original failing run
 `kill-api-after-commit-2026-10-04T03-43-44-836Z-2b69c248` remains the before artifact.
 
-## Day 20: CI, documentation, and extensibility — partially complete
+## Day 20: CI, documentation, and extensibility
 
-**Already present:** CI runs lint, formatting, typecheck, and unit tests. Core ADRs,
-feature docs, safety notes, and these handover documents exist.
+**What:** Expanded CI from static quality checks to live PostgreSQL/Redis integration
+tests and a bounded worker-kill chaos smoke. Added evidence/log artifact upload, weekly
+Dependabot groups, pull-request dependency review, a cross-platform `npm run demo`, an
+extension runbook, a compile-tested future HTTP fault-adapter scaffold, and a consolidated
+Docker-socket threat model.
 
-**Still pending:** CI integration tests, a short smoke chaos job with uploaded artifacts,
-one-command demo, dependency automation/review, extension runbook, future-target adapter
-example, and a consolidated Docker-socket security section.
+**Why:** A portfolio harness should prove that its database behavior and real mutation
+lifecycle work in a clean environment, make failures diagnosable, and show how to extend
+the system without weakening its safety contract. Dependency changes also need review
+instead of silently aging or landing unexamined.
+
+**How:** The integration job starts only PostgreSQL and Redis, applies migrations, runs
+the ten live tests, and uploads dependency logs. The smoke job uses the same one-command
+demo as a developer: it provisions the full stack, runs `experiments/ci-smoke.yml`,
+captures Compose state/logs, uploads the run directory, and always tears the stack down.
+The adapter example permits only loopback control endpoints and allowlisted target/mode
+pairs, preflights before mutation, and registers idempotent cleanup before its PUT.
+
+**Evidence:** Workflow YAML, the demo launcher, experiment schema, Compose configuration,
+94 unit tests, ten live integration tests, lint, formatting, and typecheck passed. Local
+`npm run demo` produced run
+`ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893`: all 49 operations succeeded,
+I1-I6 passed for 47 unique acknowledged payments, and unhealed MTTR was 4,852 ms. All
+nine services were healthy afterward with no lock, telemetry mode `none`, and zero
+Toxiproxy toxics.
 
 ## Day 21: Final polish — pending
 

@@ -1,0 +1,9 @@
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","phase":"preflight","at":"2026-10-05T04:24:22.899Z"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","phase":"baseline","at":"2026-10-05T04:24:23.036Z"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","phase":"inject","at":"2026-10-05T04:24:23.046Z"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","phase":"observe","at":"2026-10-05T04:24:23.046Z"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","event":"fault_injected","fault":"FS_1","action":"kill","target":"payment-worker","at":"2026-10-05T04:24:24.461Z"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","phase":"revert","at":"2026-10-05T04:24:28.022Z"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","phase":"recovery_wait","at":"2026-10-05T04:24:28.283Z"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","phase":"verify","at":"2026-10-05T04:24:29.315Z"}
+{"run_id":"ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893","phase":"report","at":"2026-10-05T04:24:30.333Z"}

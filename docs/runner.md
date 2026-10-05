@@ -13,6 +13,11 @@ final JSON report.
 Preflight also requires the outbox relay's port-3004 readiness endpoint so an experiment
 does not begin when durable publication is already unavailable.
 
+`experiments/ci-smoke.yml` is the bounded CI/demo scenario. Verified local run
+`ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893` completed 49/49 operations and
+passed I1-I6 after worker SIGKILL. The result is functional smoke evidence, not a load or
+capacity measurement.
+
 `fault: none` and FS-1 through FS-4 are executable. FS-1 supports kill, stop, pause, and
 restart behind the Docker safety layer. FS-2 uses the authenticated metrics-proxy
 control surface for spike, drop, freeze, noise, and counter-reset modes and always
