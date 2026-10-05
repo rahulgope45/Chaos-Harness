@@ -13,7 +13,7 @@ interface VersionedState {
 
 export class MapekController {
   private readonly states = new Map<string, VersionedState>();
-  private blindMode = false;
+  private telemetryState: "healthy" | "blind" | "invalid" = "healthy";
 
   constructor(
     private readonly store: PolicyStore,
@@ -29,34 +29,67 @@ export class MapekController {
     try {
       const telemetry = await this.telemetry.observe();
       this.metrics.telemetryAvailable.set(telemetry.available ? 1 : 0);
-      if (!telemetry.available && !this.blindMode) {
-        this.blindMode = true;
-        this.metrics.telemetryAlerts.inc({ reason: telemetry.reason });
-        await this.events.record({
-          event: "telemetry_unavailable",
-          at: new Date(telemetry.observedAtMs).toISOString(),
-          source: "controller",
-          mode: "blind",
-          fallback: "docker",
-          reason: telemetry.reason,
-          missing_jobs: telemetry.missingJobs
-        });
-        this.logger.warn(
-          { reason: telemetry.reason, missingJobs: telemetry.missingJobs },
-          "controller entered telemetry blind mode; using Docker state only"
-        );
-      } else if (telemetry.available && this.blindMode) {
-        this.blindMode = false;
-        await this.events.record({
-          event: "telemetry_restored",
-          at: new Date(telemetry.observedAtMs).toISOString(),
-          source: "controller",
-          monitored_jobs: telemetry.monitoredJobs
-        });
-        this.logger.info(
-          { monitoredJobs: telemetry.monitoredJobs },
-          "controller telemetry restored"
-        );
+      this.metrics.telemetryValid.set(telemetry.valid ? 1 : 0);
+      if (!telemetry.available) {
+        if (this.telemetryState !== "blind") {
+          this.metrics.telemetryAlerts.inc({ reason: telemetry.reason });
+          await this.events.record({
+            event: "telemetry_unavailable",
+            at: new Date(telemetry.observedAtMs).toISOString(),
+            source: "controller",
+            mode: "blind",
+            fallback: "docker",
+            reason: telemetry.reason,
+            missing_jobs: telemetry.missingJobs
+          });
+          this.logger.warn(
+            { reason: telemetry.reason, missingJobs: telemetry.missingJobs },
+            "controller entered telemetry blind mode; using Docker state only"
+          );
+        }
+        this.telemetryState = "blind";
+      } else if (!telemetry.valid) {
+        if (this.telemetryState !== "invalid") {
+          this.metrics.telemetryAlerts.inc({ reason: telemetry.reason });
+          await this.events.record({
+            event: "telemetry_invalid",
+            at: new Date(telemetry.observedAtMs).toISOString(),
+            source: "controller",
+            mode: "guarded",
+            fallback: "docker",
+            issues: telemetry.issues
+          });
+          this.logger.warn(
+            { issues: telemetry.issues },
+            "controller rejected invalid telemetry; using Docker state only"
+          );
+        }
+        this.telemetryState = "invalid";
+      } else {
+        if (this.telemetryState === "blind") {
+          await this.events.record({
+            event: "telemetry_restored",
+            at: new Date(telemetry.observedAtMs).toISOString(),
+            source: "controller",
+            monitored_jobs: telemetry.monitoredJobs
+          });
+          this.logger.info(
+            { monitoredJobs: telemetry.monitoredJobs },
+            "controller telemetry restored"
+          );
+        } else if (this.telemetryState === "invalid") {
+          await this.events.record({
+            event: "telemetry_validated",
+            at: new Date(telemetry.observedAtMs).toISOString(),
+            source: "controller",
+            monitored_metrics: telemetry.monitoredMetrics
+          });
+          this.logger.info(
+            { monitoredMetrics: telemetry.monitoredMetrics },
+            "controller telemetry validated"
+          );
+        }
+        this.telemetryState = "healthy";
       }
 
       const policies = await this.store.loadEnabled();

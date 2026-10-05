@@ -14,13 +14,20 @@ import {
 import { runLoad } from "@chaos/loadgen";
 import type { Experiment } from "./config.js";
 import { injectFs1, waitForInjection } from "./fs1.js";
+import { MetricsProxyControlClient } from "./fs2.js";
 import { injectFs3SensorStop } from "./fs3.js";
 import { ToxiproxyClient, toxicDefinition } from "./fs4.js";
 import { executeLifecycle, type Phase } from "./lifecycle.js";
-import { readScrapeAvailability, readSteadyState, type SteadyStateSnapshot } from "./prometheus.js";
+import {
+  readScrapeAvailability,
+  readSteadyState,
+  readTelemetryGuard,
+  type SteadyStateSnapshot
+} from "./prometheus.js";
 import { buildResponseResult, ResponseEventLog } from "./response-tracker.js";
 import {
   SafetySession,
+  createTargetHealthReader,
   resolveAllowedTarget,
   watchErrorRate,
   type TargetIdentity
@@ -35,7 +42,21 @@ interface RunnerOptions {
   redisUrl: string;
   sinkUrl: string;
   toxiproxyUrl: string;
+  metricsProxyUrl: string;
+  metricsProxyChaosToken: string;
   iteration: number;
+}
+
+interface Fs2Assessment {
+  mode: NonNullable<Experiment["fs2"]>["mode"];
+  telemetry_invalid_detected: boolean;
+  telemetry_validated_after_revert: boolean;
+  detected_issues: Array<{ reason: string; metric: string }>;
+  controller_target: "payment-worker";
+  controller_target_healthy_throughout: boolean;
+  action_count: number;
+  false_action_count: number | null;
+  passed: boolean;
 }
 
 export async function runExperiment(options: RunnerOptions): Promise<string> {
@@ -50,6 +71,10 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   });
   const safety = new SafetySession(experiment.max_duration_s * 1000);
   const toxiproxy = new ToxiproxyClient(options.toxiproxyUrl);
+  const metricsProxy = new MetricsProxyControlClient(
+    options.metricsProxyUrl,
+    options.metricsProxyChaosToken
+  );
   const timeline = createWriteStream(join(artifactDirectory, "timeline.jsonl"), { flags: "wx" });
   const responseEvents = await ResponseEventLog.create(
     runId,
@@ -66,6 +91,9 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   let loadSummary: Awaited<ReturnType<typeof runLoad>> | null = null;
   let invariantResults: Awaited<ReturnType<typeof runInvariantChecks>> = [];
   let target: TargetIdentity | null = null;
+  let controllerTargetHealthyThroughout = true;
+  let readControllerTargetHealth: (() => Promise<boolean>) | null = null;
+  let fs2Assessment: Fs2Assessment | null = null;
   let faultTask: Promise<void> = Promise.resolve();
   let controllerProcess: ChildProcess | null = null;
   let controllerLog: ReturnType<typeof createWriteStream> | null = null;
@@ -79,6 +107,50 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
       consecutiveHealthy: experiment.recovery.consecutive_healthy,
       sampleIntervalMs: responseSampleIntervalMs
     });
+
+  const assessFs2 = async (): Promise<Fs2Assessment | null> => {
+    if (experiment.fault !== "FS_2" || !experiment.fs2) return null;
+    const events = await responseEvents.read();
+    const fault = events.find((event) => event.event === "fault_injected");
+    const invalid = events.find(
+      (event) =>
+        event.event === "telemetry_invalid" &&
+        fault !== undefined &&
+        Date.parse(event.at) >= Date.parse(fault.at)
+    );
+    const validated = events.find(
+      (event) =>
+        event.event === "telemetry_validated" &&
+        invalid !== undefined &&
+        Date.parse(event.at) > Date.parse(invalid.at)
+    );
+    const actions = events.filter(
+      (event) =>
+        event.event === "action_executed" &&
+        fault !== undefined &&
+        Date.parse(event.at) >= Date.parse(fault.at)
+    );
+    const falseActionCount = controllerTargetHealthyThroughout ? actions.length : null;
+    return {
+      mode: experiment.fs2.mode,
+      telemetry_invalid_detected: invalid !== undefined,
+      telemetry_validated_after_revert:
+        invalid !== undefined &&
+        validated !== undefined &&
+        Date.parse(validated.at) > Date.parse(invalid.at),
+      detected_issues: invalid?.event === "telemetry_invalid" ? invalid.issues : [],
+      controller_target: "payment-worker",
+      controller_target_healthy_throughout: controllerTargetHealthyThroughout,
+      action_count: actions.length,
+      false_action_count: falseActionCount,
+      passed:
+        invalid !== undefined &&
+        validated !== undefined &&
+        Date.parse(validated.at) > Date.parse(invalid.at) &&
+        controllerTargetHealthyThroughout &&
+        falseActionCount === 0
+    };
+  };
 
   const phase = async (name: Phase) => {
     if (safety.signal.aborted) throw safety.signal.reason;
@@ -167,11 +239,28 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
     await executeLifecycle({
       onPhase: phase,
       preflight: async () => {
-        if (!["none", "FS_1", "FS_3", "FS_4"].includes(experiment.fault)) {
+        if (!["none", "FS_1", "FS_2", "FS_3", "FS_4"].includes(experiment.fault)) {
           throw new Error("Fault injection is disabled until the requested injector is installed");
         }
-        if (["none", "FS_1", "FS_3"].includes(experiment.fault)) {
+        if (["none", "FS_1", "FS_2", "FS_3"].includes(experiment.fault)) {
           target = await resolveAllowedTarget(experiment.target);
+        }
+        if (experiment.fault === "FS_2") {
+          if ((await metricsProxy.readMode()) !== "none") {
+            throw new Error("FS-2 preflight requires metrics proxy corruption mode none");
+          }
+          const telemetry = await readTelemetryGuard(options.prometheusUrl);
+          if (!telemetry.valid) {
+            throw new Error(
+              `FS-2 preflight requires valid telemetry: ${telemetry.issues.join(", ")}`
+            );
+          }
+          const controllerTarget = await resolveAllowedTarget("payment-worker");
+          readControllerTargetHealth = createTargetHealthReader(controllerTarget);
+          controllerTargetHealthyThroughout = await readControllerTargetHealth();
+          if (!controllerTargetHealthyThroughout) {
+            throw new Error("FS-2 preflight requires a healthy payment-worker controller target");
+          }
         }
         if (experiment.fault === "FS_3") {
           const telemetry = await readScrapeAvailability(options.prometheusUrl, [
@@ -235,6 +324,35 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
                 fault: "FS_4",
                 action: fs4.toxic,
                 target: fs4.proxy,
+                at: injectedAt
+              })}\n`
+            );
+          })();
+          return;
+        }
+        if (experiment.fault === "FS_2") {
+          if (!experiment.fs2 || !target) throw new Error("FS-2 preflight state is unavailable");
+          const fs2 = experiment.fs2;
+          safety.registerRevert(() => metricsProxy.setMode("none"));
+          faultTask = (async () => {
+            await waitForInjection(fs2.inject_after_s * 1000, safety.signal);
+            await metricsProxy.setMode(fs2.mode);
+            const injectedAt = new Date().toISOString();
+            await responseEvents.record({
+              event: "fault_injected",
+              at: injectedAt,
+              source: "runner",
+              fault: "FS_2",
+              action: fs2.mode,
+              target: experiment.target
+            });
+            timeline.write(
+              `${JSON.stringify({
+                run_id: runId,
+                event: "fault_injected",
+                fault: "FS_2",
+                action: fs2.mode,
+                target: experiment.target,
                 at: injectedAt
               })}\n`
             );
@@ -312,7 +430,12 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           faultTask
         ]).then(([summary]) => summary);
         const watcher = watchErrorRate(
-          () => readSteadyState(options.prometheusUrl),
+          async () => {
+            if (readControllerTargetHealth && !(await readControllerTargetHealth())) {
+              controllerTargetHealthyThroughout = false;
+            }
+            return readSteadyState(options.prometheusUrl);
+          },
           experiment.abort_if.error_rate_above,
           safety,
           watcherStop.signal
@@ -337,6 +460,28 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
               "payment-worker"
             ]);
             if (!telemetry.available) {
+              consecutive = 0;
+              await new Promise((resolve) => setTimeout(resolve, responseSampleIntervalMs));
+              continue;
+            }
+          }
+          if (experiment.fault === "FS_2") {
+            const telemetry = await readTelemetryGuard(options.prometheusUrl);
+            const events = await responseEvents.read();
+            const fault = events.find((event) => event.event === "fault_injected");
+            const invalid = events.find(
+              (event) =>
+                event.event === "telemetry_invalid" &&
+                fault !== undefined &&
+                Date.parse(event.at) >= Date.parse(fault.at)
+            );
+            const validated = events.find(
+              (event) =>
+                event.event === "telemetry_validated" &&
+                invalid !== undefined &&
+                Date.parse(event.at) > Date.parse(invalid.at)
+            );
+            if (!telemetry.valid || !invalid || !validated) {
               consecutive = 0;
               await new Promise((resolve) => setTimeout(resolve, responseSampleIntervalMs));
               continue;
@@ -384,6 +529,20 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           { flag: "wx" }
         );
         if (exitCodeFor(invariantResults) !== 0) throw new Error("One or more invariants failed");
+        if (readControllerTargetHealth && !(await readControllerTargetHealth())) {
+          controllerTargetHealthyThroughout = false;
+        }
+        fs2Assessment = await assessFs2();
+        if (fs2Assessment) {
+          await writeFile(
+            join(artifactDirectory, "fs2-assessment.json"),
+            `${JSON.stringify(fs2Assessment, null, 2)}\n`,
+            { flag: "wx" }
+          );
+          if (!fs2Assessment.passed) {
+            throw new Error("FS-2 telemetry guard acceptance criteria failed");
+          }
+        }
       },
       report: async () => {
         const report = {
@@ -398,6 +557,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           baseline,
           recovery,
           response: await responseResult(),
+          fs2_assessment: fs2Assessment,
           load: loadSummary,
           invariants: invariantResults,
           status: "passed"
@@ -415,6 +575,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
   } catch (error) {
     const failure = error instanceof Error ? error : new Error(String(error));
     const response = await responseResult();
+    fs2Assessment ??= await assessFs2();
     timeline.write(
       `${JSON.stringify({ run_id: runId, event: "run_failed", error: failure.message, at: new Date().toISOString() })}\n`
     );
@@ -433,6 +594,7 @@ export async function runExperiment(options: RunnerOptions): Promise<string> {
           baseline,
           recovery,
           response,
+          fs2_assessment: fs2Assessment,
           load: loadSummary,
           invariants: invariantResults,
           status: "failed",

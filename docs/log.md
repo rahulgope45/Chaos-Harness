@@ -212,3 +212,22 @@
 - Verified all eight Compose services healthy after automatic restoration. The suite has
   54 passing unit tests and 10 passing integration tests.
 - Next: implement Day 16 FS-2 telemetry corruption and false-action measurement.
+
+## 2026-10-05 — FS-2 corrupt telemetry guard
+
+- Added authenticated metrics-proxy spike, drop, freeze, noise, and counter-reset modes
+  with allowlisted state and guaranteed cleanup to `none`.
+- Added proxy integrity canaries and controller validation for required series, finite
+  values, bounds, source freshness, and monotonic counters.
+- Added guarded/validated response events, telemetry-validity metrics, independent
+  Docker-health corroboration, and a per-run `fs2-assessment.json`.
+- Live runs `telemetry-spike-guard-2026-10-05T01-49-39-559Z-2497ff69`,
+  `telemetry-drop-guard-2026-10-05T01-50-41-396Z-3d4ba237`,
+  `telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742`,
+  `telemetry-noise-guard-2026-10-05T01-51-46-889Z-87bc668b`, and
+  `telemetry-counter-reset-guard-2026-10-05T01-52-15-989Z-1011ae07` all detected their
+  intended corruption, kept the worker healthy, measured zero false actions, completed
+  every scheduled operation, and passed I1-I6.
+- The final suite has 80 passing unit tests and 10 passing integration tests. No new
+  genuine defect was found; these were deliberate FS-2 injections.
+- Next: implement Day 17 repeated-run aggregation and statistics.

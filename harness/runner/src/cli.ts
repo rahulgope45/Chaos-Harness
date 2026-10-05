@@ -1,6 +1,7 @@
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { readExperiment } from "./config.js";
+import { MetricsProxyControlClient } from "./fs2.js";
 import { ToxiproxyClient } from "./fs4.js";
 import { runExperiment } from "./runner.js";
 import { assertLocalDockerHost, resolveAllowedTarget } from "./safety.js";
@@ -23,6 +24,14 @@ if (dryRun) {
     target = { proxy: experiment.fs4.proxy };
   } else {
     target = await resolveAllowedTarget(experiment.target);
+    if (experiment.fault === "FS_2") {
+      const client = new MetricsProxyControlClient(
+        process.env.METRICS_PROXY_URL ?? "http://127.0.0.1:3003",
+        process.env.METRICS_PROXY_CHAOS_TOKEN ?? "local-chaos-control-token"
+      );
+      const mode = await client.readMode();
+      if (mode !== "none") throw new Error(`FS-2 dry-run requires mode none, found ${mode}`);
+    }
   }
   process.stdout.write(
     `${JSON.stringify({ dry_run: true, experiment, target, mutations_performed: 0 }, null, 2)}\n`
@@ -42,6 +51,8 @@ for (let iteration = 0; iteration < experiment.repeat; iteration += 1) {
       redisUrl: process.env.REDIS_URL ?? "redis://127.0.0.1:6380",
       sinkUrl: process.env.WEBHOOK_SINK_URL ?? "http://127.0.0.1:3002",
       toxiproxyUrl: process.env.TOXIPROXY_URL ?? "http://127.0.0.1:8474",
+      metricsProxyUrl: process.env.METRICS_PROXY_URL ?? "http://127.0.0.1:3003",
+      metricsProxyChaosToken: process.env.METRICS_PROXY_CHAOS_TOKEN ?? "local-chaos-control-token",
       iteration
     })
   );

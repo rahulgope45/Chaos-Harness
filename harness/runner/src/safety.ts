@@ -55,6 +55,20 @@ export async function resolveAllowedTarget(
   return target;
 }
 
+export function createTargetHealthReader(
+  target: TargetIdentity,
+  dockerHost = process.env.DOCKER_HOST
+): () => Promise<boolean> {
+  assertLocalDockerHost(dockerHost);
+  if (!target.service) throw new Error(`Target ${target.id} has no Compose service label`);
+  assertTargetAllowed(target, target.service);
+  const container = new Docker().getContainer(target.id);
+  return async () => {
+    const state = (await container.inspect()).State;
+    return state.Running && !state.Paused;
+  };
+}
+
 export class SafetySession {
   readonly signal: AbortSignal;
   private readonly controller = new AbortController();

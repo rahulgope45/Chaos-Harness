@@ -96,9 +96,14 @@ consumers. Read ADR-0003, ADR-0004, F-001, and S-001 together.
 | Scrape target `up`        | Shows whether Prometheus could scrape a target, not whether the business workflow is correct.   |
 | Recording rule            | Stores a frequently used PromQL result such as error rate or p95 for simpler/faster queries.    |
 | Structured event timeline | Metrics show aggregate behavior; JSONL response events preserve exact control-loop boundaries.  |
-| Metrics proxy / sensor    | A pass-through hop makes the observation path independently stoppable for FS-3.                 |
+| Metrics proxy / sensor    | An independent hop makes telemetry stoppable for FS-3 and corruptible for FS-2.                 |
 | Missing data              | Absence is ambiguous: app, endpoint, proxy, network, or Prometheus may be responsible.          |
 | Blind mode                | The controller declares telemetry unavailable and avoids decisions based on the missing values. |
+| Integrity canary          | A known sensor value helps distinguish a trustworthy path from plausible but altered samples.   |
+| Source freshness          | Compare source time with wall time; a freshly scraped frozen value can still be stale.          |
+| Counter monotonicity      | A counter should not decrease unless a real producer restart or reset explains it.              |
+| Guarded mode              | Reject corrupt telemetry and require an independent signal before destructive action.           |
+| False-action rate         | Actions against a healthy corroborated target divided by injected telemetry-fault runs.         |
 
 Common trap: an empty PromQL vector is not automatically zero. The baseline work fixed a
 zero-error rule so healthy periods record `0` rather than missing data.
@@ -159,7 +164,7 @@ successful injected run is not trustworthy if the control run is noisy.
 
 | Stage     | Current meaning in this project                                                                      |
 | --------- | ---------------------------------------------------------------------------------------------------- |
-| Monitor   | Check proxy-backed Prometheus availability and inspect Docker state for policy targets.              |
+| Monitor   | Validate proxy-backed Prometheus availability/integrity and inspect Docker policy targets.           |
 | Analyze   | Evaluate immutable snapshots and count consecutive policy breaches.                                  |
 | Plan      | Select the PostgreSQL-backed action only if hysteresis, cooldown, and restart-window rules allow it. |
 | Execute   | Restart the approved local container and verify its running state.                                   |
@@ -173,8 +178,10 @@ Related concepts:
 - **Policy as data:** changing a validated row changes behavior without rebuilding code.
 - **Separation of concerns:** the runner injects; the controller responds; JSONL events
   report timing without direct orchestration calls.
-- **Independent corroboration:** missing Prometheus data does not override healthy
-  Docker state. Present-but-corrupted telemetry validation is the Day 16 extension.
+- **Independent corroboration:** missing or corrupt Prometheus data does not override
+  healthy Docker state. A restart requires the independent container observation.
+- **Transition alerting:** emit one invalid event per bad-data episode, then one
+  validated event after recovery instead of flooding every control-loop cycle.
 
 ## 11. Response timing
 
@@ -241,17 +248,18 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 
 ### Symptom map
 
-| Symptom                                        | First checks                                                                                                  |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| API container healthy but `/readyz` is 503     | PostgreSQL/Redis health, Toxiproxy proxy state, API logs                                                      |
-| POST timed out but payment may exist           | Reuse the same idempotency key, inspect journal and PostgreSQL; never generate a new key immediately          |
-| Payment exists but webhook is absent           | API enqueue log/window, BullMQ queue/DLQ, worker logs, sink records; suspect F-001 window                     |
-| Duplicate sink rows                            | Compare `event_id`; check injected fault and I6 policy, then verify I1/I2 for side effects                    |
-| Worker stays stopped                           | Controller running, policy enabled, Docker label/project match, restart budget/cooldown, controller log       |
-| Metrics missing                                | Direct service `/metrics`, proxy port 3003 routes/logs, Prometheus targets, scrape config, container network  |
-| Experiment reports recovery but clients failed | Compare Prometheus recovery definition with load `summary.json`; correctness pass is not availability success |
-| New run sees old rows                          | Confirm run-isolated idempotency keys and the selected journal time window                                    |
-| Runner says another experiment is active       | Confirm no runner process, inspect timeline/cleanup, then handle only `.chaos-experiment.lock`                |
+| Symptom                                        | First checks                                                                                                   |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| API container healthy but `/readyz` is 503     | PostgreSQL/Redis health, Toxiproxy proxy state, API logs                                                       |
+| POST timed out but payment may exist           | Reuse the same idempotency key, inspect journal and PostgreSQL; never generate a new key immediately           |
+| Payment exists but webhook is absent           | API enqueue log/window, BullMQ queue/DLQ, worker logs, sink records; suspect F-001 window                      |
+| Duplicate sink rows                            | Compare `event_id`; check injected fault and I6 policy, then verify I1/I2 for side effects                     |
+| Worker stays stopped                           | Controller running, policy enabled, Docker label/project match, restart budget/cooldown, controller log        |
+| Metrics missing                                | Direct service `/metrics`, proxy port 3003 routes/logs, Prometheus targets, scrape config, container network   |
+| Metrics present but controller says invalid    | Inspect `telemetry_invalid` issues, proxy chaos state, canaries, sample timestamp, bounds, and counter history |
+| Experiment reports recovery but clients failed | Compare Prometheus recovery definition with load `summary.json`; correctness pass is not availability success  |
+| New run sees old rows                          | Confirm run-isolated idempotency keys and the selected journal time window                                     |
+| Runner says another experiment is active       | Confirm no runner process, inspect timeline/cleanup, then handle only `.chaos-experiment.lock`                 |
 
 ## Recommended study order
 
@@ -260,7 +268,7 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 3. HTTP idempotency and concurrency races.
 4. Redis locking and PostgreSQL source-of-truth design.
 5. BullMQ at-least-once jobs, retries, stalled work, and DLQs.
-6. Prometheus metric types, PromQL rates, and histograms.
+6. Prometheus metric types, PromQL rates, histograms, staleness, and counter resets.
 7. Open-loop load testing, seeded randomness, and client journals.
 8. Chaos hypotheses, controls, blast radius, and guaranteed cleanup.
 9. MAPE-K, hysteresis, cooldown, and policy-as-data.

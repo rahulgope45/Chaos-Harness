@@ -12,6 +12,7 @@ const envSchema = z.object({
   WORKER_CONCURRENCY: z.coerce.number().int().positive().default(4),
   WORKER_METRICS_PORT: z.coerce.number().int().min(1).max(65535).default(3001),
   METRICS_PROXY_PORT: z.coerce.number().int().min(1).max(65535).default(3003),
+  METRICS_PROXY_CHAOS_TOKEN: z.string().min(16).default("local-chaos-control-token"),
   PAYMENT_API_METRICS_URL: z.string().url().default("http://localhost:3000/metrics"),
   PAYMENT_WORKER_METRICS_URL: z.string().url().default("http://localhost:3001/metrics"),
   LOG_LEVEL: z.enum(["fatal", "error", "warn", "info", "debug", "trace", "silent"]).default("info")

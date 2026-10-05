@@ -35,3 +35,28 @@ describe("FS-3 experiment config", () => {
     ).toThrow(/metrics-proxy/);
   });
 });
+
+describe("FS-2 experiment config", () => {
+  it.each(["spike", "drop", "freeze", "noise", "counter_reset"] as const)(
+    "accepts the %s metrics-proxy mode",
+    (mode) => {
+      const parsed = experimentSchema.parse({
+        ...base,
+        fault: "FS_2",
+        fs2: { mode, inject_after_s: 2 }
+      });
+      expect(parsed.fs2?.mode).toBe(mode);
+    }
+  );
+
+  it("rejects FS-2 against an application container", () => {
+    expect(() =>
+      experimentSchema.parse({
+        ...base,
+        target: "payment-worker",
+        fault: "FS_2",
+        fs2: { mode: "spike", inject_after_s: 2 }
+      })
+    ).toThrow(/metrics-proxy/);
+  });
+});

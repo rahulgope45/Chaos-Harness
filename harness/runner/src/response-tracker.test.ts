@@ -179,4 +179,39 @@ describe("response tracker", () => {
     expect(result.timestamps.anomaly_detected_at).toBeNull();
     expect(result.events[1]?.event).toBe("telemetry_unavailable");
   });
+
+  it("preserves corrupt-telemetry guard events without inventing an application anomaly", () => {
+    const events: ResponseEvent[] = [
+      event({
+        event: "fault_injected",
+        at: "2026-10-04T00:00:00.000Z",
+        source: "runner",
+        fault: "FS_2",
+        action: "noise",
+        target: "metrics-proxy"
+      }),
+      event({
+        event: "telemetry_invalid",
+        at: "2026-10-04T00:00:02.000Z",
+        source: "controller",
+        mode: "guarded",
+        fallback: "docker",
+        issues: [{ reason: "invalid_sample", metric: "chaos_metrics_proxy_integrity_value" }]
+      }),
+      event({
+        event: "telemetry_validated",
+        at: "2026-10-04T00:00:08.000Z",
+        source: "controller",
+        monitored_metrics: ["chaos_metrics_proxy_integrity_value"]
+      })
+    ];
+
+    const result = buildResponseResult(runId, events, bound);
+    expect(result.timestamps.anomaly_detected_at).toBeNull();
+    expect(result.events.map(({ event: name }) => name)).toEqual([
+      "fault_injected",
+      "telemetry_invalid",
+      "telemetry_validated"
+    ]);
+  });
 });

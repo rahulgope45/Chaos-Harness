@@ -8,10 +8,11 @@ rule-based MAPE-K controller are kept structurally separate.
 
 Active development. The managed payment stack, reproducible load generator, I1–I6
 checker, no-fault experiment runner, Docker safety boundary, response tracker, and
-rule-based controller are implemented. FS-1 covers service outages, FS-3 covers metrics
-sensor loss, and FS-4 provides allowlisted Toxiproxy network faults. A/A controls pass;
-only implemented injectors are enabled behind the safety boundary. Defect claims are
-added only after reproducible fault runs produce evidence artifacts and run IDs.
+rule-based controller are implemented. FS-1 covers service outages, FS-2 covers corrupt
+telemetry, FS-3 covers metrics sensor loss, and FS-4 provides allowlisted Toxiproxy
+network faults. A/A controls pass; only implemented injectors are enabled behind the
+safety boundary. Defect claims are added only after reproducible fault runs produce
+evidence artifacts and run IDs.
 
 Controller run `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd`
 detected a killed worker in 733 ms, selected and verified a restart, completed 281/281
@@ -39,6 +40,11 @@ FS-3 run `sensor-outage-blind-mode-2026-10-04T05-26-35-890Z-e0f0d4a8` stopped th
 metrics proxy. The controller entered blind mode, emitted an alert, used Docker state as
 its fallback, and performed no action against the healthy worker. All 214 operations and
 I1-I6 passed. See `docs/fs3.md`.
+
+FS-2 runs exercised spike, dropped-series, frozen/stale, non-finite noise, and
+counter-reset modes. All five were detected, every worker stayed healthy, every
+scheduled operation and I1-I6 passed, and each measured false-action count was zero.
+See `docs/fs2.md` for the five run IDs and exact evidence.
 
 ## Handover
 

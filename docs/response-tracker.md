@@ -1,10 +1,11 @@
 # Response tracker
 
-The response tracker validates and appends seven event types to `response-events.jsonl`:
+The response tracker validates and appends nine event types to `response-events.jsonl`:
 `fault_injected`, `anomaly_detected`, `plan_selected`, `action_executed`,
-`telemetry_unavailable`, `telemetry_restored`, and `recovered`. The runner writes fault
-and recovery events; the controller writes application-response and telemetry-state
-events through the same schema without directly calling runner code.
+`telemetry_unavailable`, `telemetry_restored`, `telemetry_invalid`,
+`telemetry_validated`, and `recovered`. The runner writes fault and recovery events; the
+controller writes application-response and telemetry-state events through the same
+schema without directly calling runner code.
 
 Each run produces `response.json` with schema version 1, source timestamps, the effective
 recovery bound, and these durations:
@@ -33,3 +34,8 @@ least ten repeats before publishing median or p90 response statistics.
 FS-3 telemetry events are preserved in the same event list but are not substituted for
 application anomaly detection. Therefore the verified sensor-outage run correctly has
 MTTD `null` while still proving that the controller entered and exited blind mode.
+
+FS-2 invalid/validated events are likewise not substituted for application anomaly
+detection. The separate `fs2-assessment.json` counts controller actions only after the
+run's own fault event and reports a false-action count only while the Docker-observed
+controller target remained healthy.

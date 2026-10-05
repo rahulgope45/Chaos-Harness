@@ -27,18 +27,35 @@ const telemetrySnapshot = (available: boolean): TelemetrySnapshot =>
   available
     ? {
         available: true,
+        valid: true,
         missingJobs: [],
         monitoredJobs: ["payment-api", "payment-worker"],
+        monitoredMetrics: ["chaos_metrics_proxy_integrity_value"],
         observedAtMs: 1000,
-        reason: "available"
+        reason: "valid",
+        issues: []
       }
     : {
         available: false,
+        valid: false,
         missingJobs: ["payment-api", "payment-worker"],
         monitoredJobs: ["payment-api", "payment-worker"],
+        monitoredMetrics: ["chaos_metrics_proxy_integrity_value"],
         observedAtMs: 1000,
-        reason: "missing_or_down_targets"
+        reason: "missing_or_down_targets",
+        issues: []
       };
+
+const invalidTelemetrySnapshot = (): TelemetrySnapshot => ({
+  available: true,
+  valid: false,
+  missingJobs: [],
+  monitoredJobs: ["payment-api", "payment-worker"],
+  monitoredMetrics: ["chaos_metrics_proxy_integrity_value"],
+  observedAtMs: 1000,
+  reason: "invalid_telemetry",
+  issues: [{ reason: "invalid_sample", metric: "chaos_metrics_proxy_integrity_value" }]
+});
 
 describe("MAPE-K controller cycle", () => {
   it("reloads policy, detects after hysteresis, plans, and verifies restart", async () => {
@@ -137,6 +154,46 @@ describe("MAPE-K controller cycle", () => {
     expect(recorded.map(({ event }) => event)).toEqual([
       "telemetry_unavailable",
       "telemetry_restored"
+    ]);
+  });
+
+  it("rejects corrupt telemetry once and never restarts a healthy Docker target", async () => {
+    let valid = false;
+    let restarts = 0;
+    const recorded: ResponseEventInput[] = [];
+    const controller = new MapekController(
+      { loadEnabled: async () => [policy], close: async () => undefined },
+      {
+        observe: async () => ({
+          service: "payment-worker",
+          running: true,
+          paused: false,
+          observedAtMs: 1000
+        }),
+        restartAndVerify: async () => {
+          restarts += 1;
+        }
+      },
+      { observe: async () => (valid ? telemetrySnapshot(true) : invalidTelemetrySnapshot()) },
+      {
+        record: async (input) => {
+          recorded.push(input);
+          return null;
+        }
+      },
+      createControllerMetrics(),
+      pino({ level: "silent" })
+    );
+
+    await controller.cycle();
+    await controller.cycle();
+    valid = true;
+    await controller.cycle();
+
+    expect(restarts).toBe(0);
+    expect(recorded.map(({ event }) => event)).toEqual([
+      "telemetry_invalid",
+      "telemetry_validated"
     ]);
   });
 });

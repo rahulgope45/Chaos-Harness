@@ -33,8 +33,13 @@ export function createControllerMetrics() {
   });
   const telemetryAlerts = new Counter({
     name: "chaos_controller_telemetry_alerts_total",
-    help: "Transitions into telemetry blind mode",
+    help: "Transitions into telemetry blind or invalid mode",
     labelNames: ["reason"] as const,
+    registers: [registry]
+  });
+  const telemetryValid = new Gauge({
+    name: "chaos_controller_telemetry_valid",
+    help: "Whether required telemetry is present, fresh, bounded, finite, and monotonic",
     registers: [registry]
   });
   return {
@@ -44,7 +49,8 @@ export function createControllerMetrics() {
     policyBlocks,
     targetRunning,
     telemetryAvailable,
-    telemetryAlerts
+    telemetryAlerts,
+    telemetryValid
   };
 }
 

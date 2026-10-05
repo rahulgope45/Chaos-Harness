@@ -16,6 +16,12 @@ export const experimentSchema = z
         inject_after_s: z.number().nonnegative()
       })
       .optional(),
+    fs2: z
+      .object({
+        mode: z.enum(["spike", "drop", "freeze", "noise", "counter_reset"]),
+        inject_after_s: z.number().nonnegative()
+      })
+      .optional(),
     fs3: z
       .object({
         action: z.literal("stop"),
@@ -76,6 +82,23 @@ export const experimentSchema = z
         message: "fs1 options are only valid for FS_1"
       });
     }
+    if (experiment.fault === "FS_2" && !experiment.fs2) {
+      context.addIssue({ code: "custom", path: ["fs2"], message: "FS_2 requires fs2 options" });
+    }
+    if (experiment.fault !== "FS_2" && experiment.fs2) {
+      context.addIssue({
+        code: "custom",
+        path: ["fs2"],
+        message: "fs2 options are only valid for FS_2"
+      });
+    }
+    if (experiment.fault === "FS_2" && experiment.target !== "metrics-proxy") {
+      context.addIssue({
+        code: "custom",
+        path: ["target"],
+        message: "FS_2 target must be metrics-proxy"
+      });
+    }
     if (experiment.fault === "FS_3" && !experiment.fs3) {
       context.addIssue({ code: "custom", path: ["fs3"], message: "FS_3 requires fs3 options" });
     }
@@ -125,6 +148,13 @@ export const experimentSchema = z
       context.addIssue({
         code: "custom",
         path: ["fs1", "inject_after_s"],
+        message: "must occur before duration_s"
+      });
+    }
+    if (experiment.fs2 && experiment.fs2.inject_after_s >= experiment.duration_s) {
+      context.addIssue({
+        code: "custom",
+        path: ["fs2", "inject_after_s"],
         message: "must occur before duration_s"
       });
     }

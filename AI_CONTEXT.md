@@ -1,6 +1,6 @@
 # AI context
 
-Last verified: 2026-10-04
+Last verified: 2026-10-05
 
 ## Product contract
 
@@ -12,27 +12,27 @@ and run ID.
 
 ## Feature status
 
-| Feature                  | Status      | Evidence                                           |
-| ------------------------ | ----------- | -------------------------------------------------- |
-| Workspace/tooling        | Complete    | lint, format, typecheck, and 2 config tests pass   |
-| Local infrastructure     | Complete    | eight Compose services healthy                     |
-| Database invariants      | Complete    | 3 live PostgreSQL rejection tests pass             |
-| Payment API              | Complete    | 5 live integration tests, race and Redis fallback  |
-| Queue, worker, sink      | Complete    | 2 live tests plus healthy container end-to-end run |
-| Observability            | Complete    | both app jobs scrape through metrics proxy         |
-| Load generator           | Complete    | run-isolated keys; 54 unit tests pass              |
-| Invariant checker I1–I6  | Complete    | delayed I6 replay evidence plus synthetic proofs   |
-| Experiment runner        | Complete    | A/A control report with I1–I6 passing              |
-| Safety layer             | Complete    | refusal/abort tests, live dry-run, safe control    |
-| FS-1 injector            | Complete    | findings F-001 and F-002; delayed duplicate report |
-| Synthetic scenario S-001 | Complete    | planted non-idempotent consumer; never a finding   |
-| Response tracker         | Complete    | live MTTR 6,939 ms; honest null MTTD               |
-| MAPE-K controller        | Complete    | live MTTD 733 ms; 281/281 and I1–I6 pass           |
-| FS-4 network faults      | Complete    | two live runs; automatic toxic cleanup             |
-| FS-3 sensor disruption   | Complete    | blind/restored events; zero controller actions     |
-| Handover documentation   | Complete    | intro, startup, day history, and study guide       |
-| FS-2 telemetry faults    | Not started | —                                                  |
-| Aggregate/fix phase      | Partial     | run evidence exists; F-001 and N>=10 work pending  |
+| Feature                  | Status   | Evidence                                           |
+| ------------------------ | -------- | -------------------------------------------------- |
+| Workspace/tooling        | Complete | lint, format, typecheck, 80 unit tests pass        |
+| Local infrastructure     | Complete | eight Compose services healthy                     |
+| Database invariants      | Complete | 3 live PostgreSQL rejection tests pass             |
+| Payment API              | Complete | 5 live integration tests, race and Redis fallback  |
+| Queue, worker, sink      | Complete | 2 live tests plus healthy container end-to-end run |
+| Observability            | Complete | both app jobs scrape through metrics proxy         |
+| Load generator           | Complete | run-isolated keys; all current checks pass         |
+| Invariant checker I1–I6  | Complete | delayed I6 replay evidence plus synthetic proofs   |
+| Experiment runner        | Complete | A/A control report with I1–I6 passing              |
+| Safety layer             | Complete | refusal/abort tests, live dry-run, safe control    |
+| FS-1 injector            | Complete | findings F-001 and F-002; delayed duplicate report |
+| Synthetic scenario S-001 | Complete | planted non-idempotent consumer; never a finding   |
+| Response tracker         | Complete | live MTTR 6,939 ms; honest null MTTD               |
+| MAPE-K controller        | Complete | live MTTD 733 ms; 281/281 and I1–I6 pass           |
+| FS-4 network faults      | Complete | two live runs; automatic toxic cleanup             |
+| FS-3 sensor disruption   | Complete | blind/restored events; zero controller actions     |
+| FS-2 telemetry faults    | Complete | five modes detected; zero false actions            |
+| Handover documentation   | Complete | intro, startup, day history, and study guide       |
+| Aggregate/fix phase      | Partial  | run evidence exists; F-001 and N>=10 work pending  |
 
 ## Verified local environment
 
@@ -73,6 +73,10 @@ silently force the downgrade.
   timeout, and reset-peer toxics; it does not claim true packet loss.
 - Missing proxy-backed telemetry enters blind mode and emits an alert. No destructive
   action is inferred from absence; Docker state remains the independent fallback.
+- Present telemetry is rejected when required series are missing, samples are
+  non-finite/out of bounds/stale, or newer counters decrease unexpectedly. FS-2 uses an
+  authenticated proxy control endpoint, registers cleanup first, and measures false
+  actions only while Docker confirms the worker stayed healthy.
 - No LICENSE is required yet.
 
 ## Database layer
@@ -110,7 +114,8 @@ delivered to the containerized sink on `127.0.0.1:3002`.
 The API exports request count and duration histogram metrics. The worker exports
 completed/failed job counters, job duration, and live queue depth. Prometheus scrapes
 both through `services/metrics-proxy` and loads recording rules for error rate, p95
-latency, and throughput. Live verification returned `up=1` for both proxy-backed jobs.
+latency, and throughput. The proxy adds source-time, scrape-counter, and fixed-value
+integrity canaries. Live verification returned `up=1` for both proxy-backed jobs.
 
 ## Baseline load
 
@@ -179,9 +184,9 @@ now unique per run, and I6 observes delayed duplicates independently of I5's dra
 ## Response tracker
 
 The runner/controller append validated fault, anomaly, plan, action, telemetry-blind,
-telemetry-restored, and recovery events to a per-run JSONL stream. `response.json`
-records schema version 1, effective recovery bounds, timestamps, MTTD, MTTR, and
-intermediate durations. Run
+telemetry-restored, telemetry-invalid, telemetry-validated, and recovery events to a
+per-run JSONL stream. `response.json` records schema version 1, effective recovery
+bounds, timestamps, MTTD, MTTR, and intermediate durations. Run
 `kill-worker-mid-batch-2026-10-04T04-19-35-332Z-791c2def` measured an unhealed MTTR of
 6,939 ms with 394/394 operations and I1–I6 passing. MTTD is `null` because no controller
 was running; this is intentional and prevents an invented detection claim.
@@ -195,6 +200,28 @@ controller response events through the shared file protocol. Run
 `kill-worker-with-controller-2026-10-04T04-38-33-079Z-6548b9dd` recorded MTTD 733 ms,
 MTTR 8,581 ms, 281/281 successful operations, and I1–I6 passing. These are single-run
 functional measurements, not Day 17 aggregate statistics.
+
+## FS-2 telemetry corruption
+
+The metrics proxy has an authenticated local control surface with five allowlisted
+modes: spike, drop, freeze, noise, and counter reset. Normal state is `none`; the runner
+requires that state and valid integrity canaries during preflight and registers cleanup
+before changing it. Application containers are not mutated by FS-2.
+
+The controller validates required series, finite numbers, conservative bounds, source
+freshness, and counter monotonicity on newer samples. Invalid telemetry emits one
+`telemetry_invalid` event and uses Docker as an independent fallback; valid telemetry
+after revert emits `telemetry_validated`. The runner monitors worker Docker health and
+writes `fs2-assessment.json` with the action and false-action counts.
+
+Runs `telemetry-spike-guard-2026-10-05T01-49-39-559Z-2497ff69`,
+`telemetry-drop-guard-2026-10-05T01-50-41-396Z-3d4ba237`,
+`telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742`,
+`telemetry-noise-guard-2026-10-05T01-51-46-889Z-87bc668b`, and
+`telemetry-counter-reset-guard-2026-10-05T01-52-15-989Z-1011ae07` all detected their
+intended issue, kept the worker healthy, measured zero false actions, completed every
+scheduled operation, and passed I1-I6. These are deliberate fault injections and five
+single-run functional proofs, not genuine findings or aggregate performance claims.
 
 ## FS-3 sensor disruption
 
@@ -234,8 +261,9 @@ revert.
 
 ## Next implementation
 
-Implement Day 16 FS-2 telemetry corruption through the metrics proxy, including spike,
-drop, freeze/stale, noise, and counter-reset modes plus false-action measurement.
+Implement Day 17 multi-run orchestration and aggregate median/p90/min/max response
+statistics. Do not publish aggregate claims until at least ten runs per selected
+experiment are preserved.
 
 ## Handover documents
 

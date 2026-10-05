@@ -1,0 +1,32 @@
+{
+  "mode": "drop",
+  "telemetry_invalid_detected": true,
+  "telemetry_validated_after_revert": true,
+  "detected_issues": [
+    {
+      "reason": "missing_required_series",
+      "metric": "chaos_metrics_proxy_source_timestamp_seconds"
+    },
+    {
+      "reason": "missing_required_series",
+      "metric": "chaos_metrics_proxy_scrapes_total"
+    },
+    {
+      "reason": "missing_required_series",
+      "metric": "chaos_metrics_proxy_integrity_value"
+    },
+    {
+      "reason": "missing_required_series",
+      "metric": "payment_worker_queue_depth"
+    },
+    {
+      "reason": "missing_required_series",
+      "metric": "payment_worker_jobs_completed_total"
+    }
+  ],
+  "controller_target": "payment-worker",
+  "controller_target_healthy_throughout": true,
+  "action_count": 0,
+  "false_action_count": 0,
+  "passed": true
+}

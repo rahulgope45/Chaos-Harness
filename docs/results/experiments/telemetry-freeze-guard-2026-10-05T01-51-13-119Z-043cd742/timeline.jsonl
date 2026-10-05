@@ -1,0 +1,9 @@
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","phase":"preflight","at":"2026-10-05T01:51:13.124Z"}
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","phase":"baseline","at":"2026-10-05T01:51:14.546Z"}
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","phase":"inject","at":"2026-10-05T01:51:14.561Z"}
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","phase":"observe","at":"2026-10-05T01:51:14.561Z"}
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","event":"fault_injected","fault":"FS_2","action":"freeze","target":"metrics-proxy","at":"2026-10-05T01:51:16.585Z"}
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","phase":"revert","at":"2026-10-05T01:51:38.504Z"}
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","phase":"recovery_wait","at":"2026-10-05T01:51:38.509Z"}
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","phase":"verify","at":"2026-10-05T01:51:44.688Z"}
+{"run_id":"telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742","phase":"report","at":"2026-10-05T01:51:44.963Z"}

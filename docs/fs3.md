@@ -2,8 +2,9 @@
 
 ## Sensor path
 
-`services/metrics-proxy` is a pass-through sensor between Prometheus and the current
-application metric endpoints:
+`services/metrics-proxy` is the sensor between Prometheus and the current application
+metric endpoints. In normal mode it passes application samples through and appends the
+integrity canaries described in ADR-0009:
 
 | Prometheus job   | Proxy route               | Upstream                      |
 | ---------------- | ------------------------- | ----------------------------- |

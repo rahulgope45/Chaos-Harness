@@ -1,8 +1,8 @@
 # Current startup runbook
 
 This runbook covers only components that exist in the repository now. It does not
-describe the planned FS-2 corruption modes, aggregate report generator, transactional
-outbox, or any other future component.
+describe the planned aggregate report generator, transactional outbox, or any other
+future component.
 
 Commands assume Windows PowerShell from `E:\Projects\chaos-harness`.
 
@@ -72,7 +72,7 @@ The expected result is eight running, healthy services.
 | ----------------- | ------------------------------------------ | ----------------------------------------- | ---------------------------------------------------------- |
 | PostgreSQL        | Compose `postgres`                         | `127.0.0.1:5432`                          | Source of truth, ledger, sink records, controller policies |
 | Redis             | Compose `redis`                            | `127.0.0.1:6380`                          | API fast path and BullMQ storage                           |
-| Metrics proxy     | Compose `metrics-proxy`                    | `http://127.0.0.1:3003`                   | Pass-through Prometheus sensor and FS-3 target             |
+| Metrics proxy     | Compose `metrics-proxy`                    | `http://127.0.0.1:3003`                   | Prometheus sensor plus FS-2/FS-3 target                    |
 | Prometheus        | Compose `prometheus`                       | `http://127.0.0.1:19090`                  | Metrics scraping and recording rules                       |
 | Toxiproxy         | Compose `toxiproxy`                        | API at `http://127.0.0.1:8474`            | FS-4 dependency-path faults                                |
 | Webhook sink      | Compose `webhook-sink`                     | `http://127.0.0.1:3002`                   | Persists attempted webhook deliveries                      |
@@ -116,6 +116,8 @@ Invoke-RestMethod http://127.0.0.1:3002/healthz
 Invoke-RestMethod http://127.0.0.1:3003/healthz
 curl.exe -sS http://127.0.0.1:3003/metrics/payment-api
 curl.exe -sS http://127.0.0.1:3003/metrics/payment-worker
+$env:METRICS_PROXY_CHAOS_TOKEN='local-chaos-control-token'
+curl.exe -sS -H "Authorization: Bearer $env:METRICS_PROXY_CHAOS_TOKEN" http://127.0.0.1:3003/chaos/state
 curl.exe -sS http://127.0.0.1:8474/proxies
 ```
 
@@ -130,6 +132,7 @@ Prometheus checks:
 - Proxy worker metrics: `http://127.0.0.1:3003/metrics/payment-worker`
 - Direct endpoints remain available for diagnosis at ports 3000 and 3001, but Prometheus
   uses the proxy routes.
+- The proxy chaos state must be `none` outside an active FS-2 run.
 
 ## Send one smoke payment
 
@@ -234,6 +237,24 @@ npm run start --workspace @chaos/controller
 
 Stop a manual controller with Ctrl+C. Do not run a manual controller at the same time as
 a controller-enabled experiment unless you intentionally want two control loops.
+
+### Current FS-2 telemetry experiments
+
+Run each configuration first with `--dry-run`, then without it:
+
+```powershell
+npm run start --workspace @chaos/runner -- experiments/telemetry-spike-guard.yml --dry-run
+npm run start --workspace @chaos/runner -- experiments/telemetry-spike-guard.yml
+npm run start --workspace @chaos/runner -- experiments/telemetry-drop-guard.yml
+npm run start --workspace @chaos/runner -- experiments/telemetry-freeze-guard.yml
+npm run start --workspace @chaos/runner -- experiments/telemetry-noise-guard.yml
+npm run start --workspace @chaos/runner -- experiments/telemetry-counter-reset-guard.yml
+```
+
+Each successful run writes `fs2-assessment.json`. Confirm `passed: true`,
+`controller_target_healthy_throughout: true`, `false_action_count: 0`, and proxy mode
+`none` afterward. These modes deliberately corrupt telemetry; they are not genuine bug
+findings.
 
 ### Current FS-3 sensor experiment
 

@@ -24,7 +24,7 @@ remaining Day 1 work and implemented Days 2-14 were intentionally accelerated on
 |       13 | Rule-based MAPE-K controller             | Complete                                         |
 |       14 | FS-4 network faults                      | Complete                                         |
 |       15 | Metrics proxy and FS-3                   | Complete                                         |
-|       16 | FS-2 telemetry corruption                | Not started                                      |
+|       16 | FS-2 telemetry corruption                | Complete                                         |
 |       17 | Multi-run aggregation                    | Not started                                      |
 |       18 | Full bug-hunt matrix                     | Partially pre-satisfied; full matrix pending     |
 |       19 | Fix and prove                            | Partially pre-satisfied; F-001 fix pending       |
@@ -292,16 +292,35 @@ completed 214/214 operations with 46 ms client p95 and I1-I6 passing. It emitted
 `telemetry_unavailable` and `telemetry_restored`, with zero anomaly, plan, or action
 events. The runner measured 14,932 ms to restored telemetry plus the recovery bound.
 
-## Day 16: FS-2 telemetry corruption — pending
+## Day 16: FS-2 telemetry corruption
 
-**Planned:** Add spike, dropped-series/field, frozen/stale, noise, and counter-reset
-modes. Validate bounds, monotonic counters, and staleness, and corroborate telemetry with
-Docker state before destructive action.
+**What:** Added authenticated metrics-proxy spike, drop, freeze, noise, and counter-reset
+modes; proxy integrity canaries; controller telemetry validation; guarded/validated
+events; and per-run false-action assessment.
 
-**Why next:** Bad data can make an automated controller actively harmful. The required
-result is a measured false-action count for every corruption mode.
+**Why:** Present data is not automatically trustworthy. A controller must distinguish
+missing series, impossible bounds, stale samples, non-finite values, and unexplained
+counter decreases before using telemetry for a destructive decision.
 
-## Day 17: Multi-run orchestration and reports — pending
+**How:** The runner requires valid normal telemetry, registers reset-to-`none` before
+injection, and monitors the worker's Docker state independently. The controller rejects
+bad samples and falls back to Docker. A run passes only when it detects corruption after
+its own fault timestamp, validates after revert, observes a healthy worker throughout,
+counts zero actions/false actions, and passes I1-I6.
+
+**Evidence:** Five real runs passed:
+
+- spike: `telemetry-spike-guard-2026-10-05T01-49-39-559Z-2497ff69`;
+- drop: `telemetry-drop-guard-2026-10-05T01-50-41-396Z-3d4ba237`;
+- freeze: `telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742`;
+- noise: `telemetry-noise-guard-2026-10-05T01-51-46-889Z-87bc668b`;
+- counter reset: `telemetry-counter-reset-guard-2026-10-05T01-52-15-989Z-1011ae07`.
+
+Every scheduled operation succeeded, each worker stayed healthy, every false-action
+count was zero, and I1-I6 passed. These are deliberate fault injections, not genuine
+defect findings.
+
+## Day 17: Multi-run orchestration and reports — pending, next
 
 **Planned:** Run each experiment at least ten times with seeds and varied injection
 offsets. Aggregate MTTD/MTTR median, p90, min, max, and invariant pass rates into JSON and

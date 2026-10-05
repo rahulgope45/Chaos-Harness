@@ -51,6 +51,31 @@ export const responseEventSchema = z.discriminatedUnion("event", [
   }),
   z.object({
     ...eventBase,
+    event: z.literal("telemetry_invalid"),
+    mode: z.literal("guarded"),
+    fallback: z.literal("docker"),
+    issues: z
+      .array(
+        z.object({
+          reason: z.enum([
+            "missing_required_series",
+            "out_of_bounds",
+            "stale_sample",
+            "counter_reset",
+            "invalid_sample"
+          ]),
+          metric: z.string().min(1)
+        })
+      )
+      .min(1)
+  }),
+  z.object({
+    ...eventBase,
+    event: z.literal("telemetry_validated"),
+    monitored_metrics: z.array(z.string().min(1)).min(1)
+  }),
+  z.object({
+    ...eventBase,
     event: z.literal("recovered"),
     observed_error_rate: z.number().min(0),
     max_error_rate: z.number().min(0),

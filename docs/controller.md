@@ -2,8 +2,8 @@
 
 `harness/controller` implements a minimal rule-based control loop:
 
-- Monitor: proxy-backed Prometheus scrape availability plus Docker inspect for each
-  enabled policy target.
+- Monitor: proxy-backed Prometheus availability and integrity plus Docker inspect for
+  each enabled policy target.
 - Analyze: immutable policy evaluation with consecutive-breach hysteresis.
 - Plan: a PostgreSQL policy chooses restart, subject to cooldown and restart-window
   limits.
@@ -20,10 +20,17 @@ single transition alert, takes no action based on the missing metrics, and uses 
 state as the independent fallback for the current restart policy. Metrics include
 telemetry availability and blind-mode transition count.
 
+Present telemetry is also validated for required series, finite values, conservative
+bounds, source freshness, and monotonic counters on newer Prometheus samples. Invalid
+data enters guarded mode, emits one `telemetry_invalid` transition, and continues to use
+Docker state as the independent authority for the current restart policy. Valid samples
+after cleanup emit `telemetry_validated`. Metrics expose both availability and validity.
+
 Controller-enabled experiments launch it as a separate Node process. It writes
-`anomaly_detected`, `plan_selected`, `action_executed`, `telemetry_unavailable`, and
-`telemetry_restored` to the same validated JSONL protocol that the runner reads; there
-are no direct process calls between their control loops.
+`anomaly_detected`, `plan_selected`, `action_executed`, `telemetry_unavailable`,
+`telemetry_restored`, `telemetry_invalid`, and `telemetry_validated` to the same
+validated JSONL protocol that the runner reads; there are no direct process calls
+between their control loops.
 
 ## Verified experiment
 
@@ -49,3 +56,11 @@ FS-3 run `sensor-outage-blind-mode-2026-10-04T05-26-35-890Z-e0f0d4a8` stopped th
 metrics proxy while the payment services remained healthy. The controller emitted
 `telemetry_unavailable` and later `telemetry_restored`, but emitted no application
 anomaly, plan, or action. The run completed 214/214 operations with I1-I6 passing.
+
+## Verified corrupt-telemetry guard
+
+The five Day 16 FS-2 runs detected bounds, required-series, freshness, finite-value, and
+monotonicity violations respectively. In every run the independently observed worker
+remained healthy, the controller emitted no plan/action, and `false_action_count` was
+zero. All scheduled load operations and I1-I6 passed. See `docs/fs2.md` for run IDs and
+mode-by-mode evidence.

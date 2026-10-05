@@ -10,11 +10,13 @@ successful run preserves the validated config, phase timeline, Prometheus baseli
 load journal and summary, invariant output, response event stream, response timing, and
 final JSON report.
 
-`fault: none`, FS-1, FS-3, and FS-4 are executable. FS-1 supports kill, stop, pause, and
-restart behind the Docker safety layer. FS-3 can stop only the labeled metrics proxy and
-requires proxy-backed Prometheus targets to recover. FS-4 accepts only the three
-statically configured Toxiproxy paths and supports latency with jitter, timeout, and
-reset-peer toxics. FS-2 remains refused until its injector is installed.
+`fault: none` and FS-1 through FS-4 are executable. FS-1 supports kill, stop, pause, and
+restart behind the Docker safety layer. FS-2 uses the authenticated metrics-proxy
+control surface for spike, drop, freeze, noise, and counter-reset modes and always
+registers `mode: none` cleanup before mutation. FS-3 can stop only the labeled metrics
+proxy and requires proxy-backed Prometheus targets to recover. FS-4 accepts only the
+three statically configured Toxiproxy paths and supports latency with jitter, timeout,
+and reset-peer toxics.
 
 Experiments may set `duplicate_observation_s` independently of
 `invariant_drain_timeout_s`. The former watches for delayed duplicate transport events;
@@ -64,3 +66,11 @@ FS-3 run `sensor-outage-blind-mode-2026-10-04T05-26-35-890Z-e0f0d4a8` stopped an
 restored the metrics proxy. The controller emitted one blind-mode alert and a restoration
 event, with no anomaly, plan, or action event. The workload completed 214/214 operations
 and I1-I6 passed. Recovery was not declared until both proxy-backed scrape jobs returned.
+
+## Verified corrupt telemetry
+
+Five FS-2 runs exercised spike, dropped series, frozen/stale values, non-finite noise,
+and unexplained counter resets. Each run preserved `fs2-assessment.json`, detected the
+intended corruption after its own fault timestamp, observed the worker healthy
+throughout, measured zero false actions, restored valid telemetry, completed every load
+operation, and passed I1-I6. Exact run IDs are in `docs/fs2.md`.

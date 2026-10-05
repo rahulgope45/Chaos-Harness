@@ -32,5 +32,5 @@ declaring experiment recovery.
 Sensor loss becomes an explicit controller state rather than an application-failure
 signal. Alert events are transition-based, so a long outage does not flood the event
 stream. Docker is an intentional independent fallback for the current container-running
-policy. Day 16 must add validation for present-but-corrupted telemetry; blind mode alone
-does not detect plausible bad values.
+policy. Blind mode alone does not detect plausible but corrupted values; ADR-0009
+defines and verifies the additional present-data guard.

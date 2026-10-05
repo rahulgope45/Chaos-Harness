@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "run_id": "telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742",
+  "definitions": {
+    "mttd": "anomaly_detected.at - fault_injected.at",
+    "mttr": "recovered.at - fault_injected.at"
+  },
+  "recovery_bound": {
+    "max_error_rate": 0.02,
+    "consecutive_healthy": 2,
+    "sample_interval_ms": 1000
+  },
+  "timestamps": {
+    "fault_injected_at": "2026-10-05T01:51:16.585Z",
+    "anomaly_detected_at": null,
+    "plan_selected_at": null,
+    "action_executed_at": null,
+    "recovered_at": "2026-10-05T01:51:44.687Z"
+  },
+  "durations_ms": {
+    "mttd": null,
+    "mttr": 28102,
+    "detection_to_plan": null,
+    "plan_to_action": null,
+    "action_to_recovery": null
+  },
+  "events": [
+    {
+      "run_id": "telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742",
+      "at": "2026-10-05T01:51:16.585Z",
+      "source": "runner",
+      "event": "fault_injected",
+      "fault": "FS_2",
+      "action": "freeze",
+      "target": "metrics-proxy"
+    },
+    {
+      "run_id": "telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742",
+      "at": "2026-10-05T01:51:32.696Z",
+      "source": "controller",
+      "event": "telemetry_invalid",
+      "mode": "guarded",
+      "fallback": "docker",
+      "issues": [
+        {
+          "reason": "stale_sample",
+          "metric": "chaos_metrics_proxy_source_timestamp_seconds"
+        }
+      ]
+    },
+    {
+      "run_id": "telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742",
+      "at": "2026-10-05T01:51:43.190Z",
+      "source": "controller",
+      "event": "telemetry_validated",
+      "monitored_metrics": [
+        "chaos_metrics_proxy_source_timestamp_seconds",
+        "chaos_metrics_proxy_scrapes_total",
+        "chaos_metrics_proxy_integrity_value",
+        "payment_worker_queue_depth",
+        "payment_worker_jobs_completed_total"
+      ]
+    },
+    {
+      "run_id": "telemetry-freeze-guard-2026-10-05T01-51-13-119Z-043cd742",
+      "at": "2026-10-05T01:51:44.687Z",
+      "source": "runner",
+      "event": "recovered",
+      "observed_error_rate": 0,
+      "max_error_rate": 0.02,
+      "consecutive_healthy": 2
+    }
+  ]
+}

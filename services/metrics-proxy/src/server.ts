@@ -9,6 +9,7 @@ const app = createMetricsProxyApp({
     paymentApi: config.PAYMENT_API_METRICS_URL,
     paymentWorker: config.PAYMENT_WORKER_METRICS_URL
   },
+  chaosToken: config.METRICS_PROXY_CHAOS_TOKEN,
   logger
 });
 
