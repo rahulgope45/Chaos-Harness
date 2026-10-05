@@ -38,6 +38,7 @@ commit/tag are pushed and GitHub reports them.
 | Multi-run aggregation    | Complete | Day 17 130/130 plus Day 18 30/30 gap matrix         |
 | Day 18 bug hunt          | Complete | 30/30 added peak scenarios passed I1-I6             |
 | Handover documentation   | Complete | intro, startup, day history, and study guide        |
+| Ownership curriculum     | Complete | challenges, question bank, rebuild labs, checklist  |
 | Finding fix phase        | Complete | F-001/F-002 fixes regression-covered                |
 | Day 20 delivery          | Complete | CI integration/smoke, demo, extension/security docs |
 | Day 21 release polish    | Complete | final README, recording script, resume bullets, v1  |
@@ -368,9 +369,15 @@ No planned v1 feature remains. Future work is optional maintenance: push the rel
 observe hosted CI, capture the scripted video, revisit Prisma advisories, or begin a
 separately scoped v2. Do not add these as completed evidence until they actually occur.
 
+The post-release ownership curriculum adds no runtime feature and does not move the
+existing `v1.0.0` tag. It consolidates the hardest design decisions, deep technical
+questions, rebuild labs, incident drills, and a capability-based final checklist.
+
 ## Handover documents
 
 `docs/handover/` contains four current-state documents: the project introduction,
 complete startup/runbook instructions for implemented components, an evidence-backed
 Day 1-21 status history, and a concept-oriented study/debugging guide. Keep these files
 current when component commands, milestone status, or architecture boundaries change.
+`docs/ownership-guide.md` routes the post-release learning path through the consolidated
+challenge narrative, question bank, rebuild labs, and ownership checklist.

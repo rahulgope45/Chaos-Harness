@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Documentation
+
+- Added an application-ownership curriculum covering the hardest design challenges,
+  deep interview and debugging questions, progressive rebuild labs, incident drills, and
+  an evidence-based ownership checklist.
+
 ## 1.0.0 — 2026-10-05
 
 First feature-complete local release.

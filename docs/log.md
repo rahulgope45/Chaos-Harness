@@ -337,3 +337,16 @@
 - The release commit is tagged locally as annotated tag `v1.0.0`. Pushing the commit/tag,
   observing hosted CI, and capturing the scripted video remain external follow-ups and
   are not claimed as completed evidence.
+
+## 2026-10-05 — Post-v1 ownership curriculum
+
+- Added one routed ownership guide and a consolidated account of the eight hardest
+  engineering challenges, their failure modes, improvements, and remaining nuances.
+- Added 46 architecture, correctness, delivery, evidence, safety, controller, statistics,
+  debugging, and extension questions with strong-answer and follow-up prompts.
+- Added 13 progressive rebuild labs plus a capstone so the core mechanisms can be learned
+  by reconstruction rather than memorization.
+- Added an observable ownership checklist, five tabletop incident drills, a seven-session
+  study path, and a final ownership exam.
+- Linked the curriculum from the README and all relevant handover documents. This is a
+  post-release documentation milestone; the existing `v1.0.0` tag remains unchanged.

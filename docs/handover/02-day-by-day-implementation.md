@@ -450,3 +450,10 @@ and the README explicitly states that hosted CI/video are not yet claimed.
 formatting, strict typecheck, Compose/YAML validation, package version 1.0.0, clean fault
 surfaces, and the preserved final smoke run
 `ci-smoke-worker-kill-2026-10-05T04-24-22-895Z-9fce2893`.
+
+## Post-plan ownership handover
+
+After the Day 21 release, the documentation was extended with a consolidated challenge
+narrative, deep interview/debugging questions, rebuild labs, incident drills, and an
+evidence-based ownership checklist. This is a learning and handover milestone, not a new
+runtime day or a change to the v1.0.0 evidence set.

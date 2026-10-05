@@ -320,3 +320,7 @@ Use this order so symptoms are narrowed from infrastructure to business state.
 After each topic, reproduce one current test or experiment and explain its artifact chain
 without looking at the implementation. That is the fastest way to become able to debug
 the project rather than only describe it.
+
+Continue with the [application ownership guide](../ownership-guide.md). It connects this
+concept list to the consolidated challenge narrative, a deep question bank, progressive
+rebuild labs, incident drills, and a final capability checklist.

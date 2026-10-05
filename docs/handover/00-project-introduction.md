@@ -168,5 +168,10 @@ Read next:
 - `01-current-startup-runbook.md` to run the current system.
 - `02-day-by-day-implementation.md` for implemented and remaining milestones.
 - `03-study-guide.md` for the concepts and debugging path.
+- `../ownership-guide.md` for the complete capability-based ownership path.
+- `../challenges-and-improvements.md` for the hardest problems and their improvements.
+- `../interview-questions.md` for deep design and debugging questions.
+- `../rebuild-labs.md` and `../ownership-checklist.md` for hands-on practice and proof of
+  ownership.
 - `../demo-script.md` for the reproducible recording walkthrough.
 - `../resume-bullets.md` for evidence-backed portfolio language.
