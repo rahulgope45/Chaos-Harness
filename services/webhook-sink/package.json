@@ -13,10 +13,10 @@
   "dependencies": {
     "@chaos/config": "0.0.0",
     "@chaos/database": "0.0.0",
-    "express": "5.2.1",
+    "express": "5.3.0",
     "pino": "10.4.0",
     "pino-http": "11.0.0",
-    "zod": "4.6.5"
+    "zod": "4.6.7"
   },
   "devDependencies": {
     "@types/express": "5.0.6",
